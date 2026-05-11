@@ -1,0 +1,108 @@
+import type { Listing } from "@/types/listing";
+
+export const homepageListings: Listing[] = [
+  {
+    id: "lf-001",
+    title: "Crni ruksak sa laptopom",
+    description:
+      "Nestao u tramvaju na liniji 3, u džepu je bio USB ključ i notes.",
+    category: "Torbe",
+    status: "lost",
+    location: "Centar, Sarajevo",
+    date: "10.05.2026",
+    image: "/file.svg",
+    hasPotentialMatch: true,
+    type: "lost",
+  },
+  {
+    id: "lf-002",
+    title: "Pronađen novčanik, smeđa koža",
+    description:
+      "Našao/la sam ga u blizini tramvajske stanice, unutra je studentska kartica.",
+    category: "Lični predmeti",
+    status: "found",
+    location: "Marijin Dvor, Sarajevo",
+    date: "09.05.2026",
+    image: "/file.svg",
+    hasPotentialMatch: false,
+    type: "found",
+  },
+  {
+    id: "lf-003",
+    title: "Ključevi sa plavim priveznicom",
+    description:
+      "Sivo-metalni ključevi, moguće izgubljeni oko parka.",
+    category: "Ključevi",
+    status: "lost",
+    location: "Park Jezero, Sarajevo",
+    date: "08.05.2026",
+    image: "/file.svg",
+    hasPotentialMatch: false,
+    type: "lost",
+  },
+  {
+    id: "lf-004",
+    title: "Pronađen mobitel, crni Android",
+    description:
+      "Telefon je pronađen u taksiju, bez maskice, ekran je blago ogreban.",
+    category: "Elektronika",
+    status: "found",
+    location: "Grbavica, Sarajevo",
+    date: "08.05.2026",
+    image: "/file.svg",
+    hasPotentialMatch: true,
+    type: "found",
+  },
+  {
+    id: "lf-005",
+    title: "Izgubljena lična dokumenta",
+    description:
+      "Lična karta i zdravstvena knjižica u providnoj futroli.",
+    category: "Dokumenti",
+    status: "lost",
+    location: "Ilidža, Sarajevo",
+    date: "07.05.2026",
+    image: "/file.svg",
+    hasPotentialMatch: true,
+    type: "lost",
+  },
+  {
+    id: "lf-006",
+    title: "Pronađene bežične slušalice",
+    description:
+      "Kutijica je bila na klupi, slušalice su bijele boje.",
+    category: "Elektronika",
+    status: "found",
+    location: "Skenderija, Sarajevo",
+    date: "07.05.2026",
+    image: "/file.svg",
+    hasPotentialMatch: false,
+    type: "found",
+  },
+  {
+    id: "lf-007",
+    title: "Ruksak vraćen vlasniku",
+    description:
+      "Predmet je preuzet nakon verifikacije kroz sistem.",
+    category: "Torbe",
+    status: "resolved",
+    location: "Otoka, Sarajevo",
+    date: "06.05.2026",
+    image: "/file.svg",
+    hasPotentialMatch: false,
+    type: "lost",
+  },
+  {
+    id: "lf-008",
+    title: "Novčanik vraćen vlasnici",
+    description:
+      "Oglas zatvoren, identitet potvrđen kroz sigurnosna pitanja.",
+    category: "Lični predmeti",
+    status: "resolved",
+    location: "Hrasno, Sarajevo",
+    date: "05.05.2026",
+    image: "/file.svg",
+    hasPotentialMatch: false,
+    type: "found",
+  },
+];
