@@ -6,7 +6,7 @@ class UserCreate(SQLModel):
     first_name: str
     last_name: str
     username: str
-    email: str
+    email: EmailStr
     password: str = Field(min_length=6, max_length=72)
 
 
@@ -15,7 +15,7 @@ class UserRead(SQLModel):
     first_name: str
     last_name: str
     username: str
-    email: str
+    email: EmailStr
     phone: str | None = None
     is_active: bool
 
