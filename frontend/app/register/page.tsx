@@ -48,7 +48,7 @@ export default function RegisterPage() {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.detail || "Registracija nije uspjela.");
+        throw new Error(data.detail[0].msg || "Registracija nije uspjela.");
       }
 
       setSuccess("Registracija je uspješna. Sada se možeš prijaviti.");
