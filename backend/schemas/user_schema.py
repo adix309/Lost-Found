@@ -7,7 +7,7 @@ class UserCreate(SQLModel):
     last_name: str
     username: str
     email: EmailStr
-    password: str = Field(min_length=6, max_length=72)
+    password: str
 
 
 class UserRead(SQLModel):
@@ -22,7 +22,7 @@ class UserRead(SQLModel):
 
 class UserLogin(SQLModel):
     username: str
-    password: str = Field(min_length=6, max_length=72)
+    password: str
 
 
 class Token(SQLModel):
