@@ -1,6 +1,8 @@
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 
+//TODO : Treba azurirat u skladu sa items tabelom
+
 export default function AddItemPage() {
   return (
     <div className="app-shell">

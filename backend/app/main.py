@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from controllers import auth_controller, user_controller
+from controllers import auth_controller, user_controller, item_controller
 
 from fastapi.middleware.cors import CORSMiddleware
 from sqlmodel import SQLModel
@@ -31,6 +31,7 @@ app.add_middleware(
 
 app.include_router(auth_controller.router, prefix="/auth", tags=["Auth"])
 app.include_router(user_controller.router, prefix="/users", tags=["Users"])
+app.include_router(item_controller.router, prefix="/items", tags=["Items"])
 
 @app.get("/")
 def root():
