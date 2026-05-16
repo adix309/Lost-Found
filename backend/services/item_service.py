@@ -32,6 +32,9 @@ def get_public_items(
     status_filter: ItemStatus = ItemStatus.active,
     item_type: ItemType | None = None,
     category: str | None = None,
+    location_name: str | None = None,
+    brand: str | None = None,
+    color: str | None = None,
     search: str | None = None,
 ) -> list[Item]:
     return item_repository.get_items(
@@ -39,6 +42,9 @@ def get_public_items(
         status=status_filter,
         item_type=item_type,
         category=category,
+        location_name=location_name,
+        brand=brand,
+        color=color,
         search=search,
     )
 

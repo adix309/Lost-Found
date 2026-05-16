@@ -35,6 +35,9 @@ def get_items(
     status_filter: ItemStatus = ItemStatus.active,
     item_type: Optional[ItemType] = None,
     category: Optional[str] = None,
+    location_name: Optional[str] = None,
+    brand: Optional[str] = None,
+    color: Optional[str] = None,
     search: Optional[str] = None,
 ):
     return item_service.get_public_items(
@@ -42,6 +45,9 @@ def get_items(
         status_filter=status_filter,
         item_type=item_type,
         category=category,
+        location_name=location_name,
+        brand=brand,
+        color=color,
         search=search,
     )
 

@@ -21,6 +21,9 @@ def get_items(
     status: Optional[ItemStatus] = None,
     item_type: Optional[ItemType] = None,
     category: Optional[str] = None,
+    location_name: Optional[str] = None,
+    brand: Optional[str] = None,
+    color: Optional[str] = None,
     search: Optional[str] = None,
 ) -> list[Item]:
     statement = select(Item)
@@ -31,15 +34,27 @@ def get_items(
     if item_type is not None:
         statement = statement.where(Item.item_type == item_type)
 
-    if category is not None:
-        statement = statement.where(Item.category == category)
+    if category is not None and category.strip():
+        statement = statement.where(Item.category.ilike(category.strip()))
 
-    if search is not None:
-        search_pattern = f"%{search}%"
+    if location_name is not None and location_name.strip():
+        statement = statement.where(Item.location_name.ilike(location_name.strip()))
+
+    if brand is not None and brand.strip():
+        statement = statement.where(Item.brand.ilike(brand.strip()))
+
+    if color is not None and color.strip():
+        statement = statement.where(Item.color.ilike(color.strip()))
+
+    if search is not None and search.strip():
+        search_pattern = f"%{search.strip()}%"
         statement = statement.where(
-            Item.title.ilike(search_pattern) |
-            Item.description.ilike(search_pattern) |
-            Item.location_name.ilike(search_pattern)
+            Item.title.ilike(search_pattern)
+            | Item.description.ilike(search_pattern)
+            | Item.category.ilike(search_pattern)
+            | Item.location_name.ilike(search_pattern)
+            | Item.brand.ilike(search_pattern)
+            | Item.color.ilike(search_pattern)
         )
 
     return list(session.exec(statement).all())
