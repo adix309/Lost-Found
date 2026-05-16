@@ -29,7 +29,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.include_router(auth_controller.router, prefix="/auth", tags=["Auth"])
+app.include_router(auth_controller.router, prefix="/auth" , tags=["Auth"])
 app.include_router(user_controller.router, prefix="/users", tags=["Users"])
 app.include_router(item_controller.router, prefix="/items", tags=["Items"])
 app.include_router(claim_controller.router, tags=["Claims"])

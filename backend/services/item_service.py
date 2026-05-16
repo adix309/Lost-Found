@@ -27,6 +27,8 @@ def create_item(
     return item_repository.create_item(session, item)
 
 
+  
+
 def get_public_items(
     session: Session,
     status_filter: ItemStatus = ItemStatus.active,
@@ -190,3 +192,7 @@ def expire_item(
     item.updated_at = datetime.utcnow()
 
     return item_repository.update_item(session, item)
+
+
+
+     
