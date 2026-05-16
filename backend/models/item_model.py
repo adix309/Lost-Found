@@ -6,6 +6,7 @@ from enum import Enum
 
 if TYPE_CHECKING:
     from models.user_model import User
+    from models.claim_model import Claim
 
 
 class ItemType(str, Enum):
@@ -27,6 +28,7 @@ class Item(SQLModel, table=True):
     user_id: int = Field(foreign_key="users.id")
 
     user: "User" = Relationship(back_populates="items")
+    claims: list["Claim"] = Relationship(back_populates="item")
 
     title: str
     description: str

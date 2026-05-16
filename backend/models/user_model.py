@@ -4,6 +4,7 @@ from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from models.item_model import Item
+    from models.claim_model import Claim
 
 
 class User(SQLModel, table=True):
@@ -12,6 +13,7 @@ class User(SQLModel, table=True):
     id: int | None = Field(default=None, primary_key=True)
 
     items: list["Item"] = Relationship(back_populates="user")
+    claims: list["Claim"] = Relationship(back_populates="user")
 
     username: str = Field(index=True, unique=True)
     first_name: str
