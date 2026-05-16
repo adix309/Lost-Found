@@ -3,8 +3,12 @@
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 
+import { useRouter } from "next/navigation";
+
+
 
 export default function AddItemPage() {
+  const router = useRouter();
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const formData = new FormData(event.currentTarget);
@@ -41,11 +45,24 @@ export default function AddItemPage() {
       hidden_unique_features: formData.get("hidden_unique_features") || null,
       status: formData.get("status") || "active",
     };
+    
 
+    //uzimamo token trenutnog usera koji je popunio formu,
+    const token = localStorage.getItem("access_token");
+
+    if (!token) {
+      alert("Moraš biti prijavljen da dodaš item.");
+      router.push("/login");
+      return;
+    }
+
+
+    //i njega saljemo ,jer zelimo da samo loginovan kroisnik moze dodavat nove stvari 
     const response = await fetch("http://127.0.0.1:8000/items", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
       },
       body: JSON.stringify(itemData),
     });
@@ -61,7 +78,7 @@ export default function AddItemPage() {
     console.log("Item dodan:", result);
 
     alert("Item je uspješno dodan.");
-    event.currentTarget.reset();
+    router.push("/AddItem");
   }
 
 

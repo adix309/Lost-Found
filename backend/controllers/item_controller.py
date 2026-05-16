@@ -26,6 +26,10 @@ def create_item(
     return item_service.create_item(session, item_data, current_user)
 
 
+
+
+
+
 @router.get(
     "",
     response_model=list[ItemRead],
@@ -133,3 +137,6 @@ def expire_item(
     current_user: User = Depends(get_current_user),
 ):
     return item_service.expire_item(session, item_id, current_user)
+
+
+ 
