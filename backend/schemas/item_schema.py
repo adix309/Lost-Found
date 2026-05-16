@@ -1,12 +1,12 @@
 from datetime import datetime
 from typing import Optional
-from pydantic import EmailStr, field_validator
+from pydantic import EmailStr, field_validator, BaseModel
 from sqlmodel import SQLModel
 
 from models.item_model import ItemType, ItemStatus
 
 
-class ItemBase(SQLModel):
+class ItemBase(BaseModel):
     title: str
     description: str
 
@@ -41,7 +41,7 @@ class ItemCreate(ItemBase):
         return value
 
 
-class ItemUpdate(SQLModel):
+class ItemUpdate(BaseModel):
     title: Optional[str] = None
     description: Optional[str] = None
 
@@ -69,7 +69,7 @@ class ItemUpdate(SQLModel):
     status: Optional[ItemStatus] = None
 
 
-class ItemRead(SQLModel):
+class ItemRead(BaseModel):
     id: int
     user_id: int
 

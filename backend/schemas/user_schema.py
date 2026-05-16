@@ -1,8 +1,8 @@
 from sqlmodel import SQLModel, Field
-from pydantic import EmailStr
+from pydantic import EmailStr, BaseModel
 
 
-class UserCreate(SQLModel):
+class UserCreate(BaseModel):
     first_name: str
     last_name: str
     username: str
@@ -10,7 +10,7 @@ class UserCreate(SQLModel):
     password: str
 
 
-class UserRead(SQLModel):
+class UserRead(BaseModel):
     id: int
     first_name: str
     last_name: str
@@ -20,17 +20,17 @@ class UserRead(SQLModel):
     is_active: bool
 
 
-class UserLogin(SQLModel):
+class UserLogin(BaseModel):
     username: str
     password: str
 
 
-class Token(SQLModel):
+class Token(BaseModel):
     access_token: str
     token_type: str
 
 
-class UserUpdate(SQLModel):
+class UserUpdate(BaseModel):
     first_name: str | None = None
     last_name: str | None = None
     username: str | None = None
