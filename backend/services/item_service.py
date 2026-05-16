@@ -27,8 +27,6 @@ def create_item(
     return item_repository.create_item(session, item)
 
 
-  
-
 def get_public_items(
     session: Session,
     status_filter: ItemStatus = ItemStatus.active,
