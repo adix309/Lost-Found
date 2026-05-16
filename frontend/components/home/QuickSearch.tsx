@@ -1,5 +1,32 @@
 import { Container } from "@/components/common/Container";
 
+//TODO (Frontend - filteri i search)
+//
+// - Ažurirati GET /items da šalje:
+//   item_type, category, location_name, brand, color, search
+//
+// - Primjer:
+//   /items?item_type=lost&category=Mobitel&location_name=Sarajevo&brand=Apple&search=iphone
+//
+// - Dodati UI:
+//   - item_type (Lost/Found)
+//   - category
+//   - location
+//   - brand
+//   - color
+//   - search input
+//
+// - Povezati filtere sa API pozivom
+//
+// - (Opcionalno)
+//   - debounce za search
+//   - reset filtera
+//   - prikaz aktivnih filtera
+//
+// - Ako nema rezultata → "Nema pronađenih itema"
+//
+// - Čuvati filtere u URL-u
+
 export function QuickSearch() {
   return (
     <section className="quick-search">
