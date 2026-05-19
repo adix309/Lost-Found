@@ -5,6 +5,7 @@ import { Container } from "@/components/common/Container";
 import { SectionHeading } from "@/components/common/SectionHeading";
 import { ListingCard } from "@/components/listings/ListingCard";
 import { homepageListings } from "@/data/homepageListings";
+//ovo treba izabcit i treba da se povuku stvari iz baze
 import type { ListingType } from "@/types/listing";
 
 const tabs: { label: string; value: ListingType }[] = [
@@ -17,7 +18,7 @@ export function FeaturedListings() {
 
   const listings = useMemo(() => {
     return homepageListings
-      .filter((listing) => listing.type === activeTab)
+      .filter((listing) => listing.item_type === activeTab)
       .slice(0, 6);
   }, [activeTab]);
 

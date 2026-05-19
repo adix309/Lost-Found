@@ -15,14 +15,14 @@ export function Hero() {
             sigurno potvrdi vlasništvo prije kontakta.
           </p>
           <div className="hero__actions">
-            <Link href="/listings/new?type=lost" className="btn btn--primary">
+            <Link href="/AddItem" className="btn btn--primary">
               Izgubio/la sam predmet
             </Link>
-            <Link href="/listings/new?type=found" className="btn btn--outline">
+            <Link href="/AddItem" className="btn btn--outline">
               Pronašao/la sam predmet
             </Link>
             <div className="hero__actions-secondary">
-              <Link href="/listings" className="btn btn--secondary">
+              <Link href="/AllItems" className="btn btn--secondary">
                 Pregledaj oglase
               </Link>
             </div>

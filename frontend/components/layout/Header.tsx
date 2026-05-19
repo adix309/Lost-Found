@@ -3,7 +3,7 @@ import { Container } from "@/components/common/Container";
 
 const navItems = [
 	{ label: "Početna", href: "/" },
-	{ label: "Oglasi", href: "/listings" },
+	{ label: "Oglasi", href: "/AllItems" },
 	{ label: "Mapa", href: "/map" },
 	{ label: "Kako funkcioniše", href: "/#kako-funkcionise" },
 ];
@@ -39,14 +39,14 @@ export function Header() {
 						Registracija
 					</Link>
 					<Link
-						href="/listings/new"
+						href="/AddItem"
 						className="btn btn--primary btn--sm"
 					>
 						Dodaj oglas
 					</Link>
 				</div>
 				<div className="site-header__mobile">
-					<Link href="/listings/new" className="btn btn--primary btn--xs">
+					<Link href="/AddItems" className="btn btn--primary btn--xs">
 						Dodaj oglas
 					</Link>
 				</div>
