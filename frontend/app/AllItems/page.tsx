@@ -37,7 +37,7 @@ export default function AllItemPage() {
     <div className="app-shell">
       <Header />
 
-      <main className="all-items-page">
+      <main className="app-main all-items-page">
         <section className="all-items-page__hero">
           <h1>Svi oglasi</h1>
           <p>Lista svih aktivnih izgubljenih i pronađenih predmeta iz baze.</p>

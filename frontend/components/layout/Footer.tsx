@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { Container } from "@/components/common/Container";
 
 export function Footer() {
@@ -14,15 +13,12 @@ export function Footer() {
           </p>
         </div>
         <div className="site-footer__links">
-          <Link href="/contact" className="site-footer__link">
-            Kontakt
-          </Link>
-          <Link href="/terms" className="site-footer__link">
-            Pravila korištenja
-          </Link>
-          <Link href="/privacy" className="site-footer__link">
-            Privatnost
-          </Link>
+          <p className="site-footer__links-title">Kontakt</p>
+          <div className="site-footer__contact">
+            <p className="site-footer__link">Email: info@lostfound.ba</p>
+            <p className="site-footer__link">Telefon: +387 33 123 456</p>
+            <p className="site-footer__link">Adresa: Zmaja od Bosne 33, Sarajevo</p>
+          </div>
         </div>
       </Container>
     </footer>

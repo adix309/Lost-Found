@@ -21,54 +21,39 @@ export function Hero() {
             <Link href="/AddItem" className="btn btn--outline">
               Pronašao/la sam predmet
             </Link>
-            <div className="hero__actions-secondary">
-              <Link href="/AllItems" className="btn btn--secondary">
-                Pregledaj oglase
-              </Link>
-            </div>
           </div>
         </div>
-        <div className="hero__panel">
-          <div className="hero__panel-header">
-            <span>Pregled sistema</span>
-            <span className="hero__pill">Live prikaz</span>
-          </div>
-          <div className="hero__grid">
-            <div className="hero__card">
-              <p className="hero__label">Mini mapa</p>
-              <div className="hero__map">
-                <span className="hero__marker hero__marker--one" />
-                <span className="hero__marker hero__marker--two" />
-                <span className="hero__marker hero__marker--three" />
-                <span className="hero__marker hero__marker--four" />
-              </div>
-              <p className="hero__note">
-                Pregled lokacija sa aktivnim oglasima.
+        <div className="hero__aside">
+          <p className="hero__eyebrow">Kako funkcioniše</p>
+          <h2 className="hero__aside-title">Jednostavan i siguran proces</h2>
+          <div className="hero__aside-grid">
+            <div className="hero__aside-card">
+              <p className="hero__aside-label">1. Objavi oglas</p>
+              <p className="hero__aside-text">
+                Kreiraj lost ili found prijavu sa jasnim detaljima i lokacijom.
               </p>
             </div>
-            <div className="hero__card">
-              <p className="hero__label">Novi oglasi</p>
-              <div className="hero__list">
-                <div className="hero__list-item">
-                  <span>Crni ruksak</span>
-                  <span className="hero__status hero__status--lost">
-                    Izgubljeno
-                  </span>
-                </div>
-                <div className="hero__list-item">
-                  <span>Pronađen novčanik</span>
-                  <span className="hero__status hero__status--found">
-                    Pronađeno
-                  </span>
-                </div>
-                <div className="hero__list-item">
-                  <span>Ključevi sa privjeskom</span>
-                  <span className="hero__status hero__status--pending">
-                    Potvrda u toku
-                  </span>
-                </div>
-              </div>
+            <div className="hero__aside-card">
+              <p className="hero__aside-label">2. Match prijedlozi</p>
+              <p className="hero__aside-text">
+                Sistem prepoznaje moguće podudarnosti i šalje ti obavijesti.
+              </p>
             </div>
+            <div className="hero__aside-card">
+              <p className="hero__aside-label">3. Verifikacija vlasništva</p>
+              <p className="hero__aside-text">
+                Sigurnosni koraci potvrđuju identitet prije razmjene kontakata.
+              </p>
+            </div>
+            <div className="hero__aside-card">
+              <p className="hero__aside-label">4. Povrat predmeta</p>
+              <p className="hero__aside-text">
+                Predmet se vraća, a oglas se zatvara kao resolved.
+              </p>
+            </div>
+          </div>
+          <div className="hero__aside-note">
+            Povjerenje i sigurnost su osnovne vrijednosti platforme.
           </div>
         </div>
       </Container>
