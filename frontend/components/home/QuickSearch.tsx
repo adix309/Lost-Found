@@ -1,4 +1,5 @@
 import { Container } from "@/components/common/Container";
+import styles from "./QuickSearch.module.css";
 
 //TODO (Frontend - filteri i search)
 //
@@ -29,10 +30,10 @@ import { Container } from "@/components/common/Container";
 
 export function QuickSearch() {
   return (
-    <section className="quick-search">
-      <Container className="quick-search__inner">
-        <form className="quick-search__form">
-          <div className="quick-search__field">
+    <section className={styles["quick-search"]}>
+      <Container className={styles["quick-search__inner"]}>
+        <form className={styles["quick-search__form"]}>
+          <div className={styles["quick-search__field"]}>
             <label className="field-label">Pretraga</label>
             <input
               type="text"
@@ -40,7 +41,7 @@ export function QuickSearch() {
               className="form-input"
             />
           </div>
-          <div className="quick-search__field">
+          <div className={styles["quick-search__field"]}>
             <label className="field-label">Tip</label>
             <select className="form-select">
               <option value="">Svi</option>
@@ -48,7 +49,7 @@ export function QuickSearch() {
               <option value="found">Pronađeno</option>
             </select>
           </div>
-          <div className="quick-search__field">
+          <div className={styles["quick-search__field"]}>
             <label className="field-label">Kategorija</label>
             <select className="form-select">
               <option value="">Sve kategorije</option>
@@ -58,7 +59,7 @@ export function QuickSearch() {
               <option value="licni">Lični predmeti</option>
             </select>
           </div>
-          <div className="quick-search__field">
+          <div className={styles["quick-search__field"]}>
             <label className="field-label">Lokacija</label>
             <input
               type="text"
@@ -66,11 +67,11 @@ export function QuickSearch() {
               className="form-input"
             />
           </div>
-          <div className="quick-search__field">
+          <div className={styles["quick-search__field"]}>
             <label className="field-label">Datum</label>
             <input type="date" className="form-input" />
           </div>
-          <div className="quick-search__actions">
+          <div className={styles["quick-search__actions"]}>
             <button type="button" className="btn btn--primary btn--block">
               Pretraži
             </button>

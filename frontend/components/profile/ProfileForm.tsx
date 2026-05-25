@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import styles from "./ProfileStyles.module.css";
 
 type UserForm = {
   first_name: string;
@@ -163,8 +164,8 @@ export function ProfileForm() {
 
   if (loading) {
     return (
-      <section className="profile-panel">
-        <h2 className="profile-panel__title">Lične informacije</h2>
+      <section className={styles["profile-panel"]}>
+        <h2 className={styles["profile-panel__title"]}>Lične informacije</h2>
         <p style={{ margin: 0, color: "var(--slate-600)" }}>
           Učitavanje profila...
         </p>
@@ -173,24 +174,24 @@ export function ProfileForm() {
   }
 
   return (
-    <section className="profile-panel">
-      <h2 className="profile-panel__title">Lične informacije</h2>
+    <section className={styles["profile-panel"]}>
+      <h2 className={styles["profile-panel__title"]}>Lične informacije</h2>
 
       {message && (
-        <div className="profile-message profile-message--success">
+        <div className={`${styles["profile-message"]} ${styles["profile-message--success"]}`}>
           {message}
         </div>
       )}
 
       {error && (
-        <div className="profile-message profile-message--error">
+        <div className={`${styles["profile-message"]} ${styles["profile-message--error"]}`}>
           {error}
         </div>
       )}
 
-      <form className="profile-form" onSubmit={handleSubmit}>
-        <div className="profile-form__row">
-          <div className="profile-form__field">
+      <form className={styles["profile-form"]} onSubmit={handleSubmit}>
+        <div className={styles["profile-form__row"]}>
+          <div className={styles["profile-form__field"]}>
             <label htmlFor="first_name" className="field-label">
               Ime
             </label>
@@ -203,7 +204,7 @@ export function ProfileForm() {
             />
           </div>
 
-          <div className="profile-form__field">
+          <div className={styles["profile-form__field"]}>
             <label htmlFor="last_name" className="field-label">
               Prezime
             </label>
@@ -217,7 +218,7 @@ export function ProfileForm() {
           </div>
         </div>
 
-        <div className="profile-form__field">
+        <div className={styles["profile-form__field"]}>
           <label htmlFor="username" className="field-label">
             Korisničko ime
           </label>
@@ -230,7 +231,7 @@ export function ProfileForm() {
           />
         </div>
 
-        <div className="profile-form__field">
+        <div className={styles["profile-form__field"]}>
           <label htmlFor="email" className="field-label">
             Email
           </label>
@@ -244,7 +245,7 @@ export function ProfileForm() {
           />
         </div>
 
-        <div className="profile-form__field">
+        <div className={styles["profile-form__field"]}>
           <label htmlFor="phone" className="field-label">
             Telefon
           </label>
@@ -258,8 +259,12 @@ export function ProfileForm() {
           />
         </div>
 
-        <div className="profile-form__actions">
-          <button className="btn btn--primary" type="submit" disabled={saving}>
+        <div className={styles["profile-form__actions"]}>
+          <button
+            type="submit"
+            className="btn btn--primary"
+            disabled={saving}
+          >
             {saving ? "Spremanje..." : "Sačuvaj promjene"}
           </button>
         </div>

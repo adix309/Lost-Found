@@ -2,13 +2,14 @@
 
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
-
-import { useRouter } from "next/navigation";
-
-
+import { useRouter, useSearchParams } from "next/navigation";
+import styles from "@/components/profile/ProfileStyles.module.css";
 
 export default function AddItemPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const selectedType = searchParams.get("type") === "found" ? "found" : "lost";
+
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const formData = new FormData(event.currentTarget);
@@ -45,7 +46,6 @@ export default function AddItemPage() {
       hidden_unique_features: formData.get("hidden_unique_features") || null,
       status: formData.get("status") || "active",
     };
-    
 
     //uzimamo token trenutnog usera koji je popunio formu,
     const token = localStorage.getItem("access_token");
@@ -56,8 +56,7 @@ export default function AddItemPage() {
       return;
     }
 
-
-    //i njega saljemo ,jer zelimo da samo loginovan kroisnik moze dodavat nove stvari 
+    //i njega saljemo ,jer zelimo da samo loginovan kroisnik moze dodavat nove stvari
     const response = await fetch("http://127.0.0.1:8000/items", {
       method: "POST",
       headers: {
@@ -78,33 +77,34 @@ export default function AddItemPage() {
     console.log("Item dodan:", result);
 
     alert("Item je uspješno dodan.");
-    router.push("/AddItem");
+    router.push("/AllItems");
   }
-
 
   return (
     <div className="app-shell">
       <Header />
 
       <main className="app-main">
-        <section className="profile-page">
+        <section className={styles["profile-page"]}>
           <div className="container">
-            <div className="profile-header">
-              <p className="profile-header__eyebrow">Novi item</p>
-              <h1 className="profile-header__title">Dodaj novi predmet</h1>
-              <p className="profile-header__description">
+            <div className={styles["profile-header"]}>
+              <p className={styles["profile-header__eyebrow"]}>Novi item</p>
+              <h1 className={styles["profile-header__title"]}>Dodaj novi predmet</h1>
+              <p className={styles["profile-header__description"]}>
                 Popuni formu za izgubljeni ili pronađeni predmet. Ova forma je
                 trenutno samo frontend prikaz i nije povezana sa backendom.
               </p>
             </div>
 
-            <section className="profile-panel">
-              <h2 className="profile-panel__title">Informacije o predmetu</h2>
-              <form className="profile-form" onSubmit={handleSubmit}>
-                <div className="profile-form__row">
-                  <div className="profile-form__field">
+            <section className={styles["profile-panel"]}>
+              <h2 className={styles["profile-panel__title"]}>
+                Informacije o predmetu
+              </h2>
+              <form className={styles["profile-form"]} onSubmit={handleSubmit}>
+                <div className={styles["profile-form__row"]}>
+                  <div className={styles["profile-form__field"]}>
                     <label htmlFor="title" className="field-label">
-                      Naziv predmeta
+                      Naziv predmeta*
                     </label>
                     <input
                       id="title"
@@ -116,15 +116,15 @@ export default function AddItemPage() {
                     />
                   </div>
 
-                  <div className="profile-form__field">
+                  <div className={styles["profile-form__field"]}>
                     <label htmlFor="item_type" className="field-label">
-                      Tip oglasa
+                      Tip oglasa*
                     </label>
                     <select
                       id="item_type"
                       name="item_type"
                       className="form-select"
-                      defaultValue="lost"
+                      defaultValue={selectedType}
                       required
                     >
                       <option value="lost">Izgubljeno</option>
@@ -133,10 +133,10 @@ export default function AddItemPage() {
                   </div>
                 </div>
 
-                <div className="profile-form__row">
-                  <div className="profile-form__field">
+                <div className={styles["profile-form__row"]}>
+                  <div className={styles["profile-form__field"]}>
                     <label htmlFor="category" className="field-label">
-                      Kategorija
+                      Kategorija*
                     </label>
                     <input
                       id="category"
@@ -148,9 +148,9 @@ export default function AddItemPage() {
                     />
                   </div>
 
-                  <div className="profile-form__field">
+                  <div className={styles["profile-form__field"]}>
                     <label htmlFor="location_name" className="field-label">
-                      Lokacija
+                      Lokacija*
                     </label>
                     <input
                       id="location_name"
@@ -163,8 +163,8 @@ export default function AddItemPage() {
                   </div>
                 </div>
 
-                <div className="profile-form__row">
-                  <div className="profile-form__field">
+                <div className={styles["profile-form__row"]}>
+                  <div className={styles["profile-form__field"]}>
                     <label htmlFor="latitude" className="field-label">
                       Latitude
                     </label>
@@ -178,7 +178,7 @@ export default function AddItemPage() {
                     />
                   </div>
 
-                  <div className="profile-form__field">
+                  <div className={styles["profile-form__field"]}>
                     <label htmlFor="longitude" className="field-label">
                       Longitude
                     </label>
@@ -193,10 +193,10 @@ export default function AddItemPage() {
                   </div>
                 </div>
 
-                <div className="profile-form__row">
-                  <div className="profile-form__field">
+                <div className={styles["profile-form__row"]}>
+                  <div className={styles["profile-form__field"]}>
                     <label htmlFor="event_date" className="field-label">
-                      Datum događaja
+                      Datum događaja*
                     </label>
                     <input
                       id="event_date"
@@ -207,7 +207,7 @@ export default function AddItemPage() {
                     />
                   </div>
 
-                  <div className="profile-form__field">
+                  <div className={styles["profile-form__field"]}>
                     <label htmlFor="status" className="field-label">
                       Status
                     </label>
@@ -224,8 +224,8 @@ export default function AddItemPage() {
                   </div>
                 </div>
 
-                <div className="profile-form__row">
-                  <div className="profile-form__field">
+                <div className={styles["profile-form__row"]}>
+                  <div className={styles["profile-form__field"]}>
                     <label htmlFor="brand" className="field-label">
                       Brend
                     </label>
@@ -238,7 +238,7 @@ export default function AddItemPage() {
                     />
                   </div>
 
-                  <div className="profile-form__field">
+                  <div className={styles["profile-form__field"]}>
                     <label htmlFor="color" className="field-label">
                       Boja
                     </label>
@@ -252,8 +252,8 @@ export default function AddItemPage() {
                   </div>
                 </div>
 
-                <div className="profile-form__row">
-                  <div className="profile-form__field">
+                <div className={styles["profile-form__row"]}>
+                  <div className={styles["profile-form__field"]}>
                     <label htmlFor="reward_amount" className="field-label">
                       Nagrada
                     </label>
@@ -268,7 +268,7 @@ export default function AddItemPage() {
                     />
                   </div>
 
-                  <div className="profile-form__field">
+                  <div className={styles["profile-form__field"]}>
                     <label htmlFor="image_url" className="field-label">
                       URL slike
                     </label>
@@ -282,8 +282,8 @@ export default function AddItemPage() {
                   </div>
                 </div>
 
-                <div className="profile-form__row">
-                  <div className="profile-form__field">
+                <div className={styles["profile-form__row"]}>
+                  <div className={styles["profile-form__field"]}>
                     <label htmlFor="contact_phone" className="field-label">
                       Kontakt telefon
                     </label>
@@ -296,7 +296,7 @@ export default function AddItemPage() {
                     />
                   </div>
 
-                  <div className="profile-form__field">
+                  <div className={styles["profile-form__field"]}>
                     <label htmlFor="contact_email" className="field-label">
                       Kontakt email
                     </label>
@@ -310,9 +310,9 @@ export default function AddItemPage() {
                   </div>
                 </div>
 
-                <div className="profile-form__field">
+                <div className={styles["profile-form__field"]}>
                   <label htmlFor="description" className="field-label">
-                    Opis predmeta
+                    Opis predmeta*
                   </label>
                   <textarea
                     id="description"
@@ -329,7 +329,7 @@ export default function AddItemPage() {
                   />
                 </div>
 
-                <div className="profile-form__field">
+                <div className={styles["profile-form__field"]}>
                   <label htmlFor="hidden_unique_features" className="field-label">
                     Skriveni unikatni detalji
                   </label>
@@ -347,7 +347,7 @@ export default function AddItemPage() {
                   />
                 </div>
 
-                <div className="profile-form__actions">
+                <div className={styles["profile-form__actions"]}>
                   <button type="submit" className="btn btn--primary">
                     Dodaj item
                   </button>
@@ -357,10 +357,6 @@ export default function AddItemPage() {
                   </button>
                 </div>
               </form>
-
-
-
-
             </section>
           </div>
         </section>

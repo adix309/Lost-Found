@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import type { Listing } from "@/types/listing";
 import { StatusBadge } from "@/components/common/StatusBadge";
@@ -8,11 +8,37 @@ import styles from "./ListingCard.module.css";
 
 export function ListingCard({ listing }: { listing: Listing }) {
   const [isOpen, setIsOpen] = useState(false);
+  const [eventDate, setEventDate] = useState(listing.event_date);
+  const [createdAt, setCreatedAt] = useState(listing.created_at);
 
   const typeLabel = listing.item_type === "lost" ? "Izgubljeno" : "Pronađeno";
 
   const imageSrc = listing.image_url || "/no-image.jpg";
   const imageAlt = listing.image_url ? listing.title : "Slika nije dodana";
+
+  const formatDateTime = (value: string) => {
+    const parsed = new Date(value);
+    if (Number.isNaN(parsed.getTime())) {
+      return value;
+    }
+
+    const date = parsed.toLocaleDateString("bs-BA", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+    });
+    const time = parsed.toLocaleTimeString("bs-BA", {
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+
+    return `${date} · ${time}`;
+  };
+
+  useEffect(() => {
+    setEventDate(formatDateTime(listing.event_date));
+    setCreatedAt(formatDateTime(listing.created_at));
+  }, [listing.event_date, listing.created_at]);
 
   return (
     <>
@@ -25,7 +51,6 @@ export function ListingCard({ listing }: { listing: Listing }) {
             height={500}
             className={styles.modalImage}
             priority
-
           />
         </div>
 
@@ -39,7 +64,7 @@ export function ListingCard({ listing }: { listing: Listing }) {
 
           <div className={styles.info}>
             <span>📍 {listing.location_name}</span>
-            <span>🗓 {listing.event_date}</span>
+            <span>🗓 {eventDate}</span>
             <span> {listing.category}</span>
           </div>
 
@@ -59,7 +84,6 @@ export function ListingCard({ listing }: { listing: Listing }) {
             <button className={styles.closeButton} onClick={() => setIsOpen(false)}>
               ×
             </button>
-
 
             <div className={styles.modalImageWrap}>
               <Image
@@ -102,7 +126,7 @@ export function ListingCard({ listing }: { listing: Listing }) {
 
                 <div>
                   <strong>Datum događaja</strong>
-                  <span>{listing.event_date}</span>
+                  <span>{eventDate}</span>
                 </div>
 
                 <div>
@@ -141,7 +165,7 @@ export function ListingCard({ listing }: { listing: Listing }) {
 
                 <div>
                   <strong>Objavljeno</strong>
-                  <span>{listing.created_at}</span>
+                  <span>{createdAt}</span>
                 </div>
               </div>
             </div>

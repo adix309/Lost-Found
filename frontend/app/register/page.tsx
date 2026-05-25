@@ -4,6 +4,7 @@ import { FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
+import styles from "@/components/profile/ProfileStyles.module.css";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
 
@@ -67,34 +68,34 @@ export default function RegisterPage() {
     <div className="app-shell">
       <Header />
       <main className="app-main">
-        <section className="profile-page">
+        <section className={styles["profile-page"]}>
           <div className="container" style={{ maxWidth: "40rem" }}>
-            <div className="profile-header">
-              <p className="profile-header__eyebrow">Registracija</p>
-              <h1 className="profile-header__title">Napravi račun</h1>
-              <p className="profile-header__description">
+            <div className={styles["profile-header"]}>
+              <p className={styles["profile-header__eyebrow"]}>Registracija</p>
+              <h1 className={styles["profile-header__title"]}>Napravi račun</h1>
+              <p className={styles["profile-header__description"]}>
                 Kreiraj korisnički nalog za prijavu izgubljenih i pronađenih predmeta.
               </p>
             </div>
 
-            <section className="profile-panel">
-              <h2 className="profile-panel__title">Register</h2>
+            <section className={styles["profile-panel"]}>
+              <h2 className={styles["profile-panel__title"]}>Register</h2>
 
               {success && (
-                <div className="profile-message profile-message--success">
+                <div className={`${styles["profile-message"]} ${styles["profile-message--success"]}`}>
                   {success}
                 </div>
               )}
 
               {error && (
-                <div className="profile-message profile-message--error">
+                <div className={`${styles["profile-message"]} ${styles["profile-message--error"]}`}>
                   {error}
                 </div>
               )}
 
-              <form className="profile-form" onSubmit={handleSubmit}>
-                <div className="profile-form__row">
-                  <div className="profile-form__field">
+              <form className={styles["profile-form"]} onSubmit={handleSubmit}>
+                <div className={styles["profile-form__row"]}>
+                  <div className={styles["profile-form__field"]}>
                     <label htmlFor="first_name" className="field-label">
                       Ime
                     </label>
@@ -107,7 +108,7 @@ export default function RegisterPage() {
                     />
                   </div>
 
-                  <div className="profile-form__field">
+                  <div className={styles["profile-form__field"]}>
                     <label htmlFor="last_name" className="field-label">
                       Prezime
                     </label>
@@ -121,7 +122,7 @@ export default function RegisterPage() {
                   </div>
                 </div>
 
-                <div className="profile-form__field">
+                <div className={styles["profile-form__field"]}>
                   <label htmlFor="username" className="field-label">
                     Korisničko ime
                   </label>
@@ -134,7 +135,7 @@ export default function RegisterPage() {
                   />
                 </div>
 
-                <div className="profile-form__field">
+                <div className={styles["profile-form__field"]}>
                   <label htmlFor="email" className="field-label">
                     Email
                   </label>
@@ -148,7 +149,7 @@ export default function RegisterPage() {
                   />
                 </div>
 
-                <div className="profile-form__field">
+                <div className={styles["profile-form__field"]}>
                   <label htmlFor="password" className="field-label">
                     Lozinka
                   </label>
@@ -162,7 +163,7 @@ export default function RegisterPage() {
                   />
                 </div>
 
-                <div className="profile-form__actions">
+                <div className={styles["profile-form__actions"]}>
                   <button type="submit" className="btn btn--primary btn--block" disabled={loading}>
                     {loading ? "Registracija..." : "Registruj se"}
                   </button>

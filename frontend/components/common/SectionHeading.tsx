@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import styles from "./SectionHeading.module.css";
 
 type SectionHeadingProps = {
   title: string;
@@ -12,14 +13,16 @@ export function SectionHeading({
   action,
 }: SectionHeadingProps) {
   return (
-    <div className="section-heading">
+    <div className={styles["section-heading"]}>
       <div>
-        <p className="section-heading__eyebrow">{title}</p>
+        <p className={styles["section-heading__eyebrow"]}>{title}</p>
         {description ? (
-          <h2 className="section-heading__title">{description}</h2>
+          <h2 className={styles["section-heading__title"]}>{description}</h2>
         ) : null}
       </div>
-      {action ? <div className="section-heading__action">{action}</div> : null}
+      {action ? (
+        <div className={styles["section-heading__action"]}>{action}</div>
+      ) : null}
     </div>
   );
 }

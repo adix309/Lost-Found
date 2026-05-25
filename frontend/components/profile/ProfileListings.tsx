@@ -1,3 +1,6 @@
+import { SectionHeading } from "@/components/common/SectionHeading";
+import styles from "./ProfileStyles.module.css";
+
 const mockListings = [
   {
     id: 1,
@@ -30,43 +33,45 @@ const mockListings = [
 
 export function ProfileListings() {
   return (
-    <section className="profile-listings">
-      <div className="section-heading">
-        <div>
-          <p className="section-heading__eyebrow">Moji oglasi</p>
-          <h2 className="section-heading__title">
-            Pregled oglasa koje si objavio
-          </h2>
-        </div>
-      </div>
+    <section className={styles["profile-listings"]}>
+      <SectionHeading
+        title="Moji oglasi"
+        description="Pregled oglasa koje si objavio"
+      />
 
-      <div className="profile-listings__grid">
+      <div className={styles["profile-listings__grid"]}>
         {mockListings.map((listing) => (
-          <article key={listing.id} className="listing-card">
+          <article key={listing.id} className={styles["profile-listing-card"]}>
             <div
-              className="listing-card__image listing-card__image--placeholder"
+              className={`${styles["profile-listing-card__image"]} ${styles["profile-listing-card__image--placeholder"]}`}
               aria-hidden="true"
             />
 
-            <div className="listing-card__content">
-              <div className="listing-card__header">
-                <h3 className="listing-card__title">{listing.title}</h3>
+            <div className={styles["profile-listing-card__content"]}>
+              <div className={styles["profile-listing-card__header"]}>
+                <h3 className={styles["profile-listing-card__title"]}>
+                  {listing.title}
+                </h3>
 
-                <span className={`status-badge status-badge--${listing.status}`}>
+                <span
+                  className={`${styles["profile-status-badge"]} ${styles[`profile-status-badge--${listing.status}`]}`}
+                >
                   {listing.status === "lost" && "Izgubljeno"}
                   {listing.status === "found" && "Pronađeno"}
                   {listing.status === "resolved" && "Resolved"}
                 </span>
               </div>
 
-              <p className="listing-card__description">{listing.description}</p>
+              <p className={styles["profile-listing-card__description"]}>
+                {listing.description}
+              </p>
 
-              <div className="listing-card__meta">
+              <div className={styles["profile-listing-card__meta"]}>
                 <span>{listing.location}</span>
                 <span>{listing.date}</span>
               </div>
 
-              <a href="#" className="listing-card__link">
+              <a href="#" className={styles["profile-listing-card__link"]}>
                 {listing.cta}
               </a>
             </div>

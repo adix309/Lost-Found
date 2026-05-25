@@ -7,7 +7,7 @@ export function Footer() {
         <div>
           <p className="site-footer__logo">Lost & Found</p>
           <p className="site-footer__description">
-            Mjesto za prijavu izgubljenih i pronađenih predmeta, sa
+            Mjesto za prijavu izgubljenih i pronađenih predmeta, s
             fokusom na sigurnost, provjeru identiteta i povjerenje između
             korisnika.
           </p>
