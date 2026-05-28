@@ -2,49 +2,15 @@
 
 import { useEffect, useState } from "react";
 import styles from "./ProfileStyles.module.css";
+import type {Listing} from "@/types/listing";
+import type {User} from "@/types/user";
 
-type UserProfile = {
-  id: number;
-  first_name?: string | null;
-  last_name?: string | null;
-  username: string;
-  email: string;
-  phone?: string | null;
-  is_active?: boolean;
-  role?: string | null;
-};
-
-type ItemStatus = "active" | "resolved" | "expired";
-type ItemType = "lost" | "found";
-
-type ProfileListing = {
-  id: number;
-  user_id: number;
-  title: string;
-  description: string;
-  item_type: ItemType;
-  category: string;
-  location_name: string;
-  latitude?: number | null;
-  longitude?: number | null;
-  event_date: string;
-  image_url?: string | null;
-  brand?: string | null;
-  color?: string | null;
-  reward_amount?: number | null;
-  contact_phone?: string | null;
-  contact_email?: string | null;
-  hidden_unique_features?: string | null;
-  status: ItemStatus;
-  created_at: string;
-  updated_at: string;
-};
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
 
 export function ProfileSummary() {
-  const [user, setUser] = useState<UserProfile | null>(null);
-  const [items, setItems] = useState<ProfileListing[]>([]);
+  const [user, setUser] = useState<User | null>(null);
+  const [items, setItems] = useState<Listing[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
