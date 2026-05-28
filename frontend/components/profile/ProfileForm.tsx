@@ -11,7 +11,25 @@ type UserForm = {
   phone: string;
 };
 
+type EditableField = keyof UserForm | null;
+
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
+
+const fieldLabels: Record<keyof UserForm, string> = {
+  first_name: "Ime",
+  last_name: "Prezime",
+  username: "Korisničko ime",
+  email: "Email",
+  phone: "Telefon",
+};
+
+const fieldPlaceholders: Record<keyof UserForm, string> = {
+  first_name: "Unesi ime",
+  last_name: "Unesi prezime",
+  username: "Unesi korisničko ime",
+  email: "Unesi email",
+  phone: "+387 61 000 000",
+};
 
 export function ProfileForm() {
   const [form, setForm] = useState<UserForm>({
@@ -22,6 +40,15 @@ export function ProfileForm() {
     phone: "",
   });
 
+  const [initialForm, setInitialForm] = useState<UserForm>({
+    first_name: "",
+    last_name: "",
+    username: "",
+    email: "",
+    phone: "",
+  });
+
+  const [editingField, setEditingField] = useState<EditableField>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState("");
@@ -57,13 +84,16 @@ export function ProfileForm() {
           throw new Error(data?.detail || "Neuspješno učitavanje profila.");
         }
 
-        setForm({
+        const fetchedForm = {
           first_name: data.first_name ?? "",
           last_name: data.last_name ?? "",
           username: data.username ?? "",
           email: data.email ?? "",
           phone: data.phone ?? "",
-        });
+        };
+
+        setForm(fetchedForm);
+        setInitialForm(fetchedForm);
       } catch (err) {
         setError(err instanceof Error ? err.message : "Došlo je do greške.");
       } finally {
@@ -74,20 +104,34 @@ export function ProfileForm() {
     fetchProfile();
   }, []);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (field: keyof UserForm, value: string) => {
     setMessage("");
     setError("");
 
-    const { name, value } = e.target;
-
     setForm((prev) => ({
       ...prev,
-      [name]: value,
+      [field]: value,
     }));
   };
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
+  const handleEdit = (field: keyof UserForm) => {
+    setMessage("");
+    setError("");
+    setEditingField(field);
+  };
+
+  const handleCancelFieldEdit = () => {
+    if (!editingField) return;
+
+    setForm((prev) => ({
+      ...prev,
+      [editingField]: initialForm[editingField],
+    }));
+
+    setEditingField(null);
+  };
+
+  const handleSubmit = async () => {
     setSaving(true);
     setMessage("");
     setError("");
@@ -146,14 +190,17 @@ export function ProfileForm() {
         throw new Error(data?.detail || "Neuspješno spremanje profila.");
       }
 
-      setForm({
+      const updatedForm = {
         first_name: data.first_name ?? payload.first_name,
         last_name: data.last_name ?? payload.last_name,
         username: data.username ?? payload.username,
         email: data.email ?? payload.email,
         phone: data.phone ?? payload.phone,
-      });
+      };
 
+      setForm(updatedForm);
+      setInitialForm(updatedForm);
+      setEditingField(null);
       setMessage("Profil je uspješno ažuriran.");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Došlo je do greške.");
@@ -161,6 +208,9 @@ export function ProfileForm() {
       setSaving(false);
     }
   };
+
+  const hasChanges =
+    JSON.stringify(form) !== JSON.stringify(initialForm);
 
   if (loading) {
     return (
@@ -189,86 +239,66 @@ export function ProfileForm() {
         </div>
       )}
 
-      <form className={styles["profile-form"]} onSubmit={handleSubmit}>
-        <div className={styles["profile-form__row"]}>
-          <div className={styles["profile-form__field"]}>
-            <label htmlFor="first_name" className="field-label">
-              Ime
-            </label>
-            <input
-              id="first_name"
-              name="first_name"
-              className="form-input"
-              value={form.first_name}
-              onChange={handleChange}
-            />
+      <div className={styles["profile-inline-list"]}>
+        {(Object.keys(form) as (keyof UserForm)[]).map((field) => (
+          <div key={field} className={styles["profile-inline-item"]}>
+            <div className={styles["profile-inline-item__top"]}>
+              <label className={styles["profile-inline-item__label"]}>
+                {fieldLabels[field]}
+              </label>
+
+              {editingField !== field && (
+                <button
+                  type="button"
+                  className={styles["profile-inline-item__icon"]}
+                  onClick={() => handleEdit(field)}
+                  aria-label={`Uredi polje ${fieldLabels[field]}`}
+                >
+                  ✏️
+                </button>
+              )}
+            </div>
+
+            {editingField === field ? (
+              <div className={styles["profile-inline-item__edit"]}>
+                <input
+                  type={field === "email" ? "email" : "text"}
+                  className="form-input"
+                  value={form[field]}
+                  onChange={(e) => handleChange(field, e.target.value)}
+                  placeholder={fieldPlaceholders[field]}
+                  autoFocus
+                />
+
+                <div className={styles["profile-inline-item__actions"]}>
+                  <button
+                    type="button"
+                    className={styles["profile-inline-item__text-btn"]}
+                    onClick={handleCancelFieldEdit}
+                  >
+                    Odustani
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <div className={styles["profile-inline-item__value"]}>
+                {form[field] || "Nije uneseno"}
+              </div>
+            )}
           </div>
+        ))}
+      </div>
 
-          <div className={styles["profile-form__field"]}>
-            <label htmlFor="last_name" className="field-label">
-              Prezime
-            </label>
-            <input
-              id="last_name"
-              name="last_name"
-              className="form-input"
-              value={form.last_name}
-              onChange={handleChange}
-            />
-          </div>
-        </div>
-
-        <div className={styles["profile-form__field"]}>
-          <label htmlFor="username" className="field-label">
-            Korisničko ime
-          </label>
-          <input
-            id="username"
-            name="username"
-            className="form-input"
-            value={form.username}
-            onChange={handleChange}
-          />
-        </div>
-
-        <div className={styles["profile-form__field"]}>
-          <label htmlFor="email" className="field-label">
-            Email
-          </label>
-          <input
-            id="email"
-            name="email"
-            type="email"
-            className="form-input"
-            value={form.email}
-            onChange={handleChange}
-          />
-        </div>
-
-        <div className={styles["profile-form__field"]}>
-          <label htmlFor="phone" className="field-label">
-            Telefon
-          </label>
-          <input
-            id="phone"
-            name="phone"
-            className="form-input"
-            value={form.phone}
-            onChange={handleChange}
-            placeholder="+387 61 000 000"
-          />
-        </div>
-
-        <div className={styles["profile-form__actions"]}>
-          <button
-            type="submit"
-            className="btn btn--primary"
-            disabled={saving}
-          >
-            {saving ? "Spremanje..." : "Sačuvaj promjene"}
-          </button>
-        </div>
-      </form>
+      <div className={styles["profile-form__actions"]}>
+        <button
+          type="button"
+          className="btn btn--primary"
+          disabled={saving || !hasChanges}
+          onClick={handleSubmit}
+        >
+          {saving ? "Spremanje..." : "Sačuvaj promjene"}
+        </button>
+      </div>
     </section>
   );
 }

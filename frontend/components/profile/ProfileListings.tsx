@@ -1,37 +1,59 @@
-import { SectionHeading } from "@/components/common/SectionHeading";
-import styles from "./ProfileStyles.module.css";
+"use client";
 
-const mockListings = [
-  {
-    id: 1,
-    title: "Izgubljen crni novčanik",
-    description: "Novčanik izgubljen u blizini SCC-a, s dokumentima i karticama.",
-    location: "Marijin Dvor, Sarajevo",
-    date: "08.05.2026",
-    status: "lost",
-    cta: "Pogledaj detalje",
-  },
-  {
-    id: 2,
-    title: "Pronađen set ključeva",
-    description: "Ključevi pronađeni na klupi u parku, sa plavim privjeskom.",
-    location: "Baščaršija, Sarajevo",
-    date: "06.05.2026",
-    status: "found",
-    cta: "Pogledaj detalje",
-  },
-  {
-    id: 3,
-    title: "Izgubljen sivi ruksak",
-    description: "Ruksak ostavljen u tramvaju, unutra su sveske i punjač.",
-    location: "Grbavica, Sarajevo",
-    date: "03.05.2026",
-    status: "resolved",
-    cta: "Pogledaj detalje",
-  },
-];
+import { useEffect, useState } from "react";
+import { SectionHeading } from "@/components/common/SectionHeading";
+import { ListingCard } from "@/components/listings/ListingCard";
+import styles from "./ProfileStyles.module.css";
+import type {Listing} from "@/types/listing";
+
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
 
 export function ProfileListings() {
+  const [listings, setListings] = useState<Listing[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    const fetchMyListings = async () => {
+      try {
+        const token = localStorage.getItem("access_token");
+
+        if (!token) {
+          localStorage.removeItem("access_token");
+          window.location.replace("/login");
+          return;
+        }
+
+        const res = await fetch(`${API_BASE_URL}/items/my`, {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        const data = await res.json().catch(() => null);
+
+        if (res.status === 401 || res.status === 403) {
+          localStorage.removeItem("access_token");
+          window.location.replace("/login");
+          return;
+        }
+
+        if (!res.ok) {
+          throw new Error(data?.detail || "Neuspješno učitavanje oglasa.");
+        }
+
+        setListings(Array.isArray(data) ? data : []);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "Došlo je do greške.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchMyListings();
+  }, []);
+
   return (
     <section className={styles["profile-listings"]}>
       <SectionHeading
@@ -39,45 +61,27 @@ export function ProfileListings() {
         description="Pregled oglasa koje si objavio"
       />
 
-      <div className={styles["profile-listings__grid"]}>
-        {mockListings.map((listing) => (
-          <article key={listing.id} className={styles["profile-listing-card"]}>
-            <div
-              className={`${styles["profile-listing-card__image"]} ${styles["profile-listing-card__image--placeholder"]}`}
-              aria-hidden="true"
-            />
+      {loading && (
+        <p className={styles["profile-listings__state"]}>Učitavanje oglasa...</p>
+      )}
 
-            <div className={styles["profile-listing-card__content"]}>
-              <div className={styles["profile-listing-card__header"]}>
-                <h3 className={styles["profile-listing-card__title"]}>
-                  {listing.title}
-                </h3>
+      {!loading && error && (
+        <p className={styles["profile-listings__state"]}>{error}</p>
+      )}
 
-                <span
-                  className={`${styles["profile-status-badge"]} ${styles[`profile-status-badge--${listing.status}`]}`}
-                >
-                  {listing.status === "lost" && "Izgubljeno"}
-                  {listing.status === "found" && "Pronađeno"}
-                  {listing.status === "resolved" && "Resolved"}
-                </span>
-              </div>
+      {!loading && !error && listings.length === 0 && (
+        <p className={styles["profile-listings__state"]}>
+          Trenutno nemaš objavljenih oglasa.
+        </p>
+      )}
 
-              <p className={styles["profile-listing-card__description"]}>
-                {listing.description}
-              </p>
-
-              <div className={styles["profile-listing-card__meta"]}>
-                <span>{listing.location}</span>
-                <span>{listing.date}</span>
-              </div>
-
-              <a href="#" className={styles["profile-listing-card__link"]}>
-                {listing.cta}
-              </a>
-            </div>
-          </article>
-        ))}
-      </div>
+      {!loading && !error && listings.length > 0 && (
+        <div className={styles["profile-listings__grid"]}>
+          {listings.map((listing) => (
+              <ListingCard key={listing.id} listing={listing} />
+          ))}
+        </div>
+      )}
     </section>
   );
 }
