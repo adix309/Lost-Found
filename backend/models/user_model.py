@@ -12,9 +12,14 @@ class User(SQLModel, table=True):
 
     id: int | None = Field(default=None, primary_key=True)
 
-    items: list["Item"] = Relationship(back_populates="user")
-    claims: list["Claim"] = Relationship(back_populates="user")
-
+    items: list["Item"] = Relationship(
+        back_populates="user",
+        cascade_delete=True,
+    )
+    claims: list["Claim"] = Relationship(
+        back_populates="user",
+        cascade_delete=True,
+    )
     username: str = Field(index=True, unique=True)
     first_name: str
     last_name: str

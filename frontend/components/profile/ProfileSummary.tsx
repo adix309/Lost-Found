@@ -78,7 +78,7 @@ export function ProfileSummary() {
   const expiredItems = items.filter((item) => item.status === "expired").length;
 
   const accountStatus = user?.is_active === false ? "Neaktivan" : "Aktivan";
-  const accountRole = user?.role || "Korisnik";
+  const accountRole = user?.is_admin === true ? "Administrator" : "Korisnik";
 
   return (
     <aside className={styles["profile-panel"]}>

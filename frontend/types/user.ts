@@ -6,7 +6,7 @@ export type User = {
   email: string;
   phone?: string | null;
   is_active?: boolean;
-  role?: string | null;
+  is_admin?: boolean;
 };
 
 

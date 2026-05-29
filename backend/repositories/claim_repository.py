@@ -34,3 +34,7 @@ def update_claim(session: Session, claim: Claim) -> Claim:
 def delete_claim(session: Session, claim: Claim) -> None:
     session.delete(claim)
     session.commit()
+
+def get_all_claims(session: Session) -> list[Claim]:
+    statement = select(Claim)
+    return list(session.exec(statement).all())

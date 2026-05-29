@@ -25,9 +25,14 @@ class Item(SQLModel, table=True):
 
     id: Optional[int] = Field(default=None, primary_key=True)
 
-    user_id: int = Field(foreign_key="users.id")
+    user_id: int = Field(foreign_key="users.id", ondelete="CASCADE")
 
     user: "User" = Relationship(back_populates="items")
+    claims: list["Claim"] = Relationship(
+        back_populates="item",
+        cascade_delete=True,
+    )
+   
     claims: list["Claim"] = Relationship(back_populates="item")
 
     title: str

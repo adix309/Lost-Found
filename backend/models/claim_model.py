@@ -20,7 +20,7 @@ class Claim(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
 
     item_id: int = Field(foreign_key="items.id")
-    user_id: int = Field(foreign_key="users.id")
+    user_id: int = Field(foreign_key="users.id", ondelete="CASCADE")
 
     message: str
     proof_description: Optional[str] = None

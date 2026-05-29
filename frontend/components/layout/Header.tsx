@@ -3,20 +3,57 @@
 import Link from "next/link";
 import { Container } from "@/components/common/Container";
 import { useEffect, useState } from "react";
+import type { User } from "@/types/user";
 
 const navItems = [
 	{ label: "Početna", href: "/" },
 	{ label: "Oglasi", href: "/AllItems" },
 	{ label: "Mapa", href: "/map" },
 ];
-
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
 export function Header() {
 	const [isLoggedIn, setIsLoggedIn] = useState(false);
+	const [currentUser, setCurrentUser] = useState<User | null>(null);
 
-	useEffect(() => {
-		const token = localStorage.getItem("access_token");
-		setIsLoggedIn(Boolean(token));
-	}, []);
+	 useEffect(() => {
+    const fetchCurrentUser = async () => {
+      try {
+        const token = localStorage.getItem("access_token");
+
+        if (!token) {
+          setIsLoggedIn(false);
+          setCurrentUser(null);
+          return;
+        }
+
+        setIsLoggedIn(true);
+
+        const res = await fetch(`${API_BASE_URL}/auth/me`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        const data = await res.json().catch(() => null);
+
+        if (!res.ok) {
+          localStorage.removeItem("access_token");
+          setIsLoggedIn(false);
+          setCurrentUser(null);
+          return;
+        }
+
+        setCurrentUser(data);
+      } catch {
+        localStorage.removeItem("access_token");
+        setIsLoggedIn(false);
+        setCurrentUser(null);
+      } finally {
+      }
+    };
+
+    fetchCurrentUser();
+  }, []);
 
 	const handleLogout = () => {
 		localStorage.removeItem("access_token");
@@ -49,9 +86,19 @@ export function Header() {
 							<Link href="/profile" className="site-header__action">
 								Moj profil
 							</Link>
-							<Link href="/AddItem" className="btn btn--primary btn--sm">
-								Dodaj oglas
-							</Link>
+							{currentUser?.is_admin ? (
+							<Link
+							href="/admin"
+							className="site-header__action site-header__action--outline"
+							>
+							Admin panel
+							</Link>) : (<Link
+							href="/AddItem"
+							className="site-header__action site-header__action--outline"
+							>
+							Dodaj oglas
+							</Link>) }
+							
 							<button
 								type="button"
 								className="site-header__action"
