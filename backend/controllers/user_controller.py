@@ -1,11 +1,9 @@
 from fastapi import APIRouter, Depends
-from sqlmodel import Session
-
 from app.database import SessionDep
 from core.dependencies import get_current_user
 from models.user_model import User
-from schemas.user_schema import UserRead, UserUpdate
-from services.user_service import update_current_user
+from schemas.user_schema import UserRead, UserUpdate, ChangePasswordRequest
+from services.user_service import update_current_user, update_current_user_password
 
 router = APIRouter()
 
@@ -16,3 +14,11 @@ def update_me(
     current_user: User = Depends(get_current_user),
 ):
     return update_current_user(session, current_user, user_data)
+
+@router.put("/me/password")
+def change_password(
+    payload: ChangePasswordRequest,
+    session: SessionDep,
+    current_user: User = Depends(get_current_user),
+):
+    return update_current_user_password(session, current_user, payload)

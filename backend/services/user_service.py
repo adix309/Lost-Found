@@ -1,9 +1,10 @@
 from fastapi import HTTPException, status
+from pydantic import BaseModel
 from sqlmodel import Session
-
+from core.security import verify_password, hash_password
 from models.user_model import User
 from repositories import user_repository
-from schemas.user_schema import UserUpdate
+from schemas.user_schema import ChangePasswordRequest, UserUpdate
 
 
 def update_current_user(
@@ -42,3 +43,18 @@ def update_current_user(
         current_user.is_active = user_data.is_active
 
     return user_repository.update(session, current_user)
+
+def update_current_user_password(
+    session: Session,
+    current_user: User,
+    payload: ChangePasswordRequest,
+):
+    if not verify_password(payload.current_password, current_user.hashed_password):
+        raise HTTPException(
+            status_code=400,
+            detail="Trenutna lozinka nije ispravna."
+        )
+    hashed_password = hash_password(payload.new_password)
+    user_repository.update_password(session, current_user, hashed_password)
+
+    return {"detail": "Lozinka uspješno promijenjena."}

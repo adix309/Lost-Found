@@ -39,3 +39,14 @@ def update(session: Session, user: User) -> User:
 def delete(session: Session, user: User) -> None:
     session.delete(user)
     session.commit()
+
+def update_password(
+    session: Session,
+    user: User,
+    hashed_password: str,
+) -> User:
+    user.hashed_password = hashed_password
+    session.add(user)
+    session.commit()
+    session.refresh(user)
+    return user

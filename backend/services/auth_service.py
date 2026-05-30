@@ -13,7 +13,7 @@ def register_user(session: Session, user_data: UserCreate) -> User:
     if existing_username:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Email is already taken"
+            detail="Username is already taken"
         )
 
     existing_email = user_repository.get_by_email(session, user_data.email)
@@ -66,3 +66,4 @@ def login_user(session: Session, login_data: UserLogin) -> dict:
         "access_token": token,
         "token_type": "bearer"
     }
+
