@@ -13,7 +13,12 @@ export function ListingCard({ listing }: { listing: Listing }) {
 
   const typeLabel = listing.item_type === "lost" ? "Izgubljeno" : "Pronađeno";
 
-  const imageSrc = listing.image_url || "/no-image.jpg";
+  const API_URL = "http://localhost:8000";
+
+  const imageSrc = listing.image_url
+    ? `${API_URL}${listing.image_url}`
+    : "/no-image.jpg";
+
   const imageAlt = listing.image_url ? listing.title : "Slika nije dodana";
 
   const formatDateTime = (value: string) => {
@@ -51,6 +56,7 @@ export function ListingCard({ listing }: { listing: Listing }) {
             height={500}
             className={styles.modalImage}
             priority
+            unoptimized
           />
         </div>
 
@@ -92,6 +98,7 @@ export function ListingCard({ listing }: { listing: Listing }) {
                 width={900}
                 height={500}
                 className={styles.modalImage}
+                unoptimized
               />
             </div>
 

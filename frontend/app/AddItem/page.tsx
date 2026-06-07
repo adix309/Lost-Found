@@ -14,6 +14,40 @@ export default function AddItemPage() {
     event.preventDefault();
     const formData = new FormData(event.currentTarget);
 
+    //uzimamo token trenutnog usera koji je popunio formu,
+    const token = localStorage.getItem("access_token");
+
+    if (!token) {
+      alert("Moraš biti prijavljen da dodaš item.");
+      router.push("/login");
+      return;
+    }
+
+    const imageFile = formData.get("image") as File;
+
+    let imageUrl: string | null = null;
+
+    const uploadFormData = new FormData();
+    uploadFormData.append("image", imageFile);
+
+    const uploadResponse = await fetch("http://127.0.0.1:8000/uploads/item-image", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      body: uploadFormData,
+    });
+
+    if (!uploadResponse.ok) {
+      const error = await uploadResponse.json();
+      console.error("Greška upload slike:", error);
+      alert("Greška prilikom uploadovanja slike.");
+      return;
+    }
+
+    const uploadResult = await uploadResponse.json();
+    imageUrl = uploadResult.image_url;
+
     const itemData = {
       title: formData.get("title"),
       description: formData.get("description"),
@@ -33,7 +67,7 @@ export default function AddItemPage() {
         ? new Date(formData.get("event_date") as string).toISOString()
         : null,
 
-      image_url: formData.get("image_url") || null,
+      image_url: imageUrl,
       brand: formData.get("brand") || null,
       color: formData.get("color") || null,
 
@@ -46,15 +80,6 @@ export default function AddItemPage() {
       hidden_unique_features: formData.get("hidden_unique_features") || null,
       status: formData.get("status") || "active",
     };
-
-    //uzimamo token trenutnog usera koji je popunio formu,
-    const token = localStorage.getItem("access_token");
-
-    if (!token) {
-      alert("Moraš biti prijavljen da dodaš item.");
-      router.push("/login");
-      return;
-    }
 
     //i njega saljemo ,jer zelimo da samo loginovan kroisnik moze dodavat nove stvari
     const response = await fetch("http://127.0.0.1:8000/items", {
@@ -273,11 +298,11 @@ export default function AddItemPage() {
                       URL slike
                     </label>
                     <input
-                      id="image_url"
-                      name="image_url"
-                      type="url"
+                      id="image"
+                      name="image"
+                      type="file"
+                      accept="image/*"
                       className="form-input"
-                      placeholder="https://..."
                     />
                   </div>
                 </div>

@@ -26,10 +26,6 @@ def create_item(
     return item_service.create_item(session, item_data, current_user)
 
 
-
-
-
-
 @router.get(
     "",
     response_model=list[ItemRead],
