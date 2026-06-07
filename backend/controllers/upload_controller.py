@@ -22,3 +22,17 @@ def upload_item_image(
     image_url = upload_service.save_item_image(image)
 
     return UploadImageRead(image_url=image_url)
+
+@router.post(
+    "/profile-image",
+    response_model=UploadImageRead,
+    status_code=status.HTTP_201_CREATED,
+)
+def upload_profile_image(
+    image: UploadFile = File(...),
+    session: SessionDep = None,
+    current_user: User = Depends(get_current_user),
+):
+    image_url = upload_service.save_profile_image(image)
+
+    return UploadImageRead(image_url=image_url)

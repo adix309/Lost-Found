@@ -294,16 +294,21 @@ export default function AddItemPage() {
                   </div>
 
                   <div className={styles["profile-form__field"]}>
-                    <label htmlFor="image_url" className="field-label">
-                      URL slike
+                    <label className="field-label">
+                      Slika oglasa
                     </label>
-                    <input
-                      id="image"
-                      name="image"
-                      type="file"
-                      accept="image/*"
-                      className="form-input"
-                    />
+
+                    <label className={styles.imageUploadButton}>
+                      Odaberi sliku
+
+                      <input
+                        id="image"
+                        name="image"
+                        type="file"
+                        accept="image/*"
+                        className={styles.hiddenFileInput}
+                      />
+                    </label>
                   </div>
                 </div>
 

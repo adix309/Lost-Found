@@ -13,7 +13,7 @@ export function ListingCard({ listing }: { listing: Listing }) {
 
   const typeLabel = listing.item_type === "lost" ? "Izgubljeno" : "Pronađeno";
 
-  const API_URL = "http://localhost:8000";
+  const API_URL = "http://127.0.0.1:8000";
 
   const imageSrc = listing.image_url
     ? `${API_URL}${listing.image_url}`

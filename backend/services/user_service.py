@@ -42,6 +42,9 @@ def update_current_user(
     if user_data.is_active is not None:
         current_user.is_active = user_data.is_active
 
+    if user_data.profile_image is not None:
+        current_user.profile_image = user_data.profile_image
+
     return user_repository.update(session, current_user)
 
 def update_current_user_password(

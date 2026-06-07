@@ -51,6 +51,7 @@ export function ProfileForm() {
   });
 
   const [email, setEmail] = useState("");
+  const [profileImage, setProfileImage] = useState("");
 
   const [passwordForm, setPasswordForm] = useState<PasswordForm>({
     current_password: "",
@@ -105,6 +106,7 @@ export function ProfileForm() {
         setForm(fetchedForm);
         setInitialForm(fetchedForm);
         setEmail(data.email ?? "");
+        setProfileImage(data.profile_image ?? "");
       } catch (err) {
         setError(err instanceof Error ? err.message : "Došlo je do greške.");
       } finally {
@@ -292,6 +294,49 @@ export function ProfileForm() {
     }
   };
 
+  const handleProfileImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+
+    if (!file) return;
+
+    const token = localStorage.getItem("access_token");
+
+    if (!token) return;
+
+    const formData = new FormData();
+    formData.append("image", file);
+
+    const response = await fetch(
+      `${API_BASE_URL}/uploads/profile-image`,
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        body: formData,
+      }
+    );
+
+    const data = await response.json();
+
+    setProfileImage(data.image_url);
+
+    await fetch(`${API_BASE_URL}/users/me`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({
+        first_name: form.first_name,
+        last_name: form.last_name,
+        username: form.username,
+        phone: form.phone,
+        profile_image: data.image_url,
+      }),
+     });
+  };
+
   const hasChanges = JSON.stringify(form) !== JSON.stringify(initialForm);
 
   if (loading) {
@@ -309,6 +354,27 @@ export function ProfileForm() {
     <>
       <section className={styles["profile-panel"]}>
         <h2 className={styles["profile-panel__title"]}>Lične informacije</h2>
+        <div className={styles.profileAvatarSection}>
+          <img
+            src={
+              profileImage
+                ? `${API_BASE_URL}${profileImage}`
+                : "/default-avatar.png"
+            }
+            alt="Profilna slika"
+            className={styles.profileAvatar}
+          />
+
+          <label className={styles.profileAvatarUpload}>
+            Promijeni sliku
+            <input
+              type="file"
+              accept="image/*"
+              onChange={handleProfileImageUpload}
+              className={styles.profileAvatarInput}
+            />
+          </label>
+        </div>
 
         {message && (
           <div

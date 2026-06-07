@@ -26,6 +26,8 @@ class User(SQLModel, table=True):
     email: EmailStr = Field(index=True, unique=True)
     phone: str | None = None
 
+    profile_image: str | None = Field(default=None)
+
     is_active: bool = True
 
     # -V7: hash lozinke — NIKAD ne čuvamo lozinku u plain tekstu

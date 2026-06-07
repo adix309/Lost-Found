@@ -16,6 +16,7 @@ class UserRead(BaseModel):
     last_name: str
     username: str
     email: EmailStr
+    profile_image: str | None = None
     phone: str | None = None
     is_active: bool
     is_admin: bool
@@ -36,6 +37,7 @@ class UserUpdate(BaseModel):
     last_name: str | None = None
     username: str | None = None
     email: EmailStr | None = None
+    profile_image: str | None = None
     phone: str | None = None
     is_active: bool | None = None
 
