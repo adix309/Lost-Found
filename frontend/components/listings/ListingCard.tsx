@@ -2,6 +2,9 @@
 
 import { useState, useEffect } from "react";
 import Image from "next/image";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faMapPin } from "@fortawesome/free-solid-svg-icons";
+import { faCalendarDay } from "@fortawesome/free-solid-svg-icons";
 import type { Listing } from "@/types/listing";
 import { StatusBadge } from "@/components/common/StatusBadge";
 import styles from "./ListingCard.module.css";
@@ -69,8 +72,8 @@ export function ListingCard({ listing }: { listing: Listing }) {
           <p className={styles.description}>{listing.description}</p>
 
           <div className={styles.info}>
-            <span>📍 {listing.location_name}</span>
-            <span>🗓 {eventDate}</span>
+            <span> <FontAwesomeIcon icon={faMapPin} aria-hidden="true" /> {listing.location_name}</span>
+            <span> <FontAwesomeIcon icon={faCalendarDay} aria-hidden="true" /> {eventDate}</span>
             <span> {listing.category}</span>
           </div>
 

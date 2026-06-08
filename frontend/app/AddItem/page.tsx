@@ -4,22 +4,37 @@ import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { useRouter, useSearchParams } from "next/navigation";
 import styles from "@/components/profile/ProfileStyles.module.css";
+import { useState, useEffect, useRef } from "react";
 
 export default function AddItemPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const selectedType = searchParams.get("type") === "found" ? "found" : "lost";
 
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
+  const bannerRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    if ((success || error) && bannerRef.current) {
+      bannerRef.current.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+  }, [success, error]);
+
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const formData = new FormData(event.currentTarget);
+
+    // reset any previous messages
+    setError("");
+    setSuccess("");
 
     //uzimamo token trenutnog usera koji je popunio formu,
     const token = localStorage.getItem("access_token");
 
     if (!token) {
-      alert("Moraš biti prijavljen da dodaš item.");
-      router.push("/login");
+      setError("Moraš biti prijavljen da dodaš item.");
+      setTimeout(() => router.push("/login"), 1200);
       return;
     }
 
@@ -39,9 +54,9 @@ export default function AddItemPage() {
     });
 
     if (!uploadResponse.ok) {
-      const error = await uploadResponse.json();
-      console.error("Greška upload slike:", error);
-      alert("Greška prilikom uploadovanja slike.");
+      const errorResp = await uploadResponse.json();
+      console.error("Greška upload slike:", errorResp);
+      setError("Greška prilikom uploadovanja slike.");
       return;
     }
 
@@ -92,17 +107,17 @@ export default function AddItemPage() {
     });
 
     if (!response.ok) {
-      const error = await response.json();
-      console.error("Greška:", error);
-      alert("Greška prilikom dodavanja itema.");
+      const errorResp = await response.json();
+      console.error("Greška:", errorResp);
+      setError("Greška prilikom dodavanja itema.");
       return;
     }
 
     const result = await response.json();
     console.log("Item dodan:", result);
 
-    alert("Item je uspješno dodan.");
-    router.push("/AllItems");
+    setSuccess("Item je uspješno dodan.");
+    setTimeout(() => router.push("/AllItems"), 1200);
   }
 
   return (
@@ -112,12 +127,26 @@ export default function AddItemPage() {
       <main className="app-main">
         <section className={styles["profile-page"]}>
           <div className="container">
+
+            <div ref={bannerRef}>
+              {success && (
+                <div className={`${styles["profile-message"]} ${styles["profile-message--success"]}`}>
+                  {success}
+                </div>
+              )}
+
+              {error && (
+                <div className={`${styles["profile-message"]} ${styles["profile-message--error"]}`}>
+                  {error}
+                </div>
+              )}
+            </div>
+
             <div className={styles["profile-header"]}>
               <p className={styles["profile-header__eyebrow"]}>Novi item</p>
               <h1 className={styles["profile-header__title"]}>Dodaj novi predmet</h1>
               <p className={styles["profile-header__description"]}>
-                Popuni formu za izgubljeni ili pronađeni predmet. Ova forma je
-                trenutno samo frontend prikaz i nije povezana sa backendom.
+                Popuni formu za izgubljeni ili pronađeni predmet.
               </p>
             </div>
 
@@ -125,6 +154,7 @@ export default function AddItemPage() {
               <h2 className={styles["profile-panel__title"]}>
                 Informacije o predmetu
               </h2>
+
               <form className={styles["profile-form"]} onSubmit={handleSubmit}>
                 <div className={styles["profile-form__row"]}>
                   <div className={styles["profile-form__field"]}>
@@ -294,8 +324,8 @@ export default function AddItemPage() {
                   </div>
 
                   <div className={styles["profile-form__field"]}>
-                    <label className="field-label">
-                      Slika oglasa
+                    <label className={"field-label"}>
+                      Slika oglasa*
                     </label>
 
                     <label className={styles.imageUploadButton}>

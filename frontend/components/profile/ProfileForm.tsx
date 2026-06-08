@@ -1,5 +1,7 @@
 "use client";
 
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faPencil } from "@fortawesome/free-solid-svg-icons";
 import { useEffect, useState } from "react";
 import styles from "./ProfileStyles.module.css";
 
@@ -359,7 +361,7 @@ export function ProfileForm() {
             src={
               profileImage
                 ? `${API_BASE_URL}${profileImage}`
-                : "/default-avatar.png"
+                : "/default-profile.png"
             }
             alt="Profilna slika"
             className={styles.profileAvatar}
@@ -413,14 +415,14 @@ export function ProfileForm() {
                 </label>
 
                 {editingField !== field && (
-                  <button
-                    type="button"
-                    className={styles["profile-inline-item__icon"]}
-                    onClick={() => handleEdit(field)}
-                    aria-label={`Uredi polje ${fieldLabels[field]}`}
-                  >
-                    ✏️
-                  </button>
+                    <button
+                        type="button"
+                        className={styles["profile-inline-item__icon"]}
+                        onClick={() => handleEdit(field)}
+                        aria-label={`Uredi polje ${fieldLabels[field]}`}
+                    >
+                        <FontAwesomeIcon icon={faPencil} aria-hidden="true" />
+                    </button>
                 )}
               </div>
 
