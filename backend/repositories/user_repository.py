@@ -50,3 +50,7 @@ def update_password(
     session.commit()
     session.refresh(user)
     return user
+
+def get_all_active(session: Session) -> list[User]:
+    statement = select(User).where(User.is_active)
+    return list(session.exec(statement).all())
