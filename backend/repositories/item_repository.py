@@ -1,6 +1,7 @@
 from typing import Optional
 
 from sqlmodel import Session, select
+from sqlalchemy.orm import selectinload
 
 from models.item_model import Item, ItemStatus, ItemType
 
@@ -13,7 +14,13 @@ def create_item(session: Session, item: Item) -> Item:
 
 
 def get_item_by_id(session: Session, item_id: int) -> Optional[Item]:
-    return session.get(Item, item_id)
+    statement = (
+        select(Item)
+        .where(Item.id == item_id)
+        .options(selectinload(Item.user))
+    )
+
+    return session.exec(statement).first()
 
 
 def get_items(
@@ -26,7 +33,7 @@ def get_items(
     color: Optional[str] = None,
     search: Optional[str] = None,
 ) -> list[Item]:
-    statement = select(Item)
+    statement = select(Item).options(selectinload(Item.user))
 
     if status is not None:
         statement = statement.where(Item.status == status)
@@ -61,7 +68,12 @@ def get_items(
 
 
 def get_items_by_user_id(session: Session, user_id: int) -> list[Item]:
-    statement = select(Item).where(Item.user_id == user_id)
+    statement = (
+        select(Item)
+        .where(Item.user_id == user_id)
+        .options(selectinload(Item.user))
+    )
+
     return list(session.exec(statement).all())
 
 

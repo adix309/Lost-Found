@@ -1,27 +1,209 @@
-.mapWrapper {
+.mapShell {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.filterCard {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  padding: 20px;
+  border: 1px solid #e2e8f0;
+  border-radius: 22px;
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: 0 18px 45px rgba(15, 23, 42, 0.08);
+  backdrop-filter: blur(12px);
+}
+
+.filterTitle {
+  margin: 0;
+  font-size: 20px;
+  color: #0f172a;
+}
+
+.filterText {
+  margin: 6px 0 0;
+  font-size: 14px;
+  color: #64748b;
+}
+
+.filters {
+  display: grid;
+  grid-template-columns: minmax(240px, 1.5fr) minmax(160px, 0.7fr) minmax(180px, 0.8fr) auto;
+  gap: 14px;
+  align-items: end;
+}
+
+.searchGroup,
+.selectGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.label {
+  font-size: 13px;
+  font-weight: 700;
+  color: #334155;
+}
+
+.searchInput,
+.select {
   width: 100%;
-  height: 600px;
-  border-radius: 18px;
+  min-height: 44px;
+  border: 1px solid #cbd5e1;
+  border-radius: 14px;
+  padding: 0 14px;
+  background: #ffffff;
+  color: #0f172a;
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.searchInput:focus,
+.select:focus {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.12);
+}
+
+.resetButton {
+  min-height: 44px;
+  border: none;
+  border-radius: 14px;
+  padding: 0 16px;
+  background: #0f172a;
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: transform 0.2s ease, background 0.2s ease;
+}
+
+.resetButton:hover {
+  background: #1e293b;
+  transform: translateY(-1px);
+}
+
+.mapWrapper {
+  position: relative;
+  width: 100%;
+  height: 650px;
+  border-radius: 24px;
   overflow: hidden;
-  border: 1px solid #e5e7eb;
-  background: #f9fafb;
+  border: 1px solid #dbeafe;
+  background: #f8fafc;
+  box-shadow: 0 24px 70px rgba(15, 23, 42, 0.14);
 }
 
 .map {
   width: 100%;
   height: 100%;
+  z-index: 1;
+}
+
+.legend {
+  position: absolute;
+  right: 18px;
+  bottom: 18px;
+  z-index: 500;
+  display: flex;
+  gap: 10px;
+  padding: 10px 12px;
+  border: 1px solid #e2e8f0;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.95);
+  box-shadow: 0 14px 35px rgba(15, 23, 42, 0.15);
+  backdrop-filter: blur(10px);
+}
+
+.legendItem {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 12px;
+  font-weight: 800;
+  color: #334155;
+}
+
+.legendDot {
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+}
+
+.lostDot {
+  background: #ef4444;
+}
+
+.foundDot {
+  background: #22c55e;
+}
+
+.emptyState {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  z-index: 600;
+  width: min(360px, calc(100% - 32px));
+  transform: translate(-50%, -50%);
+  padding: 22px;
+  border: 1px solid #e2e8f0;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.96);
+  text-align: center;
+  box-shadow: 0 20px 60px rgba(15, 23, 42, 0.18);
+}
+
+.emptyState h3 {
+  margin: 0 0 8px;
+  color: #0f172a;
+  font-size: 20px;
+}
+
+.emptyState p {
+  margin: 0 0 16px;
+  color: #64748b;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.emptyState button {
+  border: none;
+  border-radius: 12px;
+  padding: 10px 14px;
+  background: #2563eb;
+  color: #ffffff;
+  font-weight: 800;
+  cursor: pointer;
 }
 
 .popup {
-  width: 230px;
+  width: 260px;
 }
 
 .popupImage {
   width: 100%;
-  height: 120px;
+  height: 135px;
   object-fit: cover;
-  border-radius: 10px;
-  margin-bottom: 10px;
+  border-radius: 14px;
+  margin-bottom: 12px;
+  background: #e2e8f0;
+}
+
+.popupImagePlaceholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 115px;
+  border-radius: 14px;
+  margin-bottom: 12px;
+  background: linear-gradient(135deg, #e2e8f0, #f8fafc);
+  color: #64748b;
+  font-size: 13px;
+  font-weight: 800;
 }
 
 .popupHeader {
@@ -33,53 +215,125 @@
 }
 
 .badge {
-  font-size: 12px;
-  font-weight: 700;
-  padding: 4px 8px;
+  font-size: 11px;
+  font-weight: 900;
+  padding: 5px 9px;
   border-radius: 999px;
-  background: #111827;
   color: white;
 }
 
+.lostBadge {
+  background: #dc2626;
+}
+
+.foundBadge {
+  background: #16a34a;
+}
+
 .category {
+  max-width: 120px;
+  overflow: hidden;
+  color: #64748b;
   font-size: 12px;
-  color: #6b7280;
+  font-weight: 700;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .popupTitle {
-  font-size: 16px;
   margin: 0 0 6px;
-  color: #111827;
+  color: #0f172a;
+  font-size: 17px;
+  line-height: 1.25;
 }
 
 .popupLocation {
+  margin: 0 0 9px;
+  color: #475569;
   font-size: 13px;
-  margin: 0 0 8px;
-  color: #4b5563;
-  font-weight: 600;
+  font-weight: 800;
 }
 
 .popupDescription {
+  display: -webkit-box;
+  margin: 0 0 10px;
+  overflow: hidden;
+  color: #334155;
   font-size: 13px;
-  margin: 0 0 8px;
-  color: #374151;
-  line-height: 1.4;
+  line-height: 1.45;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
 }
 
 .popupMeta {
-  font-size: 12px;
-  margin: 0 0 10px;
-  color: #6b7280;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+
+.popupMeta span {
+  padding: 4px 7px;
+  border-radius: 999px;
+  background: #f1f5f9;
+  color: #475569;
+  font-size: 11px;
+  font-weight: 700;
 }
 
 .detailsLink {
-  display: inline-block;
+  display: block;
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: #2563eb;
+  color: #ffffff;
   font-size: 13px;
-  font-weight: 700;
-  color: #2563eb;
+  font-weight: 900;
+  text-align: center;
   text-decoration: none;
+  transition: background 0.2s ease, transform 0.2s ease;
 }
 
 .detailsLink:hover {
-  text-decoration: underline;
+  background: #1d4ed8;
+  transform: translateY(-1px);
+}
+
+@media (max-width: 920px) {
+  .filters {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .searchGroup {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 640px) {
+  .filterCard {
+    padding: 16px;
+    border-radius: 18px;
+  }
+
+  .filters {
+    grid-template-columns: 1fr;
+  }
+
+  .mapWrapper {
+    height: 560px;
+    border-radius: 18px;
+  }
+
+  .legend {
+    right: 12px;
+    bottom: 12px;
+    flex-direction: column;
+    align-items: flex-start;
+    border-radius: 16px;
+  }
+
+  .popup {
+    width: 230px;
+  }
 }
