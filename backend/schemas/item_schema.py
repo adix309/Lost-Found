@@ -40,6 +40,17 @@ class ItemCreate(ItemBase):
             raise ValueError("Reward amount cannot be negative")
         return value
 
+    @field_validator("longitude")
+    @classmethod
+    def validate_longitude(cls, value):
+        if value is not None and not (-180 <= value <= 180):
+            raise ValueError("Longitude must be between -180 and 180")
+        return value
+
+
+#TODO: napraviti validaciju i za update kao sto postoji za create
+#TODO: Treba kod create da latituda i longituda budu obavezni za unos
+
 
 class ItemUpdate(BaseModel):
     title: Optional[str] = None

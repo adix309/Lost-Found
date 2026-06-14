@@ -33,7 +33,7 @@ class Item(SQLModel, table=True):
         cascade_delete=True,
     )
    
-    claims: list["Claim"] = Relationship(back_populates="item")
+    #claims: list["Claim"] = Relationship(back_populates="item")
 
     title: str
     description: str
