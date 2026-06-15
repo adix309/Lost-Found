@@ -3,6 +3,8 @@ from typing import Optional, TYPE_CHECKING
 from sqlmodel import SQLModel, Field, Relationship
 from pydantic import EmailStr
 from enum import Enum
+from sqlalchemy import Column
+from sqlalchemy.dialects.postgresql import JSONB
 
 if TYPE_CHECKING:
     from models.user_model import User
@@ -33,7 +35,6 @@ class Item(SQLModel, table=True):
         cascade_delete=True,
     )
    
-    claims: list["Claim"] = Relationship(back_populates="item")
 
     title: str
     description: str
@@ -57,7 +58,10 @@ class Item(SQLModel, table=True):
     contact_phone: Optional[str] = None
     contact_email: Optional[EmailStr] = None
 
-    hidden_unique_features: Optional[str] = None  # JSON string
+    hidden_unique_features: Optional[dict] = Field(
+        default=None,
+        sa_column=Column(JSONB, nullable=True)
+    )
 
     status: ItemStatus = Field(default=ItemStatus.active)
 

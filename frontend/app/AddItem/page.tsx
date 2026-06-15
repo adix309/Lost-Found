@@ -6,6 +6,44 @@ import { useRouter, useSearchParams } from "next/navigation";
 import styles from "@/components/profile/ProfileStyles.module.css";
 import { useState, useEffect, useRef } from "react";
 
+type HiddenUniqueFeatures = Record<string, unknown> | null;
+
+function cleanOptionalString(value: FormDataEntryValue | null): string | null {
+  if (typeof value !== "string") return null;
+  const trimmed = value.trim();
+  return trimmed ? trimmed : null;
+}
+
+function parseOptionalNumber(value: FormDataEntryValue | null): number | null {
+  if (typeof value !== "string") return null;
+  const trimmed = value.trim();
+  if (!trimmed) return null;
+
+  const parsed = Number(trimmed);
+  return Number.isNaN(parsed) ? null : parsed;
+}
+
+function parseHiddenUniqueFeatures(rawValue: FormDataEntryValue | null): HiddenUniqueFeatures {
+  if (typeof rawValue !== "string") return null;
+
+  const trimmed = rawValue.trim();
+  if (!trimmed) return null;
+
+  try {
+    const parsed = JSON.parse(trimmed);
+
+    if (parsed && typeof parsed === "object" && !Array.isArray(parsed)) {
+      return parsed as Record<string, unknown>;
+    }
+
+    throw new Error("hidden_unique_features mora biti JSON objekat.");
+  } catch {
+    return {
+      notes: trimmed,
+    };
+  }
+}
+
 export default function AddItemPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -70,29 +108,26 @@ export default function AddItemPage() {
       category: formData.get("category"),
       location_name: formData.get("location_name"),
 
-      latitude: formData.get("latitude")
-        ? Number(formData.get("latitude"))
-        : null,
-
-      longitude: formData.get("longitude")
-        ? Number(formData.get("longitude"))
-        : null,
+       latitude: parseOptionalNumber(formData.get("latitude")),
+      longitude: parseOptionalNumber(formData.get("longitude")),
 
       event_date: formData.get("event_date")
         ? new Date(formData.get("event_date") as string).toISOString()
         : null,
 
       image_url: imageUrl,
-      brand: formData.get("brand") || null,
-      color: formData.get("color") || null,
+      brand: cleanOptionalString(formData.get("brand")),
+      color: cleanOptionalString(formData.get("color")),
 
       reward_amount: formData.get("reward_amount")
         ? Number(formData.get("reward_amount"))
         : null,
 
-      contact_phone: formData.get("contact_phone") || null,
-      contact_email: formData.get("contact_email") || null,
-      hidden_unique_features: formData.get("hidden_unique_features") || null,
+      contact_phone: cleanOptionalString(formData.get("contact_phone")),
+      contact_email: cleanOptionalString(formData.get("contact_email")),
+      hidden_unique_features: parseHiddenUniqueFeatures(
+        formData.get("hidden_unique_features")
+      ),
       status: formData.get("status") || "active",
     };
 

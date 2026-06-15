@@ -6,17 +6,33 @@ export type NotificationType =
   | "item_expiring_soon"
   | "system_notification";
 
+export interface NotificationMatchReason {
+  reasons?: string[];
+  common_words?: string[];
+}
+
+export interface NotificationMatchPreview {
+  match_id: number;
+  item_id: number;
+  title: string;
+  category?: string | null;
+  location_name?: string | null;
+  event_date?: string | null;
+  score: number;
+  reasons?: string[];
+}
+
 export interface NotificationData {
   match_id?: number;
   source_item_id?: number;
+  source_item_title?: string;
   candidate_item_id?: number;
   score?: number;
+  best_score?: number;
   rank?: number;
   candidate_item_type?: string;
-  match_reason?: {
-    reasons?: string[];
-    common_words?: string[];
-  };
+  match_reason?: NotificationMatchReason;
+  matches?: NotificationMatchPreview[];
   [key: string]: unknown;
 }
 
