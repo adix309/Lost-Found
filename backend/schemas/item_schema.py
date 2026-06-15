@@ -1,6 +1,6 @@
 from datetime import datetime
 from typing import Optional
-from pydantic import EmailStr, field_validator, BaseModel
+from pydantic import EmailStr, Field, field_validator, BaseModel
 
 from models.item_model import ItemType, ItemStatus
 
@@ -129,6 +129,7 @@ class ItemRead(BaseModel):
     event_date: datetime
 
     image_url: Optional[str] = None
+    image_urls: list[str] = Field(default_factory=list)
 
     brand: Optional[str] = None
     color: Optional[str] = None
@@ -146,3 +147,8 @@ class ItemRead(BaseModel):
 
 class ItemOwnerRead(ItemRead):
     hidden_unique_features: Optional[str] = None
+
+
+class ItemImagesUploadRead(BaseModel):
+    item_id: int
+    image_urls: list[str]

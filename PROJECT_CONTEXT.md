@@ -19,8 +19,12 @@ Include files for AI context:
 
 - `README.md`
 - `backend/README.md`
-- `.env` (backend environment)
-- `frontend/.env.local` (frontend environment)
+- `backend/requirements.txt`
+- `backend/.env`
+- `backend/seed_items.py`
+- `frontend/.env.local`
+- `frontend/package.json`
+- `frontend/package-lock.json`
 
 ---
 
@@ -71,6 +75,11 @@ Include files for AI context:
   - `delete_item`
   - `resolve_item`
   - `expire_item`
+- `notification_controller.py`
+  - `get_notifications`
+  - `get_notification`
+  - `mark_notification_read`
+  - `delete_notification`
 - `upload_controller.py`
   - `upload_item_image`
   - `upload_profile_image`
@@ -96,6 +105,7 @@ Include files for AI context:
 - `__init__.py`
 - `claim_model.py`
 - `item_model.py`
+- `notification_model.py`
 - `user_model.py`
 
 ### backend/repositories
@@ -115,6 +125,11 @@ Include files for AI context:
   - `get_items_by_user_id`
   - `update_item`
   - `delete_item`
+- `notification_repository.py`
+  - `get_notifications_by_user_id`
+  - `get_notification_by_id`
+  - `update_notification`
+  - `delete_notification`
 - `user_repository.py`
   - `create`
   - `get_all`
@@ -130,6 +145,7 @@ Include files for AI context:
 - `claim_schema.py`
 - `item_schema.py`
   - `validate_reward_amount`
+- `notification_schema.py`
 - `upload_schema.py`
 - `user_schema.py`
 
@@ -169,12 +185,23 @@ Include files for AI context:
   - `delete_item`
   - `resolve_item`
   - `expire_item`
+- `notification_service.py`
+  - `get_user_notifications`
+  - `get_notification_by_id`
+  - `mark_notification_read`
+  - `delete_notification`
 - `upload_service.py`
   - `save_item_image`
   - `save_profile_image`
 - `user_service.py`
   - `update_current_user`
   - `update_current_user_password`
+
+### backend/media
+- `items/`
+  - sample item images
+- `profiles/`
+  - sample profile images
 
 ---
 
@@ -187,8 +214,12 @@ Include files for AI context:
 - `AddItem/page.tsx`
 - `admin/page.tsx`
 - `AllItems/page.tsx`
+- `AllItems/[id]/page.tsx`
 - `login/page.tsx`
+- `map/page.tsx`
+- `notifications/page.tsx`
 - `profile/page.tsx`
+- `profile/[id]/page.tsx`
 - `register/page.tsx`
 
 ### frontend/components/admin
@@ -198,6 +229,8 @@ Include files for AI context:
   - `AdminPanel`
 
 ### frontend/components/auth
+- `AdminGuard.tsx`
+  - `AdminGuard`
 - `AuthGuard.tsx`
   - `AuthGuard`
 
@@ -233,6 +266,18 @@ Include files for AI context:
 - `ListingCard.tsx`
   - `ListingCard`
 
+### frontend/components/map
+- `ItemsMap.module.css`
+- `ItemsMap.tsx`
+  - `ItemsMap`
+
+### frontend/components/notifications
+- `NotificationCard.tsx`
+  - `NotificationCard`
+- `NotificationsPage.module.css`
+- `NotificationsPage.tsx`
+  - `NotificationsPage`
+
 ### frontend/components/profile
 - `ProfileForm.tsx`
   - `ProfileForm`
@@ -247,6 +292,18 @@ Include files for AI context:
 ### frontend/data
 - `homepageListings.ts`
 - `mockProfileListings.ts`
+
+### frontend/public
+- `default-profile.png`
+- `file.svg`
+- `globe.svg`
+- `map-marker-default.png`
+- `map-marker-found.png`
+- `map-marker-lost.png`
+- `next.svg`
+- `no-image.jpg`
+- `vercel.svg`
+- `window.svg`
 
 ### frontend/types
 - `claim.ts`

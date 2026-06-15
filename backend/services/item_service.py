@@ -1,12 +1,13 @@
 from datetime import datetime
 
-from fastapi import HTTPException, status
+from fastapi import HTTPException, UploadFile, status
 from sqlmodel import Session
 
 from models.item_model import Item, ItemStatus, ItemType
 from models.user_model import User
 from repositories import item_repository
 from schemas.item_schema import ItemCreate, ItemUpdate
+from services import upload_service
 
 
 def create_item(
@@ -26,6 +27,32 @@ def create_item(
 
     created_item = item_repository.create_item(session, item)
     return created_item
+
+
+def add_item_images(
+    session: Session,
+    item_id: int,
+    images: list[UploadFile],
+    current_user: User,
+) -> list[str]:
+    item = item_repository.get_item_by_id(session, item_id)
+
+    if item is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Item not found",
+        )
+
+    if item.user_id != current_user.id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="You are not allowed to upload images for this item",
+        )
+
+    image_urls = upload_service.save_item_images(images)
+    item.updated_at = datetime.utcnow()
+    item_repository.add_item_images(session, item, image_urls)
+    return image_urls
 
 
 def get_public_items(

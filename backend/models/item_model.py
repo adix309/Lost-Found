@@ -32,6 +32,10 @@ class Item(SQLModel, table=True):
         back_populates="item",
         cascade_delete=True,
     )
+    images: list["ItemImage"] = Relationship(
+        back_populates="item",
+        cascade_delete=True,
+    )
    
     #claims: list["Claim"] = Relationship(back_populates="item")
 
@@ -63,3 +67,23 @@ class Item(SQLModel, table=True):
 
     created_at: datetime = Field(default_factory=datetime.utcnow)
     updated_at: datetime = Field(default_factory=datetime.utcnow)
+
+    @property
+    def image_urls(self) -> list[str]:
+        urls = [image.image_url for image in self.images]
+
+        if self.image_url and self.image_url not in urls:
+            return [self.image_url, *urls]
+
+        return urls
+
+
+class ItemImage(SQLModel, table=True):
+    __tablename__ = "item_images"
+
+    id: Optional[int] = Field(default=None, primary_key=True)
+    item_id: int = Field(foreign_key="items.id", ondelete="CASCADE")
+    image_url: str
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+
+    item: Item = Relationship(back_populates="images")

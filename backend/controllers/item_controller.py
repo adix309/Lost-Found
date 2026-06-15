@@ -1,12 +1,18 @@
-from typing import Optional
+from typing import Annotated, Optional
 
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, File, UploadFile, status
 from sqlmodel import Session
 
 from app.database import SessionDep
 from models.item_model import ItemStatus, ItemType
 from models.user_model import User
-from schemas.item_schema import ItemCreate, ItemRead, ItemOwnerRead, ItemUpdate
+from schemas.item_schema import (
+    ItemCreate,
+    ItemImagesUploadRead,
+    ItemOwnerRead,
+    ItemRead,
+    ItemUpdate,
+)
 from services import item_service
 from core.dependencies import get_current_user
 
@@ -24,6 +30,26 @@ def create_item(
     current_user: User = Depends(get_current_user),
 ):
     return item_service.create_item(session, item_data, current_user)
+
+
+@router.post(
+    "/{item_id}/images",
+    response_model=ItemImagesUploadRead,
+    status_code=status.HTTP_201_CREATED,
+)
+def upload_item_images(
+    item_id: int,
+    session: SessionDep,
+    images: Annotated[list[UploadFile], File()],
+    current_user: User = Depends(get_current_user),
+):
+    image_urls = item_service.add_item_images(
+        session,
+        item_id,
+        images,
+        current_user,
+    )
+    return ItemImagesUploadRead(item_id=item_id, image_urls=image_urls)
 
 
 @router.get(
@@ -133,6 +159,3 @@ def expire_item(
     current_user: User = Depends(get_current_user),
 ):
     return item_service.expire_item(session, item_id, current_user)
-
-
- 
