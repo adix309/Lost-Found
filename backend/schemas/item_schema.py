@@ -1,7 +1,6 @@
 from datetime import datetime
 from typing import Optional, Any
 from pydantic import EmailStr, field_validator, BaseModel
-from sqlmodel import SQLModel
 
 from models.item_model import ItemType, ItemStatus
 
@@ -66,6 +65,20 @@ class ItemCreate(ItemBase):
             raise ValueError("Reward amount cannot be negative")
         return value
 
+    @field_validator("latitude")
+    @classmethod
+    def validate_latitude(cls, value):
+        if value is not None and not (-90 <= value <= 90):
+            raise ValueError("Latitude must be between -90 and 90")
+        return value
+
+    @field_validator("longitude")
+    @classmethod
+    def validate_longitude(cls, value):
+        if value is not None and not (-180 <= value <= 180):
+            raise ValueError("Longitude must be between -180 and 180")
+        return value
+
 
 class ItemUpdate(BaseModel):
     title: Optional[str] = None
@@ -114,10 +127,33 @@ class ItemUpdate(BaseModel):
             raise ValueError("Reward amount cannot be negative")
         return value
 
+    @field_validator("latitude")
+    @classmethod
+    def validate_latitude(cls, value):
+        if value is not None and not (-90 <= value <= 90):
+            raise ValueError("Latitude must be between -90 and 90")
+        return value
+
+    @field_validator("longitude")
+    @classmethod
+    def validate_longitude(cls, value):
+        if value is not None and not (-180 <= value <= 180):
+            raise ValueError("Longitude must be between -180 and 180")
+        return value
+
+
+class ItemUserRead(BaseModel):
+    id: int
+    username: str
+    email: Optional[EmailStr] = None
+    profile_image_url: Optional[str] = None
+
 
 class ItemRead(BaseModel):
     id: int
     user_id: int
+
+    user: Optional[ItemUserRead] = None
 
     title: str
     description: str
