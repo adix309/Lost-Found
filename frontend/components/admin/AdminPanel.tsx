@@ -1,14 +1,10 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import styles from "./AdminPanel.module.css";
 import type { User } from "@/types/user";
 import type { Listing } from "@/types/listing";
 import type { Claim, ClaimStatus } from "@/types/claim";
-
-type AdminPanelProps = {
-  currentUser: User;
-};
 
 type TabKey = "overview" | "users" | "items" | "claims";
 
@@ -29,7 +25,7 @@ async function parseJsonSafe(res: Response) {
   return res.json().catch(() => null);
 }
 
-export function AdminPanel({ currentUser }: AdminPanelProps) {
+export function AdminPanel() {
   const [activeTab, setActiveTab] = useState<TabKey>("overview");
 
   const [users, setUsers] = useState<User[]>([]);
@@ -43,7 +39,14 @@ export function AdminPanel({ currentUser }: AdminPanelProps) {
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
 
-  const authHeaders = () => {
+  const [showSystemNotificationModal, setShowSystemNotificationModal] =
+    useState(false);
+  const [notificationTitle, setNotificationTitle] = useState("");
+  const [notificationBody, setNotificationBody] = useState("");
+  const [sendingSystemNotification, setSendingSystemNotification] =
+    useState(false);
+
+  const authHeaders = useCallback(() => {
     const token = localStorage.getItem("access_token");
 
     if (!token) {
@@ -56,9 +59,9 @@ export function AdminPanel({ currentUser }: AdminPanelProps) {
       Authorization: `Bearer ${token}`,
       "Content-Type": "application/json",
     };
-  };
+  }, []);
 
-  const handleUnauthorized = (res: Response) => {
+  const handleUnauthorized = useCallback((res: Response) => {
     if (res.status === 401 || res.status === 403) {
       localStorage.removeItem("access_token");
       window.location.replace("/login");
@@ -66,9 +69,9 @@ export function AdminPanel({ currentUser }: AdminPanelProps) {
     }
 
     return false;
-  };
+  }, []);
 
-  const fetchUsers = async () => {
+  const fetchUsers = useCallback(async () => {
     try {
       const res = await fetch(`${API_BASE_URL}/admin/users`, {
         headers: authHeaders(),
@@ -92,9 +95,9 @@ export function AdminPanel({ currentUser }: AdminPanelProps) {
     } finally {
       setLoadingUsers(false);
     }
-  };
+  }, [authHeaders, handleUnauthorized]);
 
-  const fetchItems = async () => {
+  const fetchItems = useCallback(async () => {
     try {
       const res = await fetch(`${API_BASE_URL}/admin/items`, {
         headers: authHeaders(),
@@ -116,9 +119,9 @@ export function AdminPanel({ currentUser }: AdminPanelProps) {
     } finally {
       setLoadingItems(false);
     }
-  };
+  }, [authHeaders, handleUnauthorized]);
 
-  const fetchClaims = async () => {
+  const fetchClaims = useCallback(async () => {
     try {
       const res = await fetch(`${API_BASE_URL}/admin/claims`, {
         headers: authHeaders(),
@@ -140,7 +143,7 @@ export function AdminPanel({ currentUser }: AdminPanelProps) {
     } finally {
       setLoadingClaims(false);
     }
-  };
+  }, [authHeaders, handleUnauthorized]);
 
   const reloadUsers = async () => {
     setMessage("");
@@ -164,13 +167,21 @@ export function AdminPanel({ currentUser }: AdminPanelProps) {
   };
 
   useEffect(() => {
+    let cancelled = false;
+
     const loadAll = async () => {
       setError("");
       await Promise.all([fetchUsers(), fetchItems(), fetchClaims()]);
     };
 
-    loadAll();
-  }, []);
+    if (!cancelled) {
+      loadAll();
+    }
+
+    return () => {
+      cancelled = true;
+    };
+  }, [fetchUsers, fetchItems, fetchClaims]);
 
   const overview = useMemo(() => {
     const activeUsers = users.filter((user) => user.is_active).length;
@@ -379,7 +390,9 @@ export function AdminPanel({ currentUser }: AdminPanelProps) {
       }
 
       setClaims((prev) =>
-        prev.map((claim) => (claim.id === claimId ? { ...claim, ...data } : claim))
+        prev.map((claim) =>
+          claim.id === claimId ? { ...claim, ...data } : claim
+        )
       );
       setMessage("Status claima je uspješno ažuriran.");
     } catch (err) {
@@ -391,19 +404,146 @@ export function AdminPanel({ currentUser }: AdminPanelProps) {
     }
   };
 
+  const handleSendSystemNotification = async () => {
+    setMessage("");
+    setError("");
+
+    if (!notificationTitle.trim() || !notificationBody.trim()) {
+      setError("Popuni naslov i poruku.");
+      return;
+    }
+
+    try {
+      setSendingSystemNotification(true);
+
+      const res = await fetch(`${API_BASE_URL}/notifications/broadcast`, {
+        method: "POST",
+        headers: authHeaders(),
+        body: JSON.stringify({
+          title: notificationTitle.trim(),
+          body: notificationBody.trim(),
+          data: {
+            source: "admin_panel_broadcast",
+          },
+        }),
+      });
+
+      if (handleUnauthorized(res)) return;
+
+      const data = await parseJsonSafe(res);
+
+      if (!res.ok) {
+        throw new Error(
+          data?.detail || "Neuspješno slanje sistemske notifikacije."
+        );
+      }
+
+      setNotificationTitle("");
+      setNotificationBody("");
+      setShowSystemNotificationModal(false);
+      setMessage(
+        data?.message ||
+          "Sistemska notifikacija je uspješno poslana svim aktivnim korisnicima."
+      );
+    } catch (err) {
+      setError(
+        err instanceof Error
+          ? err.message
+          : "Greška pri slanju sistemske notifikacije."
+      );
+    } finally {
+      setSendingSystemNotification(false);
+    }
+  };
+
   return (
     <main className={styles["admin-page"]}>
       <section className={styles["admin-hero"]}>
         <div>
           <p className={styles["admin-hero__eyebrow"]}>Admin panel</p>
-          <h1 className={styles["admin-hero__title"]}>
-            Dobrodošao, {currentUser.first_name || currentUser.username}
-          </h1>
+          <h1 className={styles["admin-hero__title"]}>Administracija</h1>
           <p className={styles["admin-hero__description"]}>
             Upravljaj korisnicima, oglasima i claimovima sa jednog mjesta.
           </p>
         </div>
+
+        <div className={styles["admin-hero__actions"]}>
+          <button
+            type="button"
+            className={styles["admin-primary-btn"]}
+            onClick={() => setShowSystemNotificationModal(true)}
+          >
+            Pošalji sistemsku notifikaciju
+          </button>
+        </div>
       </section>
+
+      {showSystemNotificationModal && (
+        <div
+          className={styles["admin-modal-backdrop"]}
+          onClick={() => setShowSystemNotificationModal(false)}
+        >
+          <div
+            className={styles["admin-modal"]}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className={styles["admin-modal__header"]}>
+              <h2 className={styles["admin-modal__title"]}>
+                Nova sistemska notifikacija
+              </h2>
+
+              <button
+                type="button"
+                className={styles["admin-modal__close"]}
+                onClick={() => setShowSystemNotificationModal(false)}
+              >
+                ✕
+              </button>
+            </div>
+
+            <div className={styles["admin-modal__body"]}>
+              <label className={styles["admin-field"]}>
+                <span>Naslov</span>
+                <input
+                  type="text"
+                  value={notificationTitle}
+                  onChange={(e) => setNotificationTitle(e.target.value)}
+                  placeholder="Unesi naslov notifikacije"
+                />
+              </label>
+
+              <label className={styles["admin-field"]}>
+                <span>Poruka</span>
+                <textarea
+                  value={notificationBody}
+                  onChange={(e) => setNotificationBody(e.target.value)}
+                  placeholder="Unesi tekst poruke"
+                  rows={5}
+                />
+              </label>
+            </div>
+
+            <div className={styles["admin-modal__actions"]}>
+              <button
+                type="button"
+                className={styles["admin-secondary-btn"]}
+                onClick={() => setShowSystemNotificationModal(false)}
+              >
+                Odustani
+              </button>
+
+              <button
+                type="button"
+                className={styles["admin-primary-btn"]}
+                onClick={handleSendSystemNotification}
+                disabled={sendingSystemNotification}
+              >
+                {sendingSystemNotification ? "Slanje..." : "Pošalji"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {message && (
         <div

@@ -24,7 +24,8 @@ def create_item(
         user_id=current_user.id,
     )
 
-    return item_repository.create_item(session, item)
+    created_item = item_repository.create_item(session, item)
+    return created_item
 
 
 def get_public_items(
@@ -123,7 +124,8 @@ def update_item(
 
     item.updated_at = datetime.utcnow()
 
-    return item_repository.update_item(session, item)
+    updated_item = item_repository.update_item(session, item)
+    return updated_item
 
 
 def delete_item(
@@ -170,7 +172,8 @@ def resolve_item(
     item.status = ItemStatus.resolved
     item.updated_at = datetime.utcnow()
 
-    return item_repository.update_item(session, item)
+    updated_item = item_repository.update_item(session, item)
+    return updated_item
 
 
 def expire_item(
@@ -195,8 +198,5 @@ def expire_item(
     item.status = ItemStatus.expired
     item.updated_at = datetime.utcnow()
 
-    return item_repository.update_item(session, item)
-
-
-
-     
+    updated_item = item_repository.update_item(session, item)
+    return updated_item
