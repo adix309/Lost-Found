@@ -1,6 +1,13 @@
 from typing import Annotated, Optional
 
-from fastapi import APIRouter, Depends, File, UploadFile, status
+from fastapi import (
+    APIRouter,
+    BackgroundTasks,
+    Depends,
+    File,
+    UploadFile,
+    status,
+)
 from sqlmodel import Session
 
 from app.database import SessionDep
@@ -27,9 +34,15 @@ router = APIRouter()
 def create_item(
     item_data: ItemCreate,
     session: SessionDep,
+    background_tasks: BackgroundTasks,
     current_user: User = Depends(get_current_user),
 ):
-    return item_service.create_item(session, item_data, current_user)
+    return item_service.create_item(
+        session,
+        item_data,
+        current_user,
+        background_tasks,
+    )
 
 
 @router.post(
@@ -119,9 +132,16 @@ def update_item(
     item_id: int,
     item_data: ItemUpdate,
     session: SessionDep,
+    background_tasks: BackgroundTasks,
     current_user: User = Depends(get_current_user),
 ):
-    return item_service.update_item(session, item_id, item_data, current_user)
+    return item_service.update_item(
+        session,
+        item_id,
+        item_data,
+        current_user,
+        background_tasks,
+    )
 
 
 @router.delete(

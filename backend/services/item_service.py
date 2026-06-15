@@ -1,19 +1,32 @@
 from datetime import datetime
 
-from fastapi import HTTPException, UploadFile, status
+from fastapi import BackgroundTasks, HTTPException, UploadFile, status
 from sqlmodel import Session
-
+from services.item_match_service import run_item_matching_job
 from models.item_model import Item, ItemStatus, ItemType
 from models.user_model import User
 from repositories import item_repository
 from schemas.item_schema import ItemCreate, ItemUpdate
 from services import upload_service
 
+MATCH_RELEVANT_FIELDS = {
+    "title",
+    "description",
+    "category",
+    "location_name",
+    "brand",
+    "color",
+    "event_date",
+    "latitude",
+    "longitude",
+    "status",
+}
 
 def create_item(
     session: Session,
     item_data: ItemCreate,
     current_user: User,
+    background_tasks: BackgroundTasks,
 ) -> Item:
     data = item_data.model_dump()
 
@@ -24,9 +37,11 @@ def create_item(
         **data,
         user_id=current_user.id,
     )
+    item = item_repository.create_item(session, item)
 
-    created_item = item_repository.create_item(session, item)
-    return created_item
+    background_tasks.add_task(run_item_matching_job, item.id)
+
+    return item
 
 
 def add_item_images(
@@ -126,6 +141,7 @@ def update_item(
     item_id: int,
     item_data: ItemUpdate,
     current_user: User,
+    background_tasks: BackgroundTasks,
 ) -> Item:
     item = item_repository.get_item_by_id(session, item_id)
 
@@ -142,6 +158,7 @@ def update_item(
         )
 
     update_data = item_data.model_dump(exclude_unset=True)
+    should_rerun_matching = bool(MATCH_RELEVANT_FIELDS & set(update_data.keys()))
 
     for key, value in update_data.items():
         setattr(item, key, value)
@@ -151,8 +168,11 @@ def update_item(
 
     item.updated_at = datetime.utcnow()
 
-    updated_item = item_repository.update_item(session, item)
-    return updated_item
+    item = item_repository.update_item(session, item)
+    if should_rerun_matching:
+        background_tasks.add_task(run_item_matching_job, item.id)
+
+    return item
 
 
 def delete_item(
@@ -199,8 +219,7 @@ def resolve_item(
     item.status = ItemStatus.resolved
     item.updated_at = datetime.utcnow()
 
-    updated_item = item_repository.update_item(session, item)
-    return updated_item
+    return item_repository.update_item(session, item)
 
 
 def expire_item(
@@ -225,5 +244,4 @@ def expire_item(
     item.status = ItemStatus.expired
     item.updated_at = datetime.utcnow()
 
-    updated_item = item_repository.update_item(session, item)
-    return updated_item
+    return item_repository.update_item(session, item)

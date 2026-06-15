@@ -4,14 +4,14 @@ from sqlmodel import Session, select
 from models.notification_model import Notification
 
 
-def create(session: Session, notification: Notification) -> Notification:
+def create(session: Session, notification: Notification):
     session.add(notification)
     session.commit()
     session.refresh(notification)
     return notification
 
 
-def get_for_user(session: Session, user_id: int, limit: int = 20, offset: int = 0) -> list[Notification]:
+def get_for_user(session: Session, user_id: int, limit: int = 20, offset: int = 0):
     statement = (
         select(Notification)
         .where(Notification.user_id == user_id)

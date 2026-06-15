@@ -54,11 +54,50 @@ function getErrorMessage(payload: unknown, fallback: string) {
   return fallback;
 }
 
+type HiddenUniqueFeatures = Record<string, unknown> | null;
+
+function cleanOptionalString(value: FormDataEntryValue | null): string | null {
+  if (typeof value !== "string") return null;
+  const trimmed = value.trim();
+  return trimmed ? trimmed : null;
+}
+
+function parseHiddenUniqueFeatures(
+  rawValue: FormDataEntryValue | null,
+): HiddenUniqueFeatures {
+  if (typeof rawValue !== "string") return null;
+
+  const trimmed = rawValue.trim();
+  if (!trimmed) return null;
+
+  try {
+    const parsed = JSON.parse(trimmed);
+
+    if (parsed && typeof parsed === "object" && !Array.isArray(parsed)) {
+      return parsed as Record<string, unknown>;
+    }
+
+    throw new Error("hidden_unique_features mora biti JSON objekat.");
+  } catch {
+    return {
+      notes: trimmed,
+    };
+  }
+}
+
 export default function AddItemPage() {
   const router = useRouter();
 
-  const [initialType, setInitialType] = useState<ItemType>("lost");
-  const [itemType, setItemType] = useState<ItemType>("lost");
+  const [initialType] = useState<ItemType>(() => {
+    if (typeof window === "undefined") {
+      return "lost";
+    }
+
+    return new URLSearchParams(window.location.search).get("type") === "found"
+      ? "found"
+      : "lost";
+  });
+  const [itemType, setItemType] = useState<ItemType>(initialType);
   const [category, setCategory] = useState<(typeof CATEGORIES)[number]>(
     "Dokumenti",
   );
@@ -77,16 +116,6 @@ export default function AddItemPage() {
     () => images.map((image) => URL.createObjectURL(image)),
     [images],
   );
-
-  useEffect(() => {
-    const selectedType: ItemType =
-      new URLSearchParams(window.location.search).get("type") === "found"
-        ? "found"
-        : "lost";
-
-    setInitialType(selectedType);
-    setItemType(selectedType);
-  }, []);
 
   useEffect(() => {
     return () => {
@@ -170,16 +199,17 @@ export default function AddItemPage() {
           ? new Date(eventDate).toISOString()
           : null,
       image_url: null,
-      brand: formData.get("brand") || null,
-      color: formData.get("color") || null,
+      brand: cleanOptionalString(formData.get("brand")),
+      color: cleanOptionalString(formData.get("color")),
       reward_amount:
         itemType === "lost" && formData.get("reward_amount")
           ? Number(formData.get("reward_amount"))
           : null,
-      contact_phone: formData.get("contact_phone") || null,
-      contact_email: formData.get("contact_email") || null,
-      hidden_unique_features:
-        formData.get("hidden_unique_features") || null,
+      contact_phone: cleanOptionalString(formData.get("contact_phone")),
+      contact_email: cleanOptionalString(formData.get("contact_email")),
+      hidden_unique_features: parseHiddenUniqueFeatures(
+        formData.get("hidden_unique_features"),
+      ),
     };
 
     setIsSubmitting(true);
