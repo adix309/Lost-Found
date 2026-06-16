@@ -1,4 +1,5 @@
 from datetime import datetime
+import json
 
 from fastapi import BackgroundTasks, HTTPException, UploadFile, status
 from sqlmodel import Session
@@ -38,6 +39,12 @@ def create_item(
         user_id=current_user.id,
     )
     item = item_repository.create_item(session, item)
+    if isinstance(item.hidden_unique_features, str):
+        try:
+            item.hidden_unique_features = json.loads(item.hidden_unique_features)
+        except json.JSONDecodeError:
+            item.hidden_unique_features = {}
+
 
     background_tasks.add_task(run_item_matching_job, item.id)
 

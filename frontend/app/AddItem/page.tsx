@@ -207,9 +207,8 @@ export default function AddItemPage() {
           : null,
       contact_phone: cleanOptionalString(formData.get("contact_phone")),
       contact_email: cleanOptionalString(formData.get("contact_email")),
-      hidden_unique_features: parseHiddenUniqueFeatures(
-        formData.get("hidden_unique_features"),
-      ),
+      hidden_unique_features: (parseHiddenUniqueFeatures(
+        formData.get("hidden_unique_features")) ?? {}),
     };
 
     setIsSubmitting(true);
