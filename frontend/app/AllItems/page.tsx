@@ -1,12 +1,15 @@
 "use client";
 
 import { useEffect, useState } from "react";
+
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { ListingCard } from "@/components/listings/ListingCard";
 import type { Listing } from "@/types/listing";
 
-export default function AllItemPage() {
+const API_URL = "http://localhost:8000";
+
+export default function AllItemsPage() {
   const [items, setItems] = useState<Listing[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -14,17 +17,17 @@ export default function AllItemPage() {
   useEffect(() => {
     async function fetchItems() {
       try {
-        const response = await fetch("http://localhost:8000/items");
+        const response = await fetch(`${API_URL}/items`);
 
         if (!response.ok) {
-          throw new Error("Greška pri dohvaćanju itema iz baze");
+          throw new Error("Greška pri dohvaćanju itema iz baze.");
         }
 
         const data: Listing[] = await response.json();
         setItems(data);
       } catch (err) {
-        setError("Nije moguće učitati iteme. Provjeri da li backend radi.");
         console.error(err);
+        setError("Nije moguće učitati iteme. Provjeri da li backend radi.");
       } finally {
         setIsLoading(false);
       }
@@ -32,6 +35,8 @@ export default function AllItemPage() {
 
     fetchItems();
   }, []);
+
+  const hasItems = items.length > 0;
 
   return (
     <div className="app-shell">
@@ -47,11 +52,11 @@ export default function AllItemPage() {
 
         {error ? <p style={{ color: "red" }}>{error}</p> : null}
 
-        {!isLoading && !error && items.length === 0 ? (
+        {!isLoading && !error && !hasItems ? (
           <p>Trenutno nema itema u bazi.</p>
         ) : null}
 
-        {!isLoading && !error && items.length > 0 ? (
+        {!isLoading && !error && hasItems ? (
           <section className="all-items-page__grid">
             {items.map((item) => (
               <ListingCard key={item.id} listing={item} />

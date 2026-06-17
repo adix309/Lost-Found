@@ -1,5 +1,7 @@
 from sqlmodel import SQLModel, Field
 from pydantic import EmailStr, BaseModel
+from typing import Optional
+from datetime import datetime
 
 
 class UserCreate(BaseModel):
@@ -53,3 +55,10 @@ class AdminUserUpdate(BaseModel):
 class ChangePasswordRequest(BaseModel):
     current_password: str
     new_password: str
+
+class UserPublicRead(BaseModel):
+    id: int
+    username: str
+    email: Optional[EmailStr] = None
+    profile_image: Optional[str] = None
+    created_at: Optional[datetime] = None

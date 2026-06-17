@@ -1,8 +1,9 @@
 from typing import Optional
 
 from sqlmodel import Session, select
+from sqlalchemy.orm import selectinload
 
-from models.item_model import Item, ItemStatus, ItemType
+from models.item_model import Item, ItemImage, ItemStatus, ItemType
 
 
 def create_item(session: Session, item: Item) -> Item:
@@ -13,7 +14,13 @@ def create_item(session: Session, item: Item) -> Item:
 
 
 def get_item_by_id(session: Session, item_id: int) -> Optional[Item]:
-    return session.get(Item, item_id)
+    statement = (
+        select(Item)
+        .where(Item.id == item_id)
+        .options(selectinload(Item.user), selectinload(Item.images))
+    )
+
+    return session.exec(statement).first()
 
 
 def get_items(
@@ -26,7 +33,10 @@ def get_items(
     color: Optional[str] = None,
     search: Optional[str] = None,
 ) -> list[Item]:
-    statement = select(Item)
+    statement = select(Item).options(
+        selectinload(Item.user),
+        selectinload(Item.images),
+    )
 
     if status is not None:
         statement = statement.where(Item.status == status)
@@ -61,7 +71,12 @@ def get_items(
 
 
 def get_items_by_user_id(session: Session, user_id: int) -> list[Item]:
-    statement = select(Item).where(Item.user_id == user_id)
+    statement = (
+        select(Item)
+        .where(Item.user_id == user_id)
+        .options(selectinload(Item.user), selectinload(Item.images))
+    )
+
     return list(session.exec(statement).all())
 
 
@@ -70,6 +85,31 @@ def update_item(session: Session, item: Item) -> Item:
     session.commit()
     session.refresh(item)
     return item
+
+
+def add_item_images(
+    session: Session,
+    item: Item,
+    image_urls: list[str],
+) -> list[ItemImage]:
+    item_images = [
+        ItemImage(item_id=item.id, image_url=image_url)
+        for image_url in image_urls
+    ]
+
+    session.add_all(item_images)
+
+    if image_urls and not item.image_url:
+        item.image_url = image_urls[0]
+
+    session.add(item)
+    session.commit()
+
+    for item_image in item_images:
+        session.refresh(item_image)
+
+    session.refresh(item)
+    return item_images
 
 
 def delete_item(session: Session, item: Item) -> None:

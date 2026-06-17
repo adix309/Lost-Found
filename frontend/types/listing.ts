@@ -18,6 +18,7 @@ export type Listing = {
 
   event_date: string;
   image_url: string | null;
+  image_urls?: string[];
 
   brand: string | null;
   color: string | null;

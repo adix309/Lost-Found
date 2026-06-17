@@ -3,7 +3,7 @@ from pydantic import BaseModel
 from sqlmodel import Session
 from core.security import verify_password, hash_password
 from models.user_model import User
-from repositories import user_repository
+from repositories import user_repository, item_repository
 from schemas.user_schema import ChangePasswordRequest, UserUpdate
 
 
@@ -61,3 +61,26 @@ def update_current_user_password(
     user_repository.update_password(session, current_user, hashed_password)
 
     return {"detail": "Lozinka uspješno promijenjena."}
+
+def get_public_user_profile(session: Session, user_id: int) -> User:
+    user = user_repository.get_by_id(session, user_id)
+
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="User not found"
+        )
+
+    return user
+
+
+def get_public_user_items(session: Session, user_id: int):
+    user = user_repository.get_by_id(session, user_id)
+
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="User not found"
+        )
+
+    return item_repository.get_items_by_user_id(session, user_id)

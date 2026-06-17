@@ -4,13 +4,20 @@ import { useEffect, useMemo, useState } from "react";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { NotificationCard } from "@/components/notifications/NotificationCard";
-import type { NotificationItem, NotificationListResponse } from "@/types/notification";
+import { MatchSuggestionsModal } from "@/components/notifications/MatchSuggestionsModal";
+import type {
+  NotificationItem,
+  NotificationListResponse,
+} from "@/types/notification";
 import styles from "./NotificationsPage.module.css";
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
+const API_BASE_URL =
+  process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
 
 export function NotificationsPage() {
   const [notifications, setNotifications] = useState<NotificationItem[]>([]);
+  const [selectedNotification, setSelectedNotification] =
+    useState<NotificationItem | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -25,11 +32,14 @@ export function NotificationsPage() {
           return;
         }
 
-        const res = await fetch(`${API_BASE_URL}/notifications/me?limit=50&offset=0`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
+        const res = await fetch(
+          `${API_BASE_URL}/notifications/me?limit=50&offset=0`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
 
         const data = (await res.json().catch(() => ({ items: [] }))) as NotificationListResponse;
 
@@ -39,7 +49,7 @@ export function NotificationsPage() {
           return;
         }
 
-        setNotifications(data.items ?? []);
+        setNotifications(Array.isArray(data.items) ? data.items : []);
       } catch {
         setError("Došlo je do greške pri učitavanju notifikacija.");
       } finally {
@@ -60,12 +70,15 @@ export function NotificationsPage() {
     if (!token) return;
 
     try {
-      const res = await fetch(`${API_BASE_URL}/notifications/${notificationId}/read`, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const res = await fetch(
+        `${API_BASE_URL}/notifications/${notificationId}/read`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
 
       if (!res.ok) return;
 
@@ -109,6 +122,7 @@ export function NotificationsPage() {
                     key={notification.id}
                     notification={notification}
                     onMarkAsRead={markAsRead}
+                    onOpenMatches={setSelectedNotification}
                   />
                 ))}
               </div>
@@ -116,6 +130,12 @@ export function NotificationsPage() {
           </div>
         </section>
       </main>
+
+      <MatchSuggestionsModal
+        notification={selectedNotification}
+        isOpen={selectedNotification !== null}
+        onClose={() => setSelectedNotification(null)}
+      />
 
       <Footer />
     </>

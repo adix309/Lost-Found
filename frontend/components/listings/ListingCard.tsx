@@ -1,26 +1,47 @@
 "use client";
 
+
 import { useState, useEffect, type MouseEvent } from "react";
+
+
 import Image from "next/image";
+import Link from "next/link";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faMapPin } from "@fortawesome/free-solid-svg-icons";
-import { faCalendarDay } from "@fortawesome/free-solid-svg-icons";
+import { faMapPin, faCalendarDay } from "@fortawesome/free-solid-svg-icons";
+
 import type { Listing } from "@/types/listing";
 import { StatusBadge } from "@/components/common/StatusBadge";
 import styles from "./ListingCard.module.css";
 
 import { useRouter } from "next/navigation";
 
+
+const API_URL = "http://127.0.0.1:8000";
+
+function formatDateTime(value: string) {
+  const parsed = new Date(value);
+
+  if (Number.isNaN(parsed.getTime())) {
+    return value;
+  }
+
+  const date = parsed.toLocaleDateString("bs-BA", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+  });
+
+  const time = parsed.toLocaleTimeString("bs-BA", {
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+
+  return `${date} · ${time}`;
+}
+
 export function ListingCard({ listing }: { listing: Listing }) {
   const router = useRouter();
 
-  const [isOpen, setIsOpen] = useState(false);
-  const [eventDate, setEventDate] = useState(listing.event_date);
-  const [createdAt, setCreatedAt] = useState(listing.created_at);
-
-  const typeLabel = listing.item_type === "lost" ? "Izgubljeno" : "Pronađeno";
-
-  const API_URL = "http://127.0.0.1:8000";
 
   const imageSrc = listing.image_url
     ? `${API_URL}${listing.image_url}`
@@ -28,29 +49,7 @@ export function ListingCard({ listing }: { listing: Listing }) {
 
   const imageAlt = listing.image_url ? listing.title : "Slika nije dodana";
 
-  const formatDateTime = (value: string) => {
-    const parsed = new Date(value);
-    if (Number.isNaN(parsed.getTime())) {
-      return value;
-    }
-
-    const date = parsed.toLocaleDateString("bs-BA", {
-      day: "2-digit",
-      month: "2-digit",
-      year: "numeric",
-    });
-    const time = parsed.toLocaleTimeString("bs-BA", {
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-
-    return `${date} · ${time}`;
-  };
-
-  useEffect(() => {
-    setEventDate(formatDateTime(listing.event_date));
-    setCreatedAt(formatDateTime(listing.created_at));
-  }, [listing.event_date, listing.created_at]);
+  const eventDate = formatDateTime(listing.event_date);
 
 
   const startChat = async (event: MouseEvent<HTMLButtonElement>) => {
@@ -84,64 +83,50 @@ export function ListingCard({ listing }: { listing: Listing }) {
 
     router.push(`/chat/${data.conversation_id}`);
   };
+  const typeLabel = listing.item_type === "lost" ? "Izgubljeno" : "Pronađeno";
+const createdAt = formatDateTime(listing.created_at);
 
 
   return (
-    <>
-      <article className={styles.card} onClick={() => setIsOpen(true)}>
-        <div className={styles.modalImageWrap}>
-          <Image
-            src={imageSrc}
-            alt={imageAlt}
-            width={900}
-            height={500}
-            className={styles.modalImage}
-            priority
-            unoptimized
-          />
+    <Link href={`/AllItems/${listing.id}`} className={styles.card}>
+      <div className={styles.modalImageWrap}>
+        <Image
+          src={imageSrc}
+          alt={imageAlt}
+          width={900}
+          height={500}
+          className={styles.modalImage}
+          unoptimized
+        />
+      </div>
+
+      <div className={styles.body}>
+        <div className={styles.top}>
+          <h3 className={styles.title}>{listing.title}</h3>
+          <StatusBadge status={listing.status} />
         </div>
 
-        <div className={styles.body}>
-          <div className={styles.top}>
-            <h3 className={styles.title}>{listing.title}</h3>
-            <StatusBadge status={listing.status} />
-          </div>
+        <p className={styles.description}>{listing.description}</p>
 
-          <p className={styles.description}>{listing.description}</p>
+        <div className={styles.info}>
+          <span>
+            <FontAwesomeIcon icon={faMapPin} aria-hidden="true" />{" "}
+            {listing.location_name}
+          </span>
 
-          <div className={styles.info}>
-            <span> <FontAwesomeIcon icon={faMapPin} aria-hidden="true" /> {listing.location_name}</span>
-            <span> <FontAwesomeIcon icon={faCalendarDay} aria-hidden="true" /> {eventDate}</span>
-            <span> {listing.category}</span>
-          </div>
+          <span>
+            <FontAwesomeIcon icon={faCalendarDay} aria-hidden="true" />{" "}
+            {eventDate}
+          </span>
 
-          <div className={styles.details}>
-            {listing.color && <span>Boja: {listing.color}</span>}
-            {listing.brand && <span>Brand: {listing.brand}</span>}
-            {listing.reward_amount !== null && (
-              <span>Nagrada: {listing.reward_amount} KM</span>
-            )}
-          </div>
+          <span>{listing.category}</span>
         </div>
-      </article>
 
-      {isOpen && (
-        <div className={styles.overlay} onClick={() => setIsOpen(false)}>
-          <div className={styles.modal} onClick={(event) => event.stopPropagation()}>
-            <button className={styles.closeButton} onClick={() => setIsOpen(false)}>
-              ×
-            </button>
+        <div className={styles.details}>
+          {listing.color ? <span>Boja: {listing.color}</span> : null}
 
-            <div className={styles.modalImageWrap}>
-              <Image
-                src={imageSrc}
-                alt={imageAlt}
-                width={900}
-                height={500}
-                className={styles.modalImage}
-                unoptimized
-              />
-            </div>
+          {listing.brand ? <span>Brand: {listing.brand}</span> : null}
+
 
             <div className={styles.modalContent}>
               <div className={styles.modalHeader}>
@@ -229,8 +214,9 @@ export function ListingCard({ listing }: { listing: Listing }) {
               </div>
             </div>
           </div>
+
         </div>
-      )}
-    </>
+      
+    </Link>
   );
 }
