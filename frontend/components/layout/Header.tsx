@@ -106,6 +106,8 @@ export function Header() {
                 <FontAwesomeIcon icon={faBell} />
                 {unreadCount > 0 && <span className="site-header__notification-badge" />}
               </Link>
+              <Link href="/AllChats">Razgovori</Link>
+
 
               <Link href="/profile" className="site-header__action">
                 Moj profil

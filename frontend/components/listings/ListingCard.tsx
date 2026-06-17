@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, type MouseEvent } from "react";
 import Image from "next/image";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faMapPin } from "@fortawesome/free-solid-svg-icons";
@@ -9,7 +9,11 @@ import type { Listing } from "@/types/listing";
 import { StatusBadge } from "@/components/common/StatusBadge";
 import styles from "./ListingCard.module.css";
 
+import { useRouter } from "next/navigation";
+
 export function ListingCard({ listing }: { listing: Listing }) {
+  const router = useRouter();
+
   const [isOpen, setIsOpen] = useState(false);
   const [eventDate, setEventDate] = useState(listing.event_date);
   const [createdAt, setCreatedAt] = useState(listing.created_at);
@@ -47,6 +51,40 @@ export function ListingCard({ listing }: { listing: Listing }) {
     setEventDate(formatDateTime(listing.event_date));
     setCreatedAt(formatDateTime(listing.created_at));
   }, [listing.event_date, listing.created_at]);
+
+
+  const startChat = async (event: MouseEvent<HTMLButtonElement>) => {
+    event.stopPropagation();
+
+    const token = localStorage.getItem("access_token");
+
+    if (!token) {
+      router.push("/login");
+      return;
+    }
+
+    const res = await fetch(`${API_URL}/conversations/start`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({
+        item_id: listing.id,
+      }),
+    });
+
+    if (!res.ok) {
+      const error = await res.json();
+      alert(error.detail || "Greška pri pokretanju chata.");
+      return;
+    }
+
+    const data = await res.json();
+
+    router.push(`/chat/${data.conversation_id}`);
+  };
+
 
   return (
     <>
@@ -177,6 +215,17 @@ export function ListingCard({ listing }: { listing: Listing }) {
                   <strong>Objavljeno</strong>
                   <span>{createdAt}</span>
                 </div>
+
+                <div>
+
+
+                  <button onClick={startChat}                  >
+                    Chat sa korisnikom
+                  </button>
+
+
+                </div>
+
               </div>
             </div>
           </div>
