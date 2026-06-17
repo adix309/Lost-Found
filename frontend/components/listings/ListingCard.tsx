@@ -52,42 +52,13 @@ export function ListingCard({ listing }: { listing: Listing }) {
   const eventDate = formatDateTime(listing.event_date);
 
 
-  const startChat = async (event: MouseEvent<HTMLButtonElement>) => {
-    event.stopPropagation();
-
-    const token = localStorage.getItem("access_token");
-
-    if (!token) {
-      router.push("/login");
-      return;
-    }
-
-    const res = await fetch(`${API_URL}/conversations/start`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify({
-        item_id: listing.id,
-      }),
-    });
-
-    if (!res.ok) {
-      const error = await res.json();
-      alert(error.detail || "Greška pri pokretanju chata.");
-      return;
-    }
-
-    const data = await res.json();
-
-    router.push(`/chat/${data.conversation_id}`);
-  };
+  
   const typeLabel = listing.item_type === "lost" ? "Izgubljeno" : "Pronađeno";
 const createdAt = formatDateTime(listing.created_at);
 
 
   return (
+    
     <Link href={`/AllItems/${listing.id}`} className={styles.card}>
       <div className={styles.modalImageWrap}>
         <Image
@@ -204,9 +175,7 @@ const createdAt = formatDateTime(listing.created_at);
                 <div>
 
 
-                  <button onClick={startChat}                  >
-                    Chat sa korisnikom
-                  </button>
+                  
 
 
                 </div>

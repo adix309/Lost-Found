@@ -1,3 +1,5 @@
+
+
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -6,6 +8,7 @@ import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { StatusBadge } from "@/components/common/StatusBadge";
 import type { Listing } from "@/types/listing";
+import { StartChatButton } from "@/components/chat/StartChatButton";
 
 const API_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8000";
 
@@ -99,6 +102,10 @@ export default async function ItemDetailsPage({ params }: Props) {
 
   const ownerImageSrc = getImageSrc(owner?.profile_image);
 
+
+
+
+  
   return (
     <div className="app-shell">
       <Header />
@@ -214,6 +221,9 @@ export default async function ItemDetailsPage({ params }: Props) {
                   <strong>Objavljeno:</strong>{" "}
                   {formatDateTime(item.created_at)}
                 </p>
+                
+                    <StartChatButton itemId={item.id} />
+
               </div>
             </div>
 
