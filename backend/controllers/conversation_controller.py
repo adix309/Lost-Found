@@ -10,14 +10,23 @@ from models.user_model import User
 
 from models.chat.messages import Message
 from sqlalchemy import or_
+from models.verification_question_model import VerificationQuestion
+
 
 
 
 router = APIRouter()
 
 
+class VerificationAnswer(BaseModel):
+    question_id: int
+    question_text: str
+    answer: str
+
+
 class StartConversationRequest(BaseModel):
     item_id: int
+    verification_answers: list[VerificationAnswer] | None = None
 
 
 @router.post("/start")
@@ -39,6 +48,8 @@ def start_conversation(
             detail="Ne možeš započeti chat sam sa sobom.",
         )
 
+    # 1. Ako conversation već postoji, odmah vrati postojeći chat.
+    # Ovo je bitno da korisnik ne mora opet odgovarati na pitanja.
     existing_conversation = session.exec(
         select(Conversation).where(
             Conversation.item_id == item.id,
@@ -54,8 +65,58 @@ def start_conversation(
             "participant_one_id": existing_conversation.participant_one_id,
             "participant_two_id": existing_conversation.participant_two_id,
             "created": False,
+            "requiresVerification": False,
         }
 
+    # 2. Ako conversation ne postoji, provjeri ima li pitanja za ovaj oglas.
+    verification_questions = session.exec(
+        select(VerificationQuestion)
+        .where(VerificationQuestion.item_id == item.id)
+        .order_by(VerificationQuestion.id)
+    ).all()
+
+    # 3. Ako pitanja postoje, ali frontend još nije poslao odgovore,
+    # ne pravimo conversation, nego vraćamo pitanja frontendu.
+    if verification_questions and not request.verification_answers:
+        return {
+            "requiresVerification": True,
+            "questions": [
+                {
+                    "id": question.id,
+                    "questionText": question.question_text,
+                }
+                for question in verification_questions
+            ],
+        }
+
+    # 4. Ako pitanja postoje i frontend je poslao odgovore,
+    # provjeri da je odgovoreno na sva pitanja.
+    if verification_questions:
+        answers = request.verification_answers or []
+
+        if len(answers) != len(verification_questions):
+            raise HTTPException(
+                status_code=400,
+                detail="Moraš odgovoriti na sva verifikaciona pitanja.",
+            )
+
+        question_ids = {question.id for question in verification_questions}
+        answer_question_ids = {answer.question_id for answer in answers}
+
+        if question_ids != answer_question_ids:
+            raise HTTPException(
+                status_code=400,
+                detail="Odgovori ne odgovaraju verifikacionim pitanjima.",
+            )
+
+        for answer in answers:
+            if not answer.answer.strip():
+                raise HTTPException(
+                    status_code=400,
+                    detail="Odgovori ne smiju biti prazni.",
+                )
+
+    # 5. Sada možemo napraviti conversation.
     conversation = Conversation(
         item_id=item.id,
         participant_one_id=item_owner_id,
@@ -66,13 +127,42 @@ def start_conversation(
     session.commit()
     session.refresh(conversation)
 
+    # 6. Ako su postojala pitanja, ubaci odgovore kao prvu poruku u chat.
+    if verification_questions and request.verification_answers:
+        answers_by_question_id = {
+            answer.question_id: answer.answer.strip()
+            for answer in request.verification_answers
+        }
+
+        lines = [
+            f'Verifikacioni odgovori za oglas "{item.title}":',
+            "",
+        ]
+
+        for index, question in enumerate(verification_questions, start=1):
+            lines.append(f"Pitanje {index}: {question.question_text}")
+            lines.append(f"Odgovor: {answers_by_question_id.get(question.id, '')}")
+            lines.append("")
+
+        verification_message = Message(
+            conversation_id=conversation.id,
+            sender_id=current_user.id,
+            content="\n".join(lines),
+        )
+
+        session.add(verification_message)
+        session.commit()
+
     return {
         "conversation_id": conversation.id,
         "item_id": conversation.item_id,
         "participant_one_id": conversation.participant_one_id,
         "participant_two_id": conversation.participant_two_id,
         "created": True,
+        "requiresVerification": False,
     }
+
+
 
 
 @router.get("/my")

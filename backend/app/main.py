@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from pathlib import Path
-from controllers import auth_controller, user_controller, item_controller, claim_controller, admin_controller, upload_controller, notification_controller, websocket_controller, conversation_controller
+from controllers import auth_controller, user_controller, item_controller, claim_controller, admin_controller, upload_controller, notification_controller, websocket_controller, conversation_controller,verification_question_controller
 
 from fastapi.middleware.cors import CORSMiddleware
 from sqlmodel import SQLModel
@@ -9,6 +9,7 @@ from contextlib import asynccontextmanager
 from app.database import engine
 
 from fastapi.staticfiles import StaticFiles
+
 
 
 
@@ -47,6 +48,8 @@ app.include_router(claim_controller.router, tags=["Claims"])
 
 app.include_router(upload_controller.router, prefix="/uploads", tags=["uploads"])
 app.include_router(conversation_controller.router, prefix="/conversations", tags=["Conversations"])
+app.include_router(verification_question_controller.router,prefix="/verification-questions",tags=["Verification Questions"])
+
 
 app.include_router(websocket_controller.router)
 

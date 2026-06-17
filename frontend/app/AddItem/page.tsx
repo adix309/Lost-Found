@@ -2,7 +2,8 @@
 
 import dynamic from "next/dynamic";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
+
 import {
   useEffect,
   useMemo,
@@ -88,16 +89,11 @@ function parseHiddenUniqueFeatures(
 export default function AddItemPage() {
   const router = useRouter();
 
-  const [initialType] = useState<ItemType>(() => {
-    if (typeof window === "undefined") {
-      return "lost";
-    }
-
-    return new URLSearchParams(window.location.search).get("type") === "found"
-      ? "found"
-      : "lost";
-  });
+  const searchParams = useSearchParams();
+  const initialType: ItemType = searchParams.get("type") === "found" ? "found" : "lost";
   const [itemType, setItemType] = useState<ItemType>(initialType);
+
+
   const [category, setCategory] = useState<(typeof CATEGORIES)[number]>(
     "Dokumenti",
   );
@@ -108,6 +104,10 @@ export default function AddItemPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+
+  const [verificationEnabled, setVerificationEnabled] = useState(false);
+  const [verificationQuestions, setVerificationQuestions] = useState<string[]>([""]);
+
 
   const bannerRef = useRef<HTMLDivElement | null>(null);
   const formRef = useRef<HTMLFormElement | null>(null);
@@ -129,6 +129,14 @@ export default function AddItemPage() {
     }
   }, [success, error]);
 
+  useEffect(() => {
+    if (itemType !== "found") {
+      setVerificationEnabled(false);
+      setVerificationQuestions([""]);
+    }
+  }, [itemType]);
+
+
   function handleImagesChange(event: ChangeEvent<HTMLInputElement>) {
     setImages(Array.from(event.target.files || []));
     event.target.value = "";
@@ -148,9 +156,32 @@ export default function AddItemPage() {
     setLatitude(null);
     setLongitude(null);
     setImages([]);
+    setVerificationEnabled(false);
+    setVerificationQuestions([""]);
     setError("");
     setSuccess("");
   }
+
+
+  function addVerificationQuestion() {
+    setVerificationQuestions((current) => [...current, ""]);
+  }
+
+  function updateVerificationQuestion(index: number, value: string) {
+    setVerificationQuestions((current) =>
+      current.map((question, questionIndex) =>
+        questionIndex === index ? value : question,
+      ),
+    );
+  }
+
+  function removeVerificationQuestion(index: number) {
+    setVerificationQuestions((current) => {
+      const nextQuestions = current.filter((_, questionIndex) => questionIndex !== index);
+      return nextQuestions.length > 0 ? nextQuestions : [""];
+    });
+  }
+
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -182,6 +213,16 @@ export default function AddItemPage() {
       setError("Unesi drugu kategoriju predmeta.");
       return;
     }
+
+    const cleanedVerificationQuestions = verificationQuestions
+      .map((question) => question.trim())
+      .filter(Boolean);
+
+    if (itemType === "found" && verificationEnabled && cleanedVerificationQuestions.length === 0) {
+      setError("Dodaj barem jedno verifikaciono pitanje ili isključi opciju.");
+      return;
+    }
+
 
     const formData = new FormData(event.currentTarget);
     const eventDate = formData.get("event_date");
@@ -231,6 +272,40 @@ export default function AddItemPage() {
         );
       }
 
+      if (itemType === "found") {
+        const questionsPayload = verificationEnabled
+          ? cleanedVerificationQuestions.map((question) => ({
+            question_text: question,
+          }))
+          : [];
+
+        const questionsResponse = await fetch(
+          `${API_BASE_URL}/verification-questions/items/${createdItem.id}`,
+          {
+            method: "PUT",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify({
+              questions: questionsPayload,
+            }),
+          },
+        );
+
+        const questionsResult = await questionsResponse.json();
+
+        if (!questionsResponse.ok) {
+          throw new Error(
+            getErrorMessage(
+              questionsResult,
+              "Predmet je kreiran, ali verifikaciona pitanja nisu spremljena.",
+            ),
+          );
+        }
+      }
+
+
       const uploadFormData = new FormData();
       images.forEach((image) => uploadFormData.append("images", image));
 
@@ -255,6 +330,8 @@ export default function AddItemPage() {
           ),
         );
       }
+
+
 
       setSuccess("Predmet i slike su uspješno dodani.");
       setTimeout(() => router.push(`/AllItems/${createdItem.id}`), 1200);
@@ -321,9 +398,8 @@ export default function AddItemPage() {
                   <span className="field-label">Tip oglasa*</span>
                   <div className={styles.typeCards}>
                     <label
-                      className={`${styles.typeCard} ${
-                        itemType === "lost" ? styles.typeCardSelected : ""
-                      }`}
+                      className={`${styles.typeCard} ${itemType === "lost" ? styles.typeCardSelected : ""
+                        }`}
                     >
                       <input
                         type="radio"
@@ -342,9 +418,8 @@ export default function AddItemPage() {
                     </label>
 
                     <label
-                      className={`${styles.typeCard} ${
-                        itemType === "found" ? styles.typeCardSelected : ""
-                      }`}
+                      className={`${styles.typeCard} ${itemType === "found" ? styles.typeCardSelected : ""
+                        }`}
                     >
                       <input
                         type="radio"
@@ -630,6 +705,84 @@ export default function AddItemPage() {
                     }}
                   />
                 </div>
+
+                {itemType === "found" && (
+                  <div className={profileStyles["profile-form__field"]}>
+                    <label
+                      className="field-label"
+                      style={{
+                        display: "flex",
+                        gap: "10px",
+                        alignItems: "center",
+                      }}
+                    >
+                      <input
+                        type="checkbox"
+                        checked={verificationEnabled}
+                        onChange={(event) => setVerificationEnabled(event.target.checked)}
+                      />
+                      Uključi verifikaciona pitanja
+                    </label>
+
+                    <p
+                      style={{
+                        margin: "6px 0 0",
+                        color: "#64748b",
+                        fontSize: "14px",
+                      }}
+                    >
+                      Ako uključiš ovu opciju, korisnik mora odgovoriti na pitanja prije nego što započne chat.
+                    </p>
+
+                    {verificationEnabled && (
+                      <div style={{ display: "grid", gap: "12px", marginTop: "14px" }}>
+                        {verificationQuestions.map((question, index) => (
+                          <div
+                            key={index}
+                            style={{
+                              display: "flex",
+                              gap: "10px",
+                              alignItems: "start",
+                            }}
+                          >
+                            <textarea
+                              value={question}
+                              onChange={(event) =>
+                                updateVerificationQuestion(index, event.target.value)
+                              }
+                              className="form-input"
+                              placeholder={`Pitanje ${index + 1}, npr. Koje je boje predmet?`}
+                              rows={2}
+                              style={{
+                                height: "auto",
+                                minHeight: "4.5rem",
+                                paddingTop: "0.9rem",
+                              }}
+                            />
+
+                            <button
+                              type="button"
+                              className="btn btn--outline"
+                              onClick={() => removeVerificationQuestion(index)}
+                              disabled={verificationQuestions.length === 1}
+                            >
+                              Ukloni
+                            </button>
+                          </div>
+                        ))}
+
+                        <button
+                          type="button"
+                          className="btn btn--outline"
+                          onClick={addVerificationQuestion}
+                        >
+                          + Dodaj pitanje
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                )}
+
 
                 <div className={styles.actions}>
                   <button
