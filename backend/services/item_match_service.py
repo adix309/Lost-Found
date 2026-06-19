@@ -21,12 +21,21 @@ def get_lost_and_found_pair(source_item: Item, candidate_item: Item) -> tuple[It
     return candidate_item, source_item
 
 
-def run_item_matching(session: Session, source_item: Item) -> list:
+def run_item_matching(
+    session: Session,
+    source_item: Item,
+    background_tasks: BackgroundTasks | None = None,
+) -> list:
     candidates = candidate_repository.get_candidate_items_for_matching(session, source_item, limit=50)
 
     scored = []
     for candidate in candidates:
         score_data = calculate_match_score(source_item, candidate)
+        print(
+            f"[MATCH] source={source_item.id} candidate={candidate.id} "
+            f"title={candidate.title} score={score_data.get('score')} "
+            f"data={score_data}"
+        )
         if score_data["score"] < 0.45:
             continue
 
@@ -43,7 +52,7 @@ def run_item_matching(session: Session, source_item: Item) -> list:
     top_matches = scored[:TOP_K]
 
     if top_matches:
-        notify_top_matches_for_item(session, source_item, top_matches)
+        notify_top_matches_for_item(session, source_item, top_matches, background_tasks)
 
     return top_matches
 

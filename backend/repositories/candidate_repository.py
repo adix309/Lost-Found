@@ -36,6 +36,13 @@ def get_candidate_items_for_matching(
         LIMIT :limit
     """)
 
+    print(
+        f"[CANDIDATE QUERY] item_id={source_item.id} "
+        f"type={source_item.item_type} opposite_type={opposite_type} "
+        f"event_date={source_item.event_date} category={source_item.category!r} "
+        f"title={source_item.title!r}"
+    )
+
     rows = session.exec(
         query,
         params={
@@ -51,5 +58,9 @@ def get_candidate_items_for_matching(
             "limit": limit,
         }
     ).all()
+
+    print(f"[CANDIDATE QUERY] found_rows={len(rows)}")
+    for r in rows[:5]:
+        print(f"[CANDIDATE QUERY] row={r}")
 
     return list(rows)

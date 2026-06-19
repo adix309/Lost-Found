@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, BackgroundTasks
 from pydantic import BaseModel
 from sqlmodel import select
 
@@ -7,7 +7,8 @@ from core.dependencies import get_current_user
 from models.item_model import Item
 from models.chat.conversations import Conversation
 from models.user_model import User
-
+from models.notification_model import NotificationType
+from services.notification_service import create_notification
 from models.chat.messages import Message
 from sqlalchemy import or_
 from models.verification_question_model import VerificationQuestion
@@ -33,6 +34,7 @@ class StartConversationRequest(BaseModel):
 def start_conversation(
     request: StartConversationRequest,
     session: SessionDep,
+    background_tasks: BackgroundTasks,
     current_user: User = Depends(get_current_user),
 ):
     item = session.get(Item, request.item_id)
@@ -48,8 +50,6 @@ def start_conversation(
             detail="Ne možeš započeti chat sam sa sobom.",
         )
 
-    # 1. Ako conversation već postoji, odmah vrati postojeći chat.
-    # Ovo je bitno da korisnik ne mora opet odgovarati na pitanja.
     existing_conversation = session.exec(
         select(Conversation).where(
             Conversation.item_id == item.id,
@@ -68,15 +68,12 @@ def start_conversation(
             "requiresVerification": False,
         }
 
-    # 2. Ako conversation ne postoji, provjeri ima li pitanja za ovaj oglas.
     verification_questions = session.exec(
         select(VerificationQuestion)
         .where(VerificationQuestion.item_id == item.id)
         .order_by(VerificationQuestion.id)
     ).all()
 
-    # 3. Ako pitanja postoje, ali frontend još nije poslao odgovore,
-    # ne pravimo conversation, nego vraćamo pitanja frontendu.
     if verification_questions and not request.verification_answers:
         return {
             "requiresVerification": True,
@@ -89,8 +86,6 @@ def start_conversation(
             ],
         }
 
-    # 4. Ako pitanja postoje i frontend je poslao odgovore,
-    # provjeri da je odgovoreno na sva pitanja.
     if verification_questions:
         answers = request.verification_answers or []
 
@@ -116,7 +111,6 @@ def start_conversation(
                     detail="Odgovori ne smiju biti prazni.",
                 )
 
-    # 5. Sada možemo napraviti conversation.
     conversation = Conversation(
         item_id=item.id,
         participant_one_id=item_owner_id,
@@ -127,7 +121,21 @@ def start_conversation(
     session.commit()
     session.refresh(conversation)
 
-    # 6. Ako su postojala pitanja, ubaci odgovore kao prvu poruku u chat.
+    create_notification(
+        session=session,
+        user_id=item_owner_id,
+        type=NotificationType.CONVERSATION_STARTED,
+        title="Započet je novi razgovor",
+        body=f"Korisnik je započeo razgovor za oglas '{item.title}'.",
+        data={
+            "conversation_id": conversation.id,
+            "item_id": item.id,
+            "item_title": item.title,
+            "started_by_user_id": current_user.id,
+        },
+        background_tasks=background_tasks,
+    )
+
     if verification_questions and request.verification_answers:
         answers_by_question_id = {
             answer.question_id: answer.answer.strip()
