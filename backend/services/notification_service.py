@@ -12,6 +12,7 @@ from repositories import (
 from models.notification_model import Notification, NotificationType
 from models.item_model import Item, ItemType
 from services.email_service import send_email
+from models.user_model import User
 
 
 EMAIL_ENABLED_NOTIFICATION_TYPES = {
