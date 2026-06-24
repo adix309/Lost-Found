@@ -2,6 +2,16 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import Button from "@mui/material/Button";
+import Box from "@mui/material/Box";
+import Card from "@mui/material/Card";
+import CardContent from "@mui/material/CardContent";
+import Typography from "@mui/material/Typography";
+import TextField from "@mui/material/TextField";
+import Stack from "@mui/material/Stack";
+import CircularProgress from "@mui/material/CircularProgress";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faComments } from "@fortawesome/free-solid-svg-icons";
 
 const API_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8000";
 
@@ -61,6 +71,8 @@ export function StartChatButton({ itemId }: { itemId: number }) {
       }
 
       router.push(`/chat/${data.conversation_id}`);
+    } catch (err) {
+      console.error(err);
     } finally {
       setLoading(false);
     }
@@ -108,76 +120,108 @@ export function StartChatButton({ itemId }: { itemId: number }) {
       }
 
       router.push(`/chat/${data.conversation_id}`);
+    } catch (err) {
+      console.error(err);
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <>
-      <button onClick={startChat} disabled={loading}>
+    <Box sx={{ width: "100%", mt: 1.5 }}>
+      <Button
+        fullWidth
+        variant="contained"
+        color="primary"
+        onClick={startChat}
+        disabled={loading}
+        startIcon={loading ? <CircularProgress size={18} color="inherit" /> : <FontAwesomeIcon icon={faComments} />}
+        sx={{
+          py: 1.2,
+          fontWeight: 700,
+          textTransform: "none",
+          borderRadius: 2,
+        }}
+      >
         {loading ? "Pokretanje..." : "Chat sa korisnikom"}
-      </button>
+      </Button>
 
       {showVerificationForm && (
-        <div
-          style={{
-            marginTop: "16px",
-            padding: "16px",
-            border: "1px solid #ddd",
-            borderRadius: "12px",
-            background: "#f8fafc",
+        <Card
+          sx={{
+            mt: 2.5,
+            p: 3,
+            borderRadius: 3,
+            border: "1px solid",
+            borderColor: "grey.200",
+            bgcolor: "grey.50",
+            boxShadow: "none",
           }}
         >
-          <h3 style={{ marginTop: 0 }}>Odgovori na verifikaciona pitanja</h3>
+          <CardContent sx={{ p: 0, "&:last-child": { pb: 0 } }}>
+            <Typography variant="h6" sx={{ fontWeight: 800, mb: 1 }}>
+              Odgovori na verifikaciona pitanja
+            </Typography>
 
-          <p style={{ color: "#64748b" }}>
-            Vlasnik oglasa je dodao pitanja kako bi provjerio da li si stvarni vlasnik predmeta.
-          </p>
+            <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
+              Vlasnik oglasa je dodao pitanja kako bi provjerio da li si stvarni vlasnik predmeta.
+            </Typography>
 
-          <div style={{ display: "grid", gap: "12px" }}>
-            {questions.map((question, index) => (
-              <label key={question.id} style={{ display: "grid", gap: "6px" }}>
-                <strong>
-                  {index + 1}. {question.questionText}
-                </strong>
+            <Stack spacing={3}>
+              {questions.map((question, index) => (
+                <Box key={question.id}>
+                  <Typography variant="subtitle2" sx={{ fontWeight: 700, mb: 1, color: "text.primary" }}>
+                    {index + 1}. {question.questionText}
+                  </Typography>
 
-                <textarea
-                  value={answers[question.id] || ""}
-                  onChange={(event) =>
-                    setAnswers((prev) => ({
-                      ...prev,
-                      [question.id]: event.target.value,
-                    }))
-                  }
-                  placeholder="Unesi odgovor..."
-                  rows={3}
-                  style={{
-                    padding: "10px",
-                    borderRadius: "10px",
-                    border: "1px solid #cbd5e1",
-                    resize: "vertical",
-                  }}
-                />
-              </label>
-            ))}
-          </div>
+                  <TextField
+                    fullWidth
+                    multiline
+                    rows={3}
+                    placeholder="Unesi odgovor..."
+                    aria-label={`Odgovor na verifikaciono pitanje: ${question.questionText}`}
+                    value={answers[question.id] || ""}
+                    onChange={(event) =>
+                      setAnswers((prev) => ({
+                        ...prev,
+                        [question.id]: event.target.value,
+                      }))
+                    }
+                    sx={{
+                      bgcolor: "background.paper",
+                      "& .MuiOutlinedInput-root": {
+                        borderRadius: 2,
+                      },
+                    }}
+                  />
+                </Box>
+              ))}
+            </Stack>
 
-          <div style={{ display: "flex", gap: "10px", marginTop: "14px" }}>
-            <button onClick={submitVerificationAnswers} disabled={loading}>
-              {loading ? "Šaljem..." : "Pošalji odgovore i započni chat"}
-            </button>
+            <Stack direction="row" spacing={2} sx={{ mt: 3 }}>
+              <Button
+                variant="contained"
+                color="primary"
+                onClick={submitVerificationAnswers}
+                disabled={loading}
+                sx={{ textTransform: "none", fontWeight: 700 }}
+              >
+                Pošalji odgovore i započni chat
+              </Button>
 
-            <button
-              type="button"
-              onClick={() => setShowVerificationForm(false)}
-              disabled={loading}
-            >
-              Odustani
-            </button>
-          </div>
-        </div>
+              <Button
+                variant="outlined"
+                color="inherit"
+                onClick={() => setShowVerificationForm(false)}
+                disabled={loading}
+                sx={{ textTransform: "none", fontWeight: 700 }}
+              >
+                Odustani
+              </Button>
+            </Stack>
+          </CardContent>
+        </Card>
       )}
-    </>
+    </Box>
   );
 }

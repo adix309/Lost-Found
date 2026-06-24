@@ -9,14 +9,30 @@ import {
   useMemo,
   useRef,
   useState,
+  Suspense,
   type ChangeEvent,
   type FormEvent,
 } from "react";
 
 import { Footer } from "@/components/layout/Footer";
 import { Header } from "@/components/layout/Header";
-import profileStyles from "@/components/profile/ProfileStyles.module.css";
-import styles from "./AddItem.module.css";
+import Box from "@mui/material/Box";
+import Container from "@mui/material/Container";
+import Card from "@mui/material/Card";
+import CardContent from "@mui/material/CardContent";
+import Typography from "@mui/material/Typography";
+import Grid from "@mui/material/Grid";
+import TextField from "@mui/material/TextField";
+import MenuItem from "@mui/material/MenuItem";
+import Button from "@mui/material/Button";
+import IconButton from "@mui/material/IconButton";
+import FormControlLabel from "@mui/material/FormControlLabel";
+import Checkbox from "@mui/material/Checkbox";
+import Alert from "@mui/material/Alert";
+import CircularProgress from "@mui/material/CircularProgress";
+import Stack from "@mui/material/Stack";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faXmark } from "@fortawesome/free-solid-svg-icons";
 
 const LocationPicker = dynamic(
   () => import("@/components/map/LocationPicker"),
@@ -86,7 +102,7 @@ function parseHiddenUniqueFeatures(
   }
 }
 
-export default function AddItemPage() {
+function AddItemPageContent() {
   const router = useRouter();
 
   const searchParams = useSearchParams();
@@ -348,120 +364,145 @@ export default function AddItemPage() {
   }
 
   return (
-    <div className="app-shell">
+    <Box sx={{ display: "flex", flexDirection: "column", minHeight: "100vh", bgcolor: "background.default" }}>
       <Header />
 
-      <main className="app-main">
-        <section className={profileStyles["profile-page"]}>
-          <div className="container">
-            <div ref={bannerRef}>
-              {success && (
-                <div
-                  className={`${profileStyles["profile-message"]} ${profileStyles["profile-message--success"]}`}
-                >
-                  {success}
-                </div>
-              )}
+      <Box component="main" sx={{ flexGrow: 1, py: { xs: 6, md: 8 } }}>
+        <Container maxWidth="lg">
+          <Box ref={bannerRef}>
+            {success && (
+              <Alert severity="success" sx={{ mb: 3 }}>
+                {success}
+              </Alert>
+            )}
 
-              {error && (
-                <div
-                  className={`${profileStyles["profile-message"]} ${profileStyles["profile-message--error"]}`}
-                >
-                  {error}
-                </div>
-              )}
-            </div>
+            {error && (
+              <Alert severity="error" sx={{ mb: 3 }}>
+                {error}
+              </Alert>
+            )}
+          </Box>
 
-            <div className={profileStyles["profile-header"]}>
-              <p className={profileStyles["profile-header__eyebrow"]}>
-                Novi predmet
-              </p>
-              <h1 className={profileStyles["profile-header__title"]}>
-                Dodaj novi predmet
-              </h1>
-              <p className={profileStyles["profile-header__description"]}>
-                Popuni podatke za izgubljeni ili pronađeni predmet.
-              </p>
-            </div>
+          <Box sx={{ mb: 5 }}>
+            <Typography
+              variant="overline"
+              sx={{
+                fontWeight: 700,
+                letterSpacing: "0.2em",
+                color: "primary.main",
+                display: "block",
+                lineHeight: 1.5,
+              }}
+            >
+              Novi predmet
+            </Typography>
+            <Typography
+              variant="h4"
+              component="h1"
+              sx={{
+                fontWeight: 800,
+                color: "text.primary",
+                mt: 0.5,
+                letterSpacing: "-0.02em",
+                fontSize: { xs: "2.25rem", md: "2.75rem" },
+              }}
+            >
+              Dodaj novi predmet
+            </Typography>
+            <Typography variant="body1" color="text.secondary" sx={{ mt: 1.5 }}>
+              Popuni podatke za izgubljeni ili pronađeni predmet.
+            </Typography>
+          </Box>
 
-            <section className={profileStyles["profile-panel"]}>
-              <h2 className={profileStyles["profile-panel__title"]}>
+          <Card>
+            <CardContent sx={{ p: { xs: 3, md: 4 } }}>
+              <Typography variant="h6" component="h2" sx={{ fontWeight: 800, mb: 4 }}>
                 Informacije o predmetu
-              </h2>
+              </Typography>
 
-              <form
+              <Box
+                component="form"
                 ref={formRef}
-                className={profileStyles["profile-form"]}
                 onSubmit={handleSubmit}
+                sx={{ display: "flex", flexDirection: "column", gap: 4 }}
               >
-                <div className={profileStyles["profile-form__field"]}>
-                  <span className="field-label">Tip oglasa*</span>
-                  <div className={styles.typeCards}>
-                    <label
-                      className={`${styles.typeCard} ${itemType === "lost" ? styles.typeCardSelected : ""
-                        }`}
-                    >
-                      <input
-                        type="radio"
-                        name="item_type"
-                        value="lost"
-                        checked={itemType === "lost"}
-                        onChange={() => setItemType("lost")}
-                        className={styles.typeRadio}
-                      />
-                      <span className={styles.typeTitle}>
-                        Izgubio sam predmet
-                      </span>
-                      <span className={styles.typeDescription}>
-                        Objavi predmet koji pokušavaš pronaći.
-                      </span>
-                    </label>
+                <Box>
+                  <Typography variant="subtitle2" sx={{ mb: 1.5, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.05em", color: "text.secondary", fontSize: "0.75rem" }}>
+                    Tip oglasa*
+                  </Typography>
+                  <Grid container spacing={2.5}>
+                    <Grid size={{ xs: 12, sm: 6 }}>
+                      <Card
+                        onClick={() => setItemType("lost")}
+                        sx={{
+                          cursor: "pointer",
+                          border: "2px solid",
+                          borderColor: itemType === "lost" ? "error.main" : "grey.200",
+                          bgcolor: itemType === "lost" ? "error.light" : "background.paper",
+                          p: 3,
+                          transition: "all 0.2s ease-in-out",
+                          "&:hover": {
+                            borderColor: itemType === "lost" ? "error.main" : "grey.300",
+                            transform: "translateY(-2px)",
+                            boxShadow: "0 8px 24px rgba(28, 25, 23, 0.06)",
+                          },
+                        }}
+                      >
+                        <Typography variant="subtitle1" sx={{ fontWeight: 800, color: "text.primary" }}>
+                          Izgubio sam predmet
+                        </Typography>
+                        <Typography variant="body2" color="text.secondary" sx={{ mt: 1, lineHeight: 1.4 }}>
+                          Objavi predmet koji pokušavaš pronaći.
+                        </Typography>
+                      </Card>
+                    </Grid>
 
-                    <label
-                      className={`${styles.typeCard} ${itemType === "found" ? styles.typeCardSelected : ""
-                        }`}
-                    >
-                      <input
-                        type="radio"
-                        name="item_type"
-                        value="found"
-                        checked={itemType === "found"}
-                        onChange={() => setItemType("found")}
-                        className={styles.typeRadio}
-                      />
-                      <span className={styles.typeTitle}>
-                        Pronašao sam predmet
-                      </span>
-                      <span className={styles.typeDescription}>
-                        Objavi predmet i pomozi vlasniku da ga pronađe.
-                      </span>
-                    </label>
-                  </div>
-                </div>
+                    <Grid size={{ xs: 12, sm: 6 }}>
+                      <Card
+                        onClick={() => setItemType("found")}
+                        sx={{
+                          cursor: "pointer",
+                          border: "2px solid",
+                          borderColor: itemType === "found" ? "primary.main" : "grey.200",
+                          bgcolor: itemType === "found" ? "primary.light" : "background.paper",
+                          p: 3,
+                          transition: "all 0.2s ease-in-out",
+                          "&:hover": {
+                            borderColor: itemType === "found" ? "primary.main" : "grey.300",
+                            transform: "translateY(-2px)",
+                            boxShadow: "0 8px 24px rgba(28, 25, 23, 0.06)",
+                          },
+                        }}
+                      >
+                        <Typography variant="subtitle1" sx={{ fontWeight: 800, color: "text.primary" }}>
+                          Pronašao sam predmet
+                        </Typography>
+                        <Typography variant="body2" color="text.secondary" sx={{ mt: 1, lineHeight: 1.4 }}>
+                          Objavi predmet i pomozi vlasniku da ga pronađe.
+                        </Typography>
+                      </Card>
+                    </Grid>
+                  </Grid>
+                </Box>
 
-                <div className={profileStyles["profile-form__row"]}>
-                  <div className={profileStyles["profile-form__field"]}>
-                    <label htmlFor="title" className="field-label">
-                      Naziv predmeta*
-                    </label>
-                    <input
+                <Grid container spacing={3}>
+                  <Grid size={{ xs: 12, sm: 6 }}>
+                    <TextField
                       id="title"
                       name="title"
-                      type="text"
-                      className="form-input"
+                      label="Naziv predmeta*"
                       placeholder="Npr. novčanik, ključevi, telefon..."
                       required
+                      fullWidth
                     />
-                  </div>
+                  </Grid>
 
-                  <div className={profileStyles["profile-form__field"]}>
-                    <label htmlFor="category" className="field-label">
-                      Kategorija*
-                    </label>
-                    <select
+                  <Grid size={{ xs: 12, sm: 6 }}>
+                    <TextField
                       id="category"
                       name="category"
-                      className="form-select"
+                      select
+                      label="Kategorija*"
                       value={category}
                       onChange={(event) =>
                         setCategory(
@@ -469,47 +510,49 @@ export default function AddItemPage() {
                         )
                       }
                       required
+                      fullWidth
                     >
                       {CATEGORIES.map((categoryOption) => (
-                        <option key={categoryOption} value={categoryOption}>
+                        <MenuItem key={categoryOption} value={categoryOption}>
                           {categoryOption}
-                        </option>
+                        </MenuItem>
                       ))}
-                    </select>
-                  </div>
-                </div>
+                    </TextField>
+                  </Grid>
+                </Grid>
 
                 {category === "Ostalo" && (
-                  <div className={profileStyles["profile-form__field"]}>
-                    <label htmlFor="custom_category" className="field-label">
-                      Druga kategorija*
-                    </label>
-                    <input
-                      id="custom_category"
-                      type="text"
-                      className="form-input"
-                      value={customCategory}
-                      onChange={(event) => setCustomCategory(event.target.value)}
-                      placeholder="Unesi kategoriju predmeta"
-                      required
-                    />
-                  </div>
+                  <TextField
+                    id="custom_category"
+                    label="Druga kategorija*"
+                    value={customCategory}
+                    onChange={(event) => setCustomCategory(event.target.value)}
+                    placeholder="Unesi kategoriju predmeta"
+                    required
+                    fullWidth
+                  />
                 )}
 
-                <div className={styles.locationSection}>
-                  <div className={profileStyles["profile-form__field"]}>
-                    <label htmlFor="location_name" className="field-label">
-                      Lokacija predmeta*
-                    </label>
-                    <input
-                      id="location_name"
-                      name="location_name"
-                      type="text"
-                      className="form-input"
-                      placeholder="Npr. SCC Sarajevo"
-                      required
-                    />
-                  </div>
+                <Box
+                  sx={{
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: 2,
+                    p: { xs: 2.5, md: 3 },
+                    bgcolor: "grey.50",
+                    border: "1px solid",
+                    borderColor: "grey.200",
+                    borderRadius: 2,
+                  }}
+                >
+                  <TextField
+                    id="location_name"
+                    name="location_name"
+                    label="Lokacija predmeta*"
+                    placeholder="Npr. SCC Sarajevo"
+                    required
+                    fullWidth
+                  />
 
                   <LocationPicker
                     latitude={latitude}
@@ -520,295 +563,278 @@ export default function AddItemPage() {
                     }}
                   />
 
-                  <p className={styles.locationHint}>
+                  <Typography variant="caption" color="text.secondary">
                     Kliknite na mapu da označite lokaciju.
-                  </p>
+                  </Typography>
                   {latitude !== null && longitude !== null && (
-                    <p className={styles.selectedLocation}>
-                      Odabrana lokacija: {latitude.toFixed(4)},{" "}
-                      {longitude.toFixed(4)}
-                    </p>
+                    <Typography variant="body2" sx={{ fontWeight: 700, color: "primary.main" }}>
+                      Odabrana lokacija: {latitude.toFixed(4)}, {longitude.toFixed(4)}
+                    </Typography>
                   )}
-                </div>
+                </Box>
 
-                <div className={profileStyles["profile-form__row"]}>
-                  <div className={profileStyles["profile-form__field"]}>
-                    <label htmlFor="event_date" className="field-label">
-                      Datum događaja*
-                    </label>
-                    <input
+                <Grid container spacing={3}>
+                  <Grid size={{ xs: 12, sm: 6 }}>
+                    <TextField
                       id="event_date"
                       name="event_date"
+                      label="Datum događaja*"
                       type="datetime-local"
-                      className="form-input"
+                      slotProps={{
+                        inputLabel: { shrink: true },
+                      }}
                       required
+                      fullWidth
                     />
-                  </div>
+                  </Grid>
 
-                  <div className={profileStyles["profile-form__field"]}>
-                    <label htmlFor="brand" className="field-label">
-                      Brend
-                    </label>
-                    <input
+                  <Grid size={{ xs: 12, sm: 6 }}>
+                    <TextField
                       id="brand"
                       name="brand"
-                      type="text"
-                      className="form-input"
+                      label="Brend"
                       placeholder="Npr. Apple, Nike, Samsung..."
+                      fullWidth
                     />
-                  </div>
-                </div>
+                  </Grid>
+                </Grid>
 
-                <div className={profileStyles["profile-form__row"]}>
-                  <div className={profileStyles["profile-form__field"]}>
-                    <label htmlFor="color" className="field-label">
-                      Boja
-                    </label>
-                    <input
+                <Grid container spacing={3}>
+                  <Grid size={{ xs: 12, sm: itemType === "lost" ? 6 : 12 }}>
+                    <TextField
                       id="color"
                       name="color"
-                      type="text"
-                      className="form-input"
+                      label="Boja"
                       placeholder="Npr. crna, plava, crvena..."
+                      fullWidth
                     />
-                  </div>
+                  </Grid>
 
                   {itemType === "lost" && (
-                    <div className={profileStyles["profile-form__field"]}>
-                      <label htmlFor="reward_amount" className="field-label">
-                        Nagrada
-                      </label>
-                      <input
+                    <Grid size={{ xs: 12, sm: 6 }}>
+                      <TextField
                         id="reward_amount"
                         name="reward_amount"
+                        label="Nagrada (KM)"
                         type="number"
-                        step="0.01"
-                        min="0"
-                        className="form-input"
+                        slotProps={{
+                          htmlInput: { step: "0.01", min: "0" },
+                        }}
                         placeholder="Npr. 50"
+                        fullWidth
                       />
-                    </div>
+                    </Grid>
                   )}
-                </div>
+                </Grid>
 
-                <div className={styles.imageField}>
-                  <span className="field-label">Slike predmeta*</span>
-                  <label className={styles.imageUploadButton}>
-                    Odaberi slike
-                    <input
-                      id="images"
-                      name="images"
-                      type="file"
-                      accept="image/*"
-                      multiple
-                      className={styles.hiddenFileInput}
-                      onChange={handleImagesChange}
-                    />
-                  </label>
-                  <p className={styles.imageHint}>
-                    Možeš odabrati više slika odjednom.
-                  </p>
+                <Box sx={{ my: 1 }}>
+                  <Typography variant="subtitle2" sx={{ mb: 1.5, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.05em", color: "text.secondary", fontSize: "0.75rem" }}>
+                    Slike predmeta*
+                  </Typography>
+                  <Stack direction="row" spacing={2} sx={{ alignItems: "center" }}>
+                    <Button
+                      component="label"
+                      variant="contained"
+                      color="primary"
+                    >
+                      Odaberi slike
+                      <input
+                        id="images"
+                        name="images"
+                        type="file"
+                        accept="image/*"
+                        multiple
+                        style={{ display: "none" }}
+                        onChange={handleImagesChange}
+                      />
+                    </Button>
+                    <Typography variant="caption" color="text.secondary">
+                      Možeš odabrati više slika odjednom.
+                    </Typography>
+                  </Stack>
 
                   {imagePreviews.length > 0 && (
-                    <div className={styles.previewGrid}>
+                    <Grid container spacing={2} sx={{ mt: 2 }}>
                       {imagePreviews.map((preview, index) => (
-                        <div
-                          key={`${images[index].name}-${index}`}
-                          className={styles.previewCard}
-                        >
-                          <Image
-                            src={preview}
-                            alt={`Pregled slike ${index + 1}`}
-                            width={240}
-                            height={240}
-                            unoptimized
-                            className={styles.previewImage}
-                          />
-                          <button
-                            type="button"
-                            className={styles.removeImage}
-                            onClick={() => removeImage(index)}
-                            aria-label={`Ukloni sliku ${index + 1}`}
-                          >
-                            ×
-                          </button>
-                        </div>
+                        <Grid size={{ xs: 6, sm: 4, md: 3 }} key={`${images[index].name}-${index}`}>
+                          <Card sx={{ position: "relative", aspectRatio: "1/1", overflow: "hidden", border: "1px solid", borderColor: "grey.200" }}>
+                            <Image
+                              src={preview}
+                              alt={`Pregled slike ${index + 1}`}
+                              fill
+                              style={{ objectFit: "cover" }}
+                              unoptimized
+                            />
+                            <IconButton
+                              size="small"
+                              onClick={() => removeImage(index)}
+                              aria-label={`Ukloni sliku ${index + 1}`}
+                              sx={{
+                                position: "absolute",
+                                top: 8,
+                                right: 8,
+                                bgcolor: "rgba(28, 25, 23, 0.85)",
+                                color: "#ffffff",
+                                "&:hover": {
+                                  bgcolor: "error.main",
+                                },
+                              }}
+                            >
+                              <FontAwesomeIcon icon={faXmark} size="xs" />
+                            </IconButton>
+                          </Card>
+                        </Grid>
                       ))}
-                    </div>
+                    </Grid>
                   )}
-                </div>
+                </Box>
 
-                <div className={profileStyles["profile-form__row"]}>
-                  <div className={profileStyles["profile-form__field"]}>
-                    <label htmlFor="contact_phone" className="field-label">
-                      Kontakt telefon
-                    </label>
-                    <input
+                <Grid container spacing={3}>
+                  <Grid size={{ xs: 12, sm: 6 }}>
+                    <TextField
                       id="contact_phone"
                       name="contact_phone"
+                      label="Kontakt telefon"
                       type="tel"
-                      className="form-input"
                       placeholder="+387 61 123 456"
+                      fullWidth
                     />
-                  </div>
+                  </Grid>
 
-                  <div className={profileStyles["profile-form__field"]}>
-                    <label htmlFor="contact_email" className="field-label">
-                      Kontakt email
-                    </label>
-                    <input
+                  <Grid size={{ xs: 12, sm: 6 }}>
+                    <TextField
                       id="contact_email"
                       name="contact_email"
+                      label="Kontakt email"
                       type="email"
-                      className="form-input"
                       placeholder="ime@email.com"
+                      fullWidth
                     />
-                  </div>
-                </div>
+                  </Grid>
+                </Grid>
 
-                <div className={profileStyles["profile-form__field"]}>
-                  <label htmlFor="description" className="field-label">
-                    Opis predmeta*
-                  </label>
-                  <textarea
-                    id="description"
-                    name="description"
-                    className="form-input"
-                    placeholder="Unesi dodatne detalje o predmetu..."
-                    rows={6}
-                    required
-                    style={{
-                      height: "auto",
-                      minHeight: "9rem",
-                      paddingTop: "0.9rem",
-                    }}
-                  />
-                </div>
+                <TextField
+                  id="description"
+                  name="description"
+                  label="Opis predmeta*"
+                  placeholder="Unesi dodatne detalje o predmetu..."
+                  multiline
+                  rows={5}
+                  required
+                  fullWidth
+                />
 
-                <div className={profileStyles["profile-form__field"]}>
-                  <label
-                    htmlFor="hidden_unique_features"
-                    className="field-label"
-                  >
-                    Skriveni unikatni detalji
-                  </label>
-                  <textarea
-                    id="hidden_unique_features"
-                    name="hidden_unique_features"
-                    className="form-input"
-                    placeholder="Detalji koje samo vlasnik zna, npr. ogrebotina, naljepnica ili sadržaj novčanika..."
-                    rows={4}
-                    style={{
-                      height: "auto",
-                      minHeight: "7rem",
-                      paddingTop: "0.9rem",
-                    }}
-                  />
-                </div>
+                <TextField
+                  id="hidden_unique_features"
+                  name="hidden_unique_features"
+                  label="Skriveni unikatni detalji"
+                  placeholder="Detalji koje samo vlasnik zna, npr. ogrebotina, naljepnica ili sadržaj novčanika..."
+                  multiline
+                  rows={3}
+                  fullWidth
+                />
 
                 {itemType === "found" && (
-                  <div className={profileStyles["profile-form__field"]}>
-                    <label
-                      className="field-label"
-                      style={{
-                        display: "flex",
-                        gap: "10px",
-                        alignItems: "center",
-                      }}
-                    >
-                      <input
-                        type="checkbox"
-                        checked={verificationEnabled}
-                        onChange={(event) => setVerificationEnabled(event.target.checked)}
-                      />
-                      Uključi verifikaciona pitanja
-                    </label>
+                  <Box>
+                    <FormControlLabel
+                      control={
+                        <Checkbox
+                          checked={verificationEnabled}
+                          onChange={(event) => setVerificationEnabled(event.target.checked)}
+                          color="primary"
+                        />
+                      }
+                      label="Uključi verifikaciona pitanja"
+                    />
 
-                    <p
-                      style={{
-                        margin: "6px 0 0",
-                        color: "#64748b",
-                        fontSize: "14px",
-                      }}
-                    >
+                    <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5, mb: 2 }}>
                       Ako uključiš ovu opciju, korisnik mora odgovoriti na pitanja prije nego što započne chat.
-                    </p>
+                    </Typography>
 
                     {verificationEnabled && (
-                      <div style={{ display: "grid", gap: "12px", marginTop: "14px" }}>
+                      <Stack spacing={2} sx={{ mt: 2 }}>
                         {verificationQuestions.map((question, index) => (
-                          <div
-                            key={index}
-                            style={{
-                              display: "flex",
-                              gap: "10px",
-                              alignItems: "start",
-                            }}
-                          >
-                            <textarea
+                          <Stack key={index} direction="row" spacing={2} sx={{ alignItems: "flex-start" }}>
+                            <TextField
                               value={question}
                               onChange={(event) =>
                                 updateVerificationQuestion(index, event.target.value)
                               }
-                              className="form-input"
-                              placeholder={`Pitanje ${index + 1}, npr. Koje je boje predmet?`}
+                              label={`Pitanje ${index + 1}`}
+                              placeholder={`Npr. Koje je boje predmet?`}
+                              multiline
                               rows={2}
-                              style={{
-                                height: "auto",
-                                minHeight: "4.5rem",
-                                paddingTop: "0.9rem",
-                              }}
+                              fullWidth
                             />
 
-                            <button
-                              type="button"
-                              className="btn btn--outline"
+                            <Button
+                              variant="outlined"
+                              color="error"
                               onClick={() => removeVerificationQuestion(index)}
                               disabled={verificationQuestions.length === 1}
+                              sx={{ minHeight: 56, py: 1 }}
                             >
                               Ukloni
-                            </button>
-                          </div>
+                            </Button>
+                          </Stack>
                         ))}
 
-                        <button
-                          type="button"
-                          className="btn btn--outline"
+                        <Button
+                          variant="outlined"
                           onClick={addVerificationQuestion}
+                          sx={{ alignSelf: "flex-start" }}
                         >
                           + Dodaj pitanje
-                        </button>
-                      </div>
+                        </Button>
+                      </Stack>
                     )}
-                  </div>
+                  </Box>
                 )}
 
-
-                <div className={styles.actions}>
-                  <button
+                <Stack direction={{ xs: "column", sm: "row" }} spacing={2} sx={{ mt: 3, pt: 3, borderTop: "1px solid", borderColor: "grey.200" }}>
+                  <Button
                     type="submit"
-                    className="btn btn--primary"
+                    variant="contained"
+                    color="primary"
                     disabled={isSubmitting}
+                    sx={{ px: 4, py: 1.2 }}
                   >
                     {isSubmitting ? "Dodavanje..." : "Dodaj predmet"}
-                  </button>
+                  </Button>
 
-                  <button
+                  <Button
                     type="button"
-                    className="btn btn--outline"
+                    variant="outlined"
+                    color="secondary"
                     onClick={resetForm}
                     disabled={isSubmitting}
+                    sx={{ px: 4, py: 1.2 }}
                   >
                     Očisti formu
-                  </button>
-                </div>
-              </form>
-            </section>
-          </div>
-        </section>
-      </main>
+                  </Button>
+                </Stack>
+              </Box>
+            </CardContent>
+          </Card>
+        </Container>
+      </Box>
 
       <Footer />
-    </div>
+    </Box>
+  );
+}
+
+export default function AddItemPage() {
+  return (
+    <Suspense fallback={
+      <Container maxWidth="lg" sx={{ py: 8 }}>
+        <Stack direction="row" spacing={2} sx={{ alignItems: "center", justifyContent: "center" }}>
+          <CircularProgress size={24} />
+          <Typography variant="body1">Učitavanje forme...</Typography>
+        </Stack>
+      </Container>
+    }>
+      <AddItemPageContent />
+    </Suspense>
   );
 }

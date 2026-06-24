@@ -16,6 +16,27 @@ from fastapi.staticfiles import StaticFiles
 
 def create_db_and_tables():
     SQLModel.metadata.create_all(engine)
+    run_migrations()
+
+
+def run_migrations():
+    from sqlalchemy import text
+    try:
+        with engine.connect() as conn:
+            dialect_name = conn.dialect.name
+            if dialect_name == "postgresql":
+                conn.execute(text("ALTER TABLE item_images ADD COLUMN IF NOT EXISTS embedding_status VARCHAR DEFAULT 'pending';"))
+                conn.execute(text("ALTER TABLE item_images ADD COLUMN IF NOT EXISTS embedding_model VARCHAR;"))
+                conn.execute(text("ALTER TABLE item_images ADD COLUMN IF NOT EXISTS embedding_vector JSONB;"))
+                conn.execute(text("ALTER TABLE item_images ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;"))
+
+                conn.execute(text("ALTER TABLE item_matches ADD COLUMN IF NOT EXISTS image_similarity_score DOUBLE PRECISION;"))
+                conn.execute(text("ALTER TABLE item_matches ADD COLUMN IF NOT EXISTS final_score DOUBLE PRECISION;"))
+                conn.execute(text("ALTER TABLE item_matches ADD COLUMN IF NOT EXISTS used_image_reranking BOOLEAN DEFAULT FALSE;"))
+                conn.commit()
+                print("[MIGRATION] PostgreSQL tables updated successfully.")
+    except Exception as e:
+        print(f"[MIGRATION] Migration error: {e}")
 
 
 @asynccontextmanager
@@ -29,7 +50,12 @@ app = FastAPI(lifespan=lifespan)
 # -V7: dozvoljavamo lokalne dev origin-e (Vite=5173, CRA=3000)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173", "http://localhost:3000"],
+    allow_origins=[
+        "http://localhost:5173",
+        "http://localhost:3000",
+        "http://127.0.0.1:5173",
+        "http://127.0.0.1:3000",
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

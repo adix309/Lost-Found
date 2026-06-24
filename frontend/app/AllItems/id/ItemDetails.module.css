@@ -1,0 +1,270 @@
+.detailsHero {
+  padding: 2.5rem 0;
+  margin-bottom: 2.5rem;
+  border-bottom: 1px dashed var(--slate-200);
+}
+
+.eyebrow {
+  display: inline-flex;
+  padding: 0.35rem 0.75rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.75rem;
+}
+
+.lostBadge {
+  background: var(--rose-50);
+  color: var(--rose-700);
+  border: 1px solid var(--rose-200);
+}
+
+.foundBadge {
+  background: var(--primary-light);
+  color: var(--primary);
+  border: 1px solid rgba(27, 77, 62, 0.15);
+}
+
+.title {
+  margin: 0;
+  font-size: 2.5rem;
+  font-weight: 800;
+  color: var(--slate-900);
+  letter-spacing: -0.02em;
+}
+
+.gridContainer {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2rem;
+  align-items: start;
+}
+
+.leftColumn {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.imagePanel {
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  background: #ffffff;
+  border: 1px solid var(--slate-200);
+  box-shadow: var(--shadow-md);
+}
+
+.imageItem {
+  width: 100%;
+  height: auto;
+  display: block;
+  object-fit: cover;
+}
+
+.descCard {
+  background: #ffffff;
+  border: 1px solid var(--slate-200);
+  border-radius: var(--radius-lg);
+  padding: 2rem;
+  box-shadow: var(--shadow-sm);
+}
+
+.sectionTitle {
+  margin: 0 0 1rem;
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: var(--slate-900);
+}
+
+.description {
+  margin: 0;
+  font-size: 1rem;
+  line-height: 1.6;
+  color: var(--slate-600);
+  white-space: pre-wrap;
+}
+
+.safetyCard {
+  background: rgba(27, 77, 62, 0.03);
+  border: 1px solid rgba(27, 77, 62, 0.1);
+  border-radius: var(--radius-lg);
+  padding: 2rem;
+  box-shadow: var(--shadow-sm);
+}
+
+.safetyTitle {
+  margin: 0 0 1rem;
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: var(--teal-800);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.safetyList {
+  margin: 0;
+  padding-left: 1.25rem;
+  display: grid;
+  gap: 0.75rem;
+}
+
+.safetyItem {
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: var(--slate-600);
+}
+
+.safetyItem strong {
+  color: var(--slate-800);
+}
+
+.rightColumn {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  position: sticky;
+  top: 6rem;
+}
+
+.infoCard {
+  background: #ffffff;
+  border: 1px solid var(--slate-200);
+  border-radius: var(--radius-lg);
+  padding: 2rem;
+  box-shadow: var(--shadow-md);
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.infoTitle {
+  margin: 0 0 0.5rem 0;
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: var(--slate-900);
+}
+
+.infoList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+.infoRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px dashed var(--slate-100);
+  font-size: 0.925rem;
+}
+
+.infoRow:last-child {
+  padding-bottom: 0;
+  border-bottom: none;
+}
+
+.infoLabel {
+  color: var(--slate-500);
+  font-weight: 600;
+}
+
+.infoVal {
+  color: var(--slate-800);
+  font-weight: 700;
+  text-align: right;
+}
+
+.rewardVal {
+  color: var(--primary);
+  background: var(--primary-light);
+  padding: 0.25rem 0.55rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid rgba(27, 77, 62, 0.1);
+}
+
+.ownerCard {
+  background: #ffffff;
+  border: 1px solid var(--slate-200);
+  border-radius: var(--radius-lg);
+  padding: 2rem;
+  box-shadow: var(--shadow-md);
+}
+
+.ownerProfile {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 1rem;
+  padding: 0.75rem;
+  background: var(--slate-50);
+  border: 1px solid var(--slate-200);
+  border-radius: var(--radius-md);
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.ownerProfile:hover {
+  border-color: var(--primary);
+  box-shadow: var(--shadow-sm);
+}
+
+.ownerAvatar {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  object-fit: cover;
+  background: var(--slate-200);
+  border: 2px solid #ffffff;
+  box-shadow: var(--shadow-sm);
+}
+
+.ownerName {
+  margin: 0 0 0.25rem 0;
+  font-weight: 800;
+  color: var(--slate-900);
+  font-size: 1rem;
+}
+
+.ownerLink {
+  margin: 0;
+  font-size: 0.8rem;
+  color: var(--primary);
+  font-weight: 700;
+}
+
+.actionHeading {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: var(--slate-900);
+}
+
+.actionDesc {
+  margin: 0.5rem 0 1.25rem 0;
+  font-size: 0.875rem;
+  color: var(--slate-500);
+  line-height: 1.5;
+}
+
+.contactActions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.contactActions :global(.btn) {
+  min-height: 2.75rem;
+  font-weight: 700;
+  width: 100%;
+}
+
+@media (min-width: 992px) {
+  .gridContainer {
+    grid-template-columns: minmax(0, 1.2fr) minmax(340px, 0.8fr);
+    gap: 2.5rem;
+  }
+}

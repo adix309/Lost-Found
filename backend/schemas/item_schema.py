@@ -9,6 +9,26 @@ def clean_str(value: Optional[str]) -> Optional[str]:
         return None
     value = value.strip()
     return value or None
+
+def resolve_hidden_features(value: Any) -> Optional[dict[str, Any]]:
+    if value is None:
+        return None
+    if isinstance(value, str):
+        value = value.strip()
+        if not value:
+            return None
+        try:
+            import json
+            parsed = json.loads(value)
+            if isinstance(parsed, dict):
+                return parsed
+        except Exception:
+            pass
+        return {"notes": value}
+    if isinstance(value, dict):
+        return value
+    return value
+
 class ItemBase(BaseModel):
     title: str
     description: str
@@ -33,6 +53,11 @@ class ItemBase(BaseModel):
     contact_email: Optional[EmailStr] = None
 
     hidden_unique_features: Optional[dict[str, Any]] = None
+
+    @field_validator("hidden_unique_features", mode="before")
+    @classmethod
+    def validate_hidden_features(cls, value):
+        return resolve_hidden_features(value)
 
     @field_validator("title", "description", "category", "location_name", mode="before")
     @classmethod
@@ -104,6 +129,11 @@ class ItemUpdate(BaseModel):
 
     hidden_unique_features: Optional[dict[str, Any]] = None
     status: Optional[ItemStatus] = None
+
+    @field_validator("hidden_unique_features", mode="before")
+    @classmethod
+    def validate_hidden_features(cls, value):
+        return resolve_hidden_features(value)
 
     @field_validator("title", "description", "category", "location_name", mode="before")
     @classmethod
@@ -186,6 +216,11 @@ class ItemRead(BaseModel):
 
 class ItemOwnerRead(ItemRead):
     hidden_unique_features: Optional[dict[str, Any]] = None
+
+    @field_validator("hidden_unique_features", mode="before")
+    @classmethod
+    def validate_hidden_features(cls, value):
+        return resolve_hidden_features(value)
 
 
 class ItemImagesUploadRead(BaseModel):

@@ -1,5 +1,5 @@
 import type { ListingStatus } from "@/types/listing";
-import styles from "./StatusBadge.module.css";
+import Chip from "@mui/material/Chip";
 
 const statusLabels: Record<ListingStatus, string> = {
   active: "Aktivan",
@@ -7,10 +7,23 @@ const statusLabels: Record<ListingStatus, string> = {
   expired: "Istekao",
 };
 
-export function StatusBadge(props : { status: ListingStatus }) {
+export function StatusBadge({ status }: { status: ListingStatus }) {
+  let color: "primary" | "success" | "default" | "error" = "default";
+  
+  if (status === "active") {
+    color = "primary";
+  } else if (status === "resolved") {
+    color = "success";
+  } else if (status === "expired") {
+    color = "default";
+  }
+
   return (
-    <span className={`${styles["status-badge"]} ${styles[`status-badge--${props.status}`]}`}>
-      {statusLabels[props.status]}
-    </span>
+    <Chip 
+      label={statusLabels[status]} 
+      color={color}
+      size="small" 
+      sx={{ fontWeight: 700 }}
+    />
   );
 }

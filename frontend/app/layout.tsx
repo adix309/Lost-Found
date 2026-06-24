@@ -1,16 +1,6 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Providers } from "@/app/providers";
 import "./globals.css";
-
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
 
 export const metadata: Metadata = {
   title: "Lost & Found | Prijava izgubljenih i pronađenih predmeta",
@@ -24,8 +14,15 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${geistSans.variable} ${geistMono.variable}`}>
-      <body className="app-body">{children}</body>
+    <html lang="en">
+      <head>
+        <link href="https://api.fontshare.com/v2/css?f[]=cabinet-grotesk@100,200,300,400,500,700,800&f[]=satoshi@300,400,500,700,900" rel="stylesheet" />
+      </head>
+      <body className="app-body">
+        <Providers>
+          {children}
+        </Providers>
+      </body>
     </html>
   );
 }

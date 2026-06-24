@@ -1,35 +1,31 @@
 "use client";
 
-
-import { useState, useEffect, type MouseEvent } from "react";
-
-
-import Image from "next/image";
 import Link from "next/link";
+import Image from "next/image";
+import Card from "@mui/material/Card";
+import CardContent from "@mui/material/CardContent";
+import Typography from "@mui/material/Typography";
+import Stack from "@mui/material/Stack";
+import Box from "@mui/material/Box";
+import Chip from "@mui/material/Chip";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faMapPin, faCalendarDay } from "@fortawesome/free-solid-svg-icons";
+import { faMapPin, faCalendarDay, faCoins, faStar } from "@fortawesome/free-solid-svg-icons";
 
 import type { Listing } from "@/types/listing";
 import { StatusBadge } from "@/components/common/StatusBadge";
-import styles from "./ListingCard.module.css";
 
-import { useRouter } from "next/navigation";
-
-
-const API_URL = "http://127.0.0.1:8000";
+const API_URL = process.env.NEXT_PUBLIC_API_BASE_URL || process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
 function formatDateTime(value: string) {
   const parsed = new Date(value);
-
   if (Number.isNaN(parsed.getTime())) {
     return value;
   }
 
-  const date = parsed.toLocaleDateString("bs-BA", {
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-  });
+  const day = String(parsed.getDate()).padStart(2, "0");
+  const month = String(parsed.getMonth() + 1).padStart(2, "0");
+  const year = parsed.getFullYear();
+  const date = `${day}/${month}/${year}`;
 
   const time = parsed.toLocaleTimeString("bs-BA", {
     hour: "2-digit",
@@ -39,153 +35,182 @@ function formatDateTime(value: string) {
   return `${date} · ${time}`;
 }
 
-export function ListingCard({ listing }: { listing: Listing }) {
-  const router = useRouter();
-
-
-  const imageSrc = listing.image_url
-    ? `${API_URL}${listing.image_url}`
-    : "/no-image.jpg";
-
+export function ListingCard({ listing, isFeatured = false }: { listing: Listing; isFeatured?: boolean }) {
+  const imageSrc = listing.image_url ? `${API_URL}${listing.image_url}` : "/no-image.jpg";
   const imageAlt = listing.image_url ? listing.title : "Slika nije dodana";
-
   const eventDate = formatDateTime(listing.event_date);
-
-
-  
-  const typeLabel = listing.item_type === "lost" ? "Izgubljeno" : "Pronađeno";
-const createdAt = formatDateTime(listing.created_at);
-
+  const isLost = listing.item_type === "lost";
 
   return (
-    
-    <Link href={`/AllItems/${listing.id}`} className={styles.card}>
-      <div className={styles.modalImageWrap}>
+    <Card
+      component={Link}
+      href={`/AllItems/${listing.id}`}
+      sx={{
+        display: "flex",
+        flexDirection: isFeatured ? { xs: "column", md: "row" } : "column",
+        textDecoration: "none",
+        color: "inherit",
+        height: "100%",
+        transition: "transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.3s cubic-bezier(0.16, 1, 0.3, 1)",
+        "&:hover": {
+          transform: "translateY(-4px)",
+          boxShadow: "0 16px 36px rgba(28, 25, 23, 0.06)",
+          borderColor: "primary.main",
+        },
+        gridColumn: isFeatured ? "1 / -1" : "auto",
+        border: "1px solid",
+        borderColor: isFeatured ? "rgba(27, 77, 62, 0.2)" : "grey.200",
+        background: isFeatured
+          ? "linear-gradient(to right, #ffffff, var(--primary-light))"
+          : "background.paper",
+      }}
+    >
+      {/* Image Wrap */}
+      <Box
+        sx={{
+          position: "relative",
+          width: isFeatured ? { xs: "100%", md: "42%" } : "100%",
+          height: isFeatured ? { xs: 180, md: "auto" } : 170,
+          minHeight: isFeatured ? { md: 220 } : "auto",
+          backgroundColor: "grey.50",
+          overflow: "hidden",
+          flexShrink: 0,
+        }}
+      >
         <Image
           src={imageSrc}
           alt={imageAlt}
-          width={900}
-          height={500}
-          className={styles.modalImage}
+          fill
+          style={{ objectFit: "cover" }}
           unoptimized
         />
-      </div>
 
-      <div className={styles.body}>
-        <div className={styles.top}>
-          <h3 className={styles.title}>{listing.title}</h3>
+        {/* Item Type Badge */}
+        <Chip
+          label={isLost ? "Izgubljeno" : "Pronađeno"}
+          size="small"
+          sx={{
+            position: "absolute",
+            top: 12,
+            left: 12,
+            fontWeight: 800,
+            fontSize: "0.7rem",
+            textTransform: "uppercase",
+            letterSpacing: "0.05em",
+            color: "#ffffff",
+            backgroundColor: isLost ? "error.main" : "success.main",
+            boxShadow: isLost
+              ? "0 4px 8px rgba(122, 31, 43, 0.2)"
+              : "0 4px 8px rgba(27, 77, 62, 0.2)",
+            zIndex: 2,
+          }}
+        />
+
+        {/* Featured Badge */}
+        {isFeatured && (
+          <Chip
+            icon={<FontAwesomeIcon icon={faStar} />}
+            label="Istaknuti oglas"
+            size="small"
+            sx={{
+              position: "absolute",
+              bottom: 12,
+              left: 12,
+              fontWeight: 800,
+              fontSize: "0.7rem",
+              color: "#ffffff",
+              backgroundColor: "secondary.dark",
+              boxShadow: "0 4px 10px rgba(0, 0, 0, 0.15)",
+              zIndex: 2,
+              "& .MuiChip-icon": { color: "inherit", fontSize: "0.8rem" },
+            }}
+          />
+        )}
+
+        {/* Reward Overlay */}
+        {listing.reward_amount !== null && listing.reward_amount !== undefined && (
+          <Box
+            sx={{
+              position: "absolute",
+              top: 12,
+              right: 12,
+              padding: "0.35rem 0.75rem",
+              backgroundColor: "rgba(255, 255, 255, 0.95)",
+              color: "primary.main",
+              border: "1px solid",
+              borderColor: "rgba(27, 77, 62, 0.15)",
+              borderRadius: "8px",
+              fontSize: "0.75rem",
+              fontWeight: 700,
+              zIndex: 2,
+              boxShadow: "0 4px 10px rgba(28, 25, 23, 0.04)",
+              backdropFilter: "blur(4px)",
+            }}
+          >
+            <FontAwesomeIcon icon={faCoins} style={{ marginRight: "4px" }} /> Nagrada: {listing.reward_amount} KM
+          </Box>
+        )}
+      </Box>
+
+      {/* Card Content */}
+      <CardContent
+        sx={{
+          p: 2,
+          display: "flex",
+          flexDirection: "column",
+          gap: 1,
+          flex: 1,
+          justifyContent: isFeatured ? "center" : "flex-start",
+        }}
+      >
+        <Stack direction="row" spacing={1.5} sx={{ justifyContent: "space-between", alignItems: "flex-start" }}>
+          <Typography
+            variant="h6"
+            component="h3"
+            sx={{
+              fontWeight: 700,
+              fontSize: isFeatured ? "1.25rem" : "1.05rem",
+              lineHeight: 1.3,
+              color: "text.primary",
+            }}
+          >
+            {listing.title}
+          </Typography>
           <StatusBadge status={listing.status} />
-        </div>
+        </Stack>
 
-        <p className={styles.description}>{listing.description}</p>
+        {/* Location & Date */}
+        <Stack spacing={0.6} sx={{ mt: 0.2 }}>
+          <Stack direction="row" spacing={1} sx={{ alignItems: "center" }}>
+            <FontAwesomeIcon icon={faMapPin} style={{ color: "var(--slate-400)", width: 12, flexShrink: 0, fontSize: "0.8rem" }} />
+            <Typography variant="body2" color="text.secondary" sx={{ fontSize: "0.8rem", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+              {listing.location_name}
+            </Typography>
+          </Stack>
+          <Stack direction="row" spacing={1} sx={{ alignItems: "center" }}>
+            <FontAwesomeIcon icon={faCalendarDay} style={{ color: "var(--slate-400)", width: 12, flexShrink: 0, fontSize: "0.8rem" }} />
+            <Typography variant="body2" color="text.secondary" sx={{ fontSize: "0.8rem" }}>
+              {eventDate}
+            </Typography>
+          </Stack>
+        </Stack>
 
-        <div className={styles.info}>
-          <span>
-            <FontAwesomeIcon icon={faMapPin} aria-hidden="true" />{" "}
-            {listing.location_name}
-          </span>
-
-          <span>
-            <FontAwesomeIcon icon={faCalendarDay} aria-hidden="true" />{" "}
-            {eventDate}
-          </span>
-
-          <span>{listing.category}</span>
-        </div>
-
-        <div className={styles.details}>
-          {listing.color ? <span>Boja: {listing.color}</span> : null}
-
-          {listing.brand ? <span>Brand: {listing.brand}</span> : null}
-
-
-            <div className={styles.modalContent}>
-              <div className={styles.modalHeader}>
-                <div>
-                  <span
-                    className={`${styles.type} ${listing.item_type === "lost" ? styles.lost : styles.found
-                      }`}
-                  >
-                    {typeLabel}
-                  </span>
-
-                  <h2 className={styles.modalTitle}>{listing.title}</h2>
-                </div>
-
-                <StatusBadge status={listing.status} />
-              </div>
-
-              <p className={styles.modalDescription}>{listing.description}</p>
-
-              <div className={styles.fullInfoGrid}>
-                <div>
-                  <strong>Kategorija</strong>
-                  <span>{listing.category}</span>
-                </div>
-
-                <div>
-                  <strong>Lokacija</strong>
-                  <span>{listing.location_name}</span>
-                </div>
-
-                <div>
-                  <strong>Datum događaja</strong>
-                  <span>{eventDate}</span>
-                </div>
-
-                <div>
-                  <strong>Boja</strong>
-                  <span>{listing.color || "Nije navedeno"}</span>
-                </div>
-
-                <div>
-                  <strong>Brand</strong>
-                  <span>{listing.brand || "Nije navedeno"}</span>
-                </div>
-
-                <div>
-                  <strong>Nagrada</strong>
-                  <span>
-                    {listing.reward_amount !== null
-                      ? `${listing.reward_amount} KM`
-                      : "Nije navedeno"}
-                  </span>
-                </div>
-
-                <div>
-                  <strong>Telefon</strong>
-                  <span>{listing.contact_phone || "Nije navedeno"}</span>
-                </div>
-
-                <div>
-                  <strong>Email</strong>
-                  <span>{listing.contact_email || "Nije navedeno"}</span>
-                </div>
-
-                <div>
-                  <strong>Status</strong>
-                  <span>{listing.status}</span>
-                </div>
-
-                <div>
-                  <strong>Objavljeno</strong>
-                  <span>{createdAt}</span>
-                </div>
-
-                <div>
-
-
-                  
-
-
-                </div>
-
-              </div>
-            </div>
-          </div>
-
-        </div>
-      
-    </Link>
+        <Typography
+          variant="subtitle2"
+          color="primary.main"
+          sx={{
+            fontWeight: 700,
+            fontSize: "0.8rem",
+            mt: "auto",
+            display: "inline-flex",
+            alignItems: "center",
+            gap: 0.5,
+            pt: 0.5,
+          }}
+        >
+          Pogledaj detalje &rarr;
+        </Typography>
+      </CardContent>
+    </Card>
   );
 }

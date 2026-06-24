@@ -88,6 +88,13 @@ class ItemImage(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     item_id: int = Field(foreign_key="items.id", ondelete="CASCADE")
     image_url: str
+    embedding_status: str = Field(default="pending")
+    embedding_model: Optional[str] = Field(default=None)
+    embedding_vector: Optional[list[float]] = Field(
+        default=None,
+        sa_column=Column(JSONB, nullable=True)
+    )
     created_at: datetime = Field(default_factory=datetime.utcnow)
+    updated_at: datetime = Field(default_factory=datetime.utcnow)
 
     item: Item = Relationship(back_populates="images")

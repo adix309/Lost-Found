@@ -3,8 +3,13 @@
 import { useEffect, useState } from "react";
 import { SectionHeading } from "@/components/common/SectionHeading";
 import { ListingCard } from "@/components/listings/ListingCard";
-import styles from "./ProfileStyles.module.css";
-import type {Listing} from "@/types/listing";
+import Box from "@mui/material/Box";
+import Grid from "@mui/material/Grid";
+import Typography from "@mui/material/Typography";
+import CircularProgress from "@mui/material/CircularProgress";
+import Stack from "@mui/material/Stack";
+import Alert from "@mui/material/Alert";
+import type { Listing } from "@/types/listing";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
 
@@ -55,33 +60,42 @@ export function ProfileListings() {
   }, []);
 
   return (
-    <section className={styles["profile-listings"]}>
+    <Box component="section" sx={{ mt: 6 }}>
       <SectionHeading
         title="Moji oglasi"
         description="Pregled oglasa koje si objavio"
       />
 
       {loading && (
-        <p className={styles["profile-listings__state"]}>Učitavanje oglasa...</p>
+        <Stack direction="row" spacing={2} sx={{ alignItems: "center", mt: 3 }}>
+          <CircularProgress size={20} color="primary" />
+          <Typography variant="body2" color="text.secondary" sx={{ fontStyle: "italic" }}>
+            Učitavanje oglasa...
+          </Typography>
+        </Stack>
       )}
 
       {!loading && error && (
-        <p className={styles["profile-listings__state"]}>{error}</p>
+        <Alert severity="error" sx={{ mt: 3 }}>
+          {error}
+        </Alert>
       )}
 
       {!loading && !error && listings.length === 0 && (
-        <p className={styles["profile-listings__state"]}>
+        <Typography variant="body2" color="text.secondary" sx={{ mt: 3, fontStyle: "italic" }}>
           Trenutno nemaš objavljenih oglasa.
-        </p>
+        </Typography>
       )}
 
       {!loading && !error && listings.length > 0 && (
-        <div className={styles["profile-listings__grid"]}>
+        <Grid container spacing={3} sx={{ mt: 1 }}>
           {listings.map((listing) => (
-              <ListingCard key={listing.id} listing={listing} />
+            <Grid size={{ xs: 12, sm: 6, md: 4 }} key={listing.id}>
+              <ListingCard listing={listing} />
+            </Grid>
           ))}
-        </div>
+        </Grid>
       )}
-    </section>
+    </Box>
   );
-}
+}

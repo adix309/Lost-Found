@@ -54,6 +54,7 @@ def upload_item_images(
     item_id: int,
     session: SessionDep,
     images: Annotated[list[UploadFile], File()],
+    background_tasks: BackgroundTasks,
     current_user: User = Depends(get_current_user),
 ):
     image_urls = item_service.add_item_images(
@@ -62,6 +63,10 @@ def upload_item_images(
         images,
         current_user,
     )
+    
+    from services.generate_image_embedding_job import generate_item_embeddings_job_wrapper
+    background_tasks.add_task(generate_item_embeddings_job_wrapper, item_id)
+
     return ItemImagesUploadRead(item_id=item_id, image_urls=image_urls)
 
 

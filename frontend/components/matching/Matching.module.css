@@ -1,0 +1,424 @@
+/* AI Matching Module CSS */
+
+.globalBanner {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  background: linear-gradient(135deg, var(--primary-light) 0%, #e0f2fe 100%);
+  border: 1px solid rgba(27, 77, 62, 0.15);
+  border-radius: var(--radius-md);
+  padding: 0.85rem 1.25rem;
+  margin-bottom: 1.5rem;
+  animation: fadeInUp 0.4s ease forwards;
+}
+
+.globalBannerText {
+  margin: 0;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--primary-hover);
+  line-height: 1.4;
+}
+
+.globalBannerIcon {
+  color: var(--primary);
+  font-size: 1.15rem;
+  flex-shrink: 0;
+}
+
+/* Card layout wrapper */
+.matchCard {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--slate-200);
+  border-radius: var(--radius-lg);
+  background: #ffffff;
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  margin-bottom: 1rem;
+}
+
+.matchCard:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.cardHeaderRow {
+  display: flex;
+  gap: 1.25rem;
+  padding: 1.25rem;
+}
+
+.imageContainer {
+  position: relative;
+  width: 110px;
+  height: 110px;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  background: var(--slate-100);
+  flex-shrink: 0;
+}
+
+.cardImage {
+  object-fit: cover;
+  width: 100%;
+  height: 100%;
+  transition: transform 0.3s ease;
+}
+
+.matchCard:hover .cardImage {
+  transform: scale(1.05);
+}
+
+.cardContent {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.titleRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+  margin-bottom: 0.25rem;
+}
+
+.title {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--slate-900);
+  line-height: 1.3;
+}
+
+.category {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--slate-500);
+  font-weight: 500;
+}
+
+.metaGrid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-top: 0.6rem;
+  margin-bottom: 0.6rem;
+  font-size: 0.85rem;
+  color: var(--slate-600);
+}
+
+.metaItem {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.metaLabel {
+  font-weight: 700;
+  color: var(--slate-800);
+}
+
+.badgeRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.25rem;
+}
+
+/* Badges styling */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 0.25rem 0.65rem;
+  border-radius: 9999px;
+  line-height: 1;
+}
+
+.badgeChecked {
+  background: var(--primary-light);
+  color: var(--primary-hover);
+  border: 1px solid rgba(27, 77, 62, 0.2);
+}
+
+.badgeBestMatch {
+  background: #fef3c7;
+  color: #b45309;
+  border: 1px solid #fde68a;
+  animation: pulseLight 2s infinite ease-in-out;
+}
+
+.badgeReranked {
+  background: #f0f9ff;
+  color: #0369a1;
+  border: 1px solid #bae6fd;
+}
+
+.scoreBadge {
+  background: var(--slate-100);
+  color: var(--slate-800);
+  border: 1px solid var(--slate-200);
+}
+
+/* AI Matching Section inside Card */
+.aiSection {
+  background: var(--slate-50);
+  border-top: 1px solid var(--slate-100);
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.similarityHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.similarityTitleRow {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.similarityTitle {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--slate-700);
+}
+
+/* Progress bar styles */
+.progressWrapper {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.progressTrack {
+  width: 100%;
+  height: 8px;
+  background-color: var(--slate-200);
+  border-radius: 9999px;
+  overflow: hidden;
+}
+
+.progressFill {
+  height: 100%;
+  border-radius: 9999px;
+  transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Colors for levels */
+.fillLow {
+  background: linear-gradient(90deg, #f97316 0%, #f97316 100%);
+}
+
+.fillMedium {
+  background: linear-gradient(90deg, #0ea5e9 0%, #0ea5e9 100%);
+}
+
+.fillHigh {
+  background: linear-gradient(90deg, var(--primary) 0%, var(--primary) 100%);
+}
+
+.fillVeryHigh {
+  background: linear-gradient(90deg, var(--primary-hover) 0%, var(--primary) 100%);
+}
+
+.textLabelLow {
+  color: #ea580c;
+  font-weight: 600;
+}
+
+.textLabelMedium {
+  color: #0284c7;
+  font-weight: 600;
+}
+
+.textLabelHigh {
+  color: var(--primary-hover);
+  font-weight: 600;
+}
+
+.textLabelVeryHigh {
+  color: var(--teal-700);
+  font-weight: 700;
+}
+
+.similarityDetailsRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.85rem;
+}
+
+.similarityTextLevel {
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 0.1rem 0.5rem;
+  border-radius: var(--radius-sm);
+  background: rgba(0, 0, 0, 0.03);
+}
+
+/* Tooltip styles */
+.tooltipContainer {
+  position: relative;
+  display: inline-flex;
+}
+
+.tooltipIcon {
+  color: var(--slate-400);
+  cursor: pointer;
+  font-size: 0.9rem;
+  padding: 0.2rem;
+  border-radius: 50%;
+  transition: color 0.2s, background-color 0.2s;
+}
+
+.tooltipIcon:hover,
+.tooltipIcon:focus-within {
+  color: var(--primary);
+  background-color: var(--primary-light);
+  outline: none;
+}
+
+.tooltipBubble {
+  position: absolute;
+  bottom: 125%;
+  left: 50%;
+  transform: translateX(-50%) translateY(4px);
+  width: 250px;
+  padding: 0.75rem;
+  background: rgba(255, 255, 255, 0.98);
+  border: 1px solid var(--slate-200);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-lg);
+  backdrop-filter: blur(8px);
+  z-index: 100;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s;
+  color: var(--slate-700);
+  font-size: 0.75rem;
+  font-weight: 500;
+  line-height: 1.4;
+  text-align: center;
+}
+
+.tooltipContainer:hover .tooltipBubble,
+.tooltipContainer:focus-within .tooltipBubble {
+  opacity: 1;
+  visibility: visible;
+  transform: translateX(-50%) translateY(0);
+}
+
+.tooltipBubble::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border-width: 6px;
+  border-style: solid;
+  border-color: white transparent transparent transparent;
+}
+
+.fallbackText {
+  font-size: 0.8rem;
+  color: var(--slate-500);
+  font-style: italic;
+  margin: 0;
+  line-height: 1.4;
+}
+
+.reasonsSection {
+  margin-top: 0.25rem;
+}
+
+.reasonsList {
+  margin: 0.4rem 0 0 0;
+  padding-left: 1.1rem;
+  font-size: 0.825rem;
+  color: var(--slate-600);
+  line-height: 1.5;
+}
+
+.reasonItem {
+  margin-bottom: 0.2rem;
+}
+
+/* Actions footer */
+.cardActions {
+  padding: 1rem 1.25rem;
+  border-top: 1px solid var(--slate-100);
+  display: flex;
+  justify-content: flex-end;
+}
+
+.viewButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.65rem 1.25rem;
+  background: var(--slate-900);
+  color: #ffffff;
+  font-size: 0.85rem;
+  font-weight: 600;
+  border-radius: var(--radius-md);
+  transition: all 0.2s ease;
+  text-decoration: none;
+  cursor: pointer;
+  border: none;
+}
+
+.viewButton:hover {
+  background: var(--primary);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(27, 77, 62, 0.15);
+}
+
+/* Animations */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulseLight {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.85;
+    transform: scale(0.98);
+  }
+}
+
+/* Responsive Rules */
+@media (max-width: 640px) {
+  .cardHeaderRow {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 1rem;
+  }
+  
+  .imageContainer {
+    width: 100%;
+    height: 140px;
+  }
+}

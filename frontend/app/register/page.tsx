@@ -2,9 +2,18 @@
 
 import { FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
-import styles from "@/components/profile/ProfileStyles.module.css";
+import Box from "@mui/material/Box";
+import Container from "@mui/material/Container";
+import Card from "@mui/material/Card";
+import CardContent from "@mui/material/CardContent";
+import Typography from "@mui/material/Typography";
+import Grid from "@mui/material/Grid";
+import TextField from "@mui/material/TextField";
+import Button from "@mui/material/Button";
+import Alert from "@mui/material/Alert";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
 
@@ -65,115 +74,146 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className="app-shell">
+    <Box sx={{ display: "flex", flexDirection: "column", minHeight: "100vh", bgcolor: "background.default" }}>
       <Header />
-      <main className="app-main">
-        <section className={styles["profile-page"]}>
-          <div className="container" style={{ maxWidth: "40rem" }}>
-            <div className={styles["profile-header"]}>
-              <p className={styles["profile-header__eyebrow"]}>Registracija</p>
-              <h1 className={styles["profile-header__title"]}>Napravi račun</h1>
-              <p className={styles["profile-header__description"]}>
-                Kreiraj korisnički nalog za prijavu izgubljenih i pronađenih predmeta.
-              </p>
-            </div>
+      <Box component="main" sx={{ flexGrow: 1, py: { xs: 6, md: 8 }, display: "flex", alignItems: "center" }}>
+        <Container maxWidth="sm">
+          <Box sx={{ mb: 4, textAlign: "center" }}>
+            <Typography
+              variant="overline"
+              sx={{
+                fontWeight: 700,
+                letterSpacing: "0.2em",
+                color: "primary.main",
+                display: "block",
+                lineHeight: 1.5,
+              }}
+            >
+              Pridružite se zajednici
+            </Typography>
+            <Typography
+              variant="h4"
+              component="h1"
+              sx={{
+                fontWeight: 800,
+                color: "text.primary",
+                mt: 0.5,
+                letterSpacing: "-0.02em",
+              }}
+            >
+              Kreirajte svoj račun
+            </Typography>
+            <Typography
+              variant="body2"
+              sx={{
+                mt: 1.5,
+                color: "text.secondary",
+                lineHeight: 1.5,
+              }}
+            >
+              Registrujte se za nekoliko sekundi. Članstvo vam omogućava da oglasite izgubljene ili pronađene predmete i pomognete drugima.
+            </Typography>
+          </Box>
 
-            <section className={styles["profile-panel"]}>
-              <h2 className={styles["profile-panel__title"]}>Register</h2>
+          <Card>
+            <CardContent sx={{ p: 4 }}>
+              <Typography variant="h5" component="h2" sx={{ fontWeight: 800, mb: 3, textAlign: "center" }}>
+                Register
+              </Typography>
 
               {success && (
-                <div className={`${styles["profile-message"]} ${styles["profile-message--success"]}`}>
+                <Alert severity="success" sx={{ mb: 3 }}>
                   {success}
-                </div>
+                </Alert>
               )}
 
               {error && (
-                <div className={`${styles["profile-message"]} ${styles["profile-message--error"]}`}>
+                <Alert severity="error" sx={{ mb: 3 }}>
                   {error}
-                </div>
+                </Alert>
               )}
 
-              <form className={styles["profile-form"]} onSubmit={handleSubmit}>
-                <div className={styles["profile-form__row"]}>
-                  <div className={styles["profile-form__field"]}>
-                    <label htmlFor="first_name" className="field-label">
-                      Ime
-                    </label>
-                    <input
+              <Box component="form" onSubmit={handleSubmit} sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
+                <Grid container spacing={2}>
+                  <Grid size={{ xs: 12, sm: 6 }}>
+                    <TextField
                       id="first_name"
                       name="first_name"
-                      className="form-input"
+                      label="Ime"
                       value={form.first_name}
                       onChange={handleChange}
+                      fullWidth
+                      required
                     />
-                  </div>
-
-                  <div className={styles["profile-form__field"]}>
-                    <label htmlFor="last_name" className="field-label">
-                      Prezime
-                    </label>
-                    <input
+                  </Grid>
+                  <Grid size={{ xs: 12, sm: 6 }}>
+                    <TextField
                       id="last_name"
                       name="last_name"
-                      className="form-input"
+                      label="Prezime"
                       value={form.last_name}
                       onChange={handleChange}
+                      fullWidth
+                      required
                     />
-                  </div>
-                </div>
+                  </Grid>
+                </Grid>
 
-                <div className={styles["profile-form__field"]}>
-                  <label htmlFor="username" className="field-label">
-                    Korisničko ime
-                  </label>
-                  <input
-                    id="username"
-                    name="username"
-                    className="form-input"
-                    value={form.username}
-                    onChange={handleChange}
-                  />
-                </div>
+                <TextField
+                  id="username"
+                  name="username"
+                  label="Korisničko ime"
+                  value={form.username}
+                  onChange={handleChange}
+                  fullWidth
+                  required
+                />
 
-                <div className={styles["profile-form__field"]}>
-                  <label htmlFor="email" className="field-label">
-                    Email
-                  </label>
-                  <input
-                    id="email"
-                    name="email"
-                    type="email"
-                    className="form-input"
-                    value={form.email}
-                    onChange={handleChange}
-                  />
-                </div>
+                <TextField
+                  id="email"
+                  name="email"
+                  label="Email"
+                  type="email"
+                  value={form.email}
+                  onChange={handleChange}
+                  fullWidth
+                  required
+                />
 
-                <div className={styles["profile-form__field"]}>
-                  <label htmlFor="password" className="field-label">
-                    Lozinka
-                  </label>
-                  <input
-                    id="password"
-                    name="password"
-                    type="password"
-                    className="form-input"
-                    value={form.password}
-                    onChange={handleChange}
-                  />
-                </div>
+                <TextField
+                  id="password"
+                  name="password"
+                  label="Lozinka"
+                  type="password"
+                  value={form.password}
+                  onChange={handleChange}
+                  fullWidth
+                  required
+                />
 
-                <div className={styles["profile-form__actions"]}>
-                  <button type="submit" className="btn btn--primary btn--block" disabled={loading}>
-                    {loading ? "Registracija..." : "Registruj se"}
-                  </button>
-                </div>
-              </form>
-            </section>
-          </div>
-        </section>
-      </main>
+                <Button
+                  type="submit"
+                  variant="contained"
+                  color="primary"
+                  disabled={loading}
+                  fullWidth
+                  sx={{ py: 1.2, mt: 1 }}
+                >
+                  {loading ? "Registracija..." : "Registruj se"}
+                </Button>
+
+                <Typography variant="body2" color="text.secondary" align="center">
+                  Već imate korisnički račun?{" "}
+                  <Link href="/login" style={{ color: "#1b4d3e", fontWeight: 700, textDecoration: "none" }}>
+                    Prijavite se ovdje
+                  </Link>
+                </Typography>
+              </Box>
+            </CardContent>
+          </Card>
+        </Container>
+      </Box>
       <Footer />
-    </div>
+    </Box>
   );
-}
+}

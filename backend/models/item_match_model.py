@@ -37,6 +37,10 @@ class ItemMatch(SQLModel, table=True):
         sa_column=Column(JSONB, nullable=True)
     )
 
+    image_similarity_score: Optional[float] = Field(default=None, nullable=True)
+    final_score: Optional[float] = Field(default=None, nullable=True)
+    used_image_reranking: bool = Field(default=False)
+
     status: MatchStatus = Field(default=MatchStatus.suggested, index=True)
     notified_at: Optional[datetime] = None
     created_at: datetime = Field(default_factory=datetime.utcnow)

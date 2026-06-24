@@ -1,10 +1,35 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import styles from "./AdminPanel.module.css";
+import Box from "@mui/material/Box";
+import Card from "@mui/material/Card";
+import CardContent from "@mui/material/CardContent";
+import Typography from "@mui/material/Typography";
+import Button from "@mui/material/Button";
+import Dialog from "@mui/material/Dialog";
+import DialogTitle from "@mui/material/DialogTitle";
+import DialogContent from "@mui/material/DialogContent";
+import DialogActions from "@mui/material/DialogActions";
+import TextField from "@mui/material/TextField";
+import Alert from "@mui/material/Alert";
+import Tabs from "@mui/material/Tabs";
+import Tab from "@mui/material/Tab";
+import Grid from "@mui/material/Grid";
+import TableContainer from "@mui/material/TableContainer";
+import Table from "@mui/material/Table";
+import TableHead from "@mui/material/TableHead";
+import TableRow from "@mui/material/TableRow";
+import TableCell from "@mui/material/TableCell";
+import TableBody from "@mui/material/TableBody";
+import Paper from "@mui/material/Paper";
+import Stack from "@mui/material/Stack";
+import CircularProgress from "@mui/material/CircularProgress";
+import IconButton from "@mui/material/IconButton";
 import type { User } from "@/types/user";
 import type { Listing } from "@/types/listing";
 import type { Claim, ClaimStatus } from "@/types/claim";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faXmark } from "@fortawesome/free-solid-svg-icons";
 
 type TabKey = "overview" | "users" | "items" | "claims";
 
@@ -457,454 +482,478 @@ export function AdminPanel() {
   };
 
   return (
-    <main className={styles["admin-page"]}>
-      <section className={styles["admin-hero"]}>
-        <div>
-          <p className={styles["admin-hero__eyebrow"]}>Admin panel</p>
-          <h1 className={styles["admin-hero__title"]}>Administracija</h1>
-          <p className={styles["admin-hero__description"]}>
-            Upravljaj korisnicima, oglasima i claimovima sa jednog mjesta.
-          </p>
-        </div>
+    <Box sx={{ p: { xs: 3, md: 5 }, maxWidth: 1400, mx: "auto", display: "flex", flexDirection: "column", gap: 4 }}>
+      {/* Hero section */}
+      <Card sx={{ bgcolor: "background.paper" }}>
+        <CardContent sx={{ p: 4 }}>
+          <Stack direction={{ xs: "column", sm: "row" }} spacing={3} sx={{ justifyContent: "space-between", alignItems: { xs: "flex-start", sm: "center" } }}>
+            <Box>
+              <Typography
+                variant="overline"
+                sx={{
+                  fontWeight: 700,
+                  letterSpacing: "0.2em",
+                  color: "text.secondary",
+                  display: "block",
+                  lineHeight: 1.5,
+                }}
+              >
+                Admin panel
+              </Typography>
+              <Typography
+                variant="h4"
+                component="h1"
+                sx={{
+                  fontWeight: 800,
+                  color: "text.primary",
+                  mt: 0.5,
+                  letterSpacing: "-0.02em",
+                }}
+              >
+                Administracija
+              </Typography>
+              <Typography variant="body1" color="text.secondary" sx={{ mt: 1.5, maxWidth: "60ch" }}>
+                Upravljaj korisnicima, oglasima i claimovima sa jednog mjesta.
+              </Typography>
+            </Box>
 
-        <div className={styles["admin-hero__actions"]}>
-          <button
-            type="button"
-            className={styles["admin-primary-btn"]}
-            onClick={() => setShowSystemNotificationModal(true)}
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={() => setShowSystemNotificationModal(true)}
+              sx={{ py: 1.2, px: 3, alignSelf: { xs: "stretch", sm: "auto" } }}
+            >
+              Pošalji sistemsku notifikaciju
+            </Button>
+          </Stack>
+        </CardContent>
+      </Card>
+
+      <Dialog
+        open={showSystemNotificationModal}
+        onClose={() => setShowSystemNotificationModal(false)}
+        fullWidth
+        maxWidth="xs"
+      >
+        <DialogTitle sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", fontWeight: 800 }}>
+          Nova sistemska notifikacija
+          <IconButton size="small" onClick={() => setShowSystemNotificationModal(false)}>
+            <FontAwesomeIcon icon={faXmark} />
+          </IconButton>
+        </DialogTitle>
+        <DialogContent sx={{ display: "flex", flexDirection: "column", gap: 3, pt: 1 }}>
+          <TextField
+            label="Naslov"
+            value={notificationTitle}
+            onChange={(e) => setNotificationTitle(e.target.value)}
+            placeholder="Unesi naslov notifikacije"
+            fullWidth
+            required
+          />
+
+          <TextField
+            label="Poruka"
+            value={notificationBody}
+            onChange={(e) => setNotificationBody(e.target.value)}
+            placeholder="Unesi tekst poruke"
+            multiline
+            rows={4}
+            fullWidth
+            required
+          />
+        </DialogContent>
+        <DialogActions sx={{ p: 2.5, pt: 1.5 }}>
+          <Button color="secondary" onClick={() => setShowSystemNotificationModal(false)}>
+            Odustani
+          </Button>
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={handleSendSystemNotification}
+            disabled={sendingSystemNotification}
           >
-            Pošalji sistemsku notifikaciju
-          </button>
-        </div>
-      </section>
-
-      {showSystemNotificationModal && (
-        <div
-          className={styles["admin-modal-backdrop"]}
-          onClick={() => setShowSystemNotificationModal(false)}
-        >
-          <div
-            className={styles["admin-modal"]}
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className={styles["admin-modal__header"]}>
-              <h2 className={styles["admin-modal__title"]}>
-                Nova sistemska notifikacija
-              </h2>
-
-              <button
-                type="button"
-                className={styles["admin-modal__close"]}
-                onClick={() => setShowSystemNotificationModal(false)}
-              >
-                ✕
-              </button>
-            </div>
-
-            <div className={styles["admin-modal__body"]}>
-              <label className={styles["admin-field"]}>
-                <span>Naslov</span>
-                <input
-                  type="text"
-                  value={notificationTitle}
-                  onChange={(e) => setNotificationTitle(e.target.value)}
-                  placeholder="Unesi naslov notifikacije"
-                />
-              </label>
-
-              <label className={styles["admin-field"]}>
-                <span>Poruka</span>
-                <textarea
-                  value={notificationBody}
-                  onChange={(e) => setNotificationBody(e.target.value)}
-                  placeholder="Unesi tekst poruke"
-                  rows={5}
-                />
-              </label>
-            </div>
-
-            <div className={styles["admin-modal__actions"]}>
-              <button
-                type="button"
-                className={styles["admin-secondary-btn"]}
-                onClick={() => setShowSystemNotificationModal(false)}
-              >
-                Odustani
-              </button>
-
-              <button
-                type="button"
-                className={styles["admin-primary-btn"]}
-                onClick={handleSendSystemNotification}
-                disabled={sendingSystemNotification}
-              >
-                {sendingSystemNotification ? "Slanje..." : "Pošalji"}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+            {sendingSystemNotification ? "Slanje..." : "Pošalji"}
+          </Button>
+        </DialogActions>
+      </Dialog>
 
       {message && (
-        <div
-          className={`${styles["admin-alert"]} ${styles["admin-alert--success"]}`}
-        >
+        <Alert severity="success" sx={{ mb: 2 }}>
           {message}
-        </div>
+        </Alert>
       )}
 
       {error && (
-        <div
-          className={`${styles["admin-alert"]} ${styles["admin-alert--error"]}`}
-        >
+        <Alert severity="error" sx={{ mb: 2 }}>
           {error}
-        </div>
+        </Alert>
       )}
 
-      <section className={styles["admin-tabs"]}>
-        <button
-          type="button"
-          className={`${styles["admin-tab"]} ${
-            activeTab === "overview" ? styles["admin-tab--active"] : ""
-          }`}
-          onClick={() => setActiveTab("overview")}
+      <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
+        <Tabs
+          value={activeTab}
+          onChange={(e, value) => setActiveTab(value)}
+          aria-label="admin tabs"
+          textColor="primary"
+          indicatorColor="primary"
+          variant="scrollable"
+          scrollButtons="auto"
         >
-          Pregled
-        </button>
-
-        <button
-          type="button"
-          className={`${styles["admin-tab"]} ${
-            activeTab === "users" ? styles["admin-tab--active"] : ""
-          }`}
-          onClick={() => setActiveTab("users")}
-        >
-          Korisnici
-        </button>
-
-        <button
-          type="button"
-          className={`${styles["admin-tab"]} ${
-            activeTab === "items" ? styles["admin-tab--active"] : ""
-          }`}
-          onClick={() => setActiveTab("items")}
-        >
-          Oglasi
-        </button>
-
-        <button
-          type="button"
-          className={`${styles["admin-tab"]} ${
-            activeTab === "claims" ? styles["admin-tab--active"] : ""
-          }`}
-          onClick={() => setActiveTab("claims")}
-        >
-          Claimovi
-        </button>
-      </section>
+          <Tab label="Pregled" value="overview" sx={{ fontWeight: 700 }} />
+          <Tab label="Korisnici" value="users" sx={{ fontWeight: 700 }} />
+          <Tab label="Oglasi" value="items" sx={{ fontWeight: 700 }} />
+          <Tab label="Claimovi" value="claims" sx={{ fontWeight: 700 }} />
+        </Tabs>
+      </Box>
 
       {activeTab === "overview" && (
-        <section className={styles["admin-stats"]}>
-          <article className={styles["admin-stat-card"]}>
-            <span className={styles["admin-stat-card__label"]}>
-              Ukupno korisnika
-            </span>
-            <strong className={styles["admin-stat-card__value"]}>
-              {overview.totalUsers}
-            </strong>
-          </article>
+        <Grid container spacing={3}>
+          <Grid size={{ xs: 12, sm: 6, md: 4 }}>
+            <Card>
+              <CardContent sx={{ p: 3 }}>
+                <Typography variant="body2" color="text.secondary" sx={{ fontWeight: 600 }}>
+                  Ukupno korisnika
+                </Typography>
+                <Typography variant="h4" sx={{ fontWeight: 800, mt: 1, color: "text.primary" }}>
+                  {overview.totalUsers}
+                </Typography>
+              </CardContent>
+            </Card>
+          </Grid>
 
-          <article className={styles["admin-stat-card"]}>
-            <span className={styles["admin-stat-card__label"]}>
-              Aktivni korisnici
-            </span>
-            <strong className={styles["admin-stat-card__value"]}>
-              {overview.activeUsers}
-            </strong>
-          </article>
+          <Grid size={{ xs: 12, sm: 6, md: 4 }}>
+            <Card>
+              <CardContent sx={{ p: 3 }}>
+                <Typography variant="body2" color="text.secondary" sx={{ fontWeight: 600 }}>
+                  Aktivni korisnici
+                </Typography>
+                <Typography variant="h4" sx={{ fontWeight: 800, mt: 1, color: "text.primary" }}>
+                  {overview.activeUsers}
+                </Typography>
+              </CardContent>
+            </Card>
+          </Grid>
 
-          <article className={styles["admin-stat-card"]}>
-            <span className={styles["admin-stat-card__label"]}>
-              Admin korisnici
-            </span>
-            <strong className={styles["admin-stat-card__value"]}>
-              {overview.adminUsers}
-            </strong>
-          </article>
+          <Grid size={{ xs: 12, sm: 6, md: 4 }}>
+            <Card>
+              <CardContent sx={{ p: 3 }}>
+                <Typography variant="body2" color="text.secondary" sx={{ fontWeight: 600 }}>
+                  Admin korisnici
+                </Typography>
+                <Typography variant="h4" sx={{ fontWeight: 800, mt: 1, color: "text.primary" }}>
+                  {overview.adminUsers}
+                </Typography>
+              </CardContent>
+            </Card>
+          </Grid>
 
-          <article className={styles["admin-stat-card"]}>
-            <span className={styles["admin-stat-card__label"]}>
-              Ukupno oglasa
-            </span>
-            <strong className={styles["admin-stat-card__value"]}>
-              {overview.totalItems}
-            </strong>
-          </article>
+          <Grid size={{ xs: 12, sm: 6, md: 4 }}>
+            <Card>
+              <CardContent sx={{ p: 3 }}>
+                <Typography variant="body2" color="text.secondary" sx={{ fontWeight: 600 }}>
+                  Ukupno oglasa
+                </Typography>
+                <Typography variant="h4" sx={{ fontWeight: 800, mt: 1, color: "text.primary" }}>
+                  {overview.totalItems}
+                </Typography>
+              </CardContent>
+            </Card>
+          </Grid>
 
-          <article className={styles["admin-stat-card"]}>
-            <span className={styles["admin-stat-card__label"]}>
-              Aktivni oglasi
-            </span>
-            <strong className={styles["admin-stat-card__value"]}>
-              {overview.activeItems}
-            </strong>
-          </article>
+          <Grid size={{ xs: 12, sm: 6, md: 4 }}>
+            <Card>
+              <CardContent sx={{ p: 3 }}>
+                <Typography variant="body2" color="text.secondary" sx={{ fontWeight: 600 }}>
+                  Aktivni oglasi
+                </Typography>
+                <Typography variant="h4" sx={{ fontWeight: 800, mt: 1, color: "text.primary" }}>
+                  {overview.activeItems}
+                </Typography>
+              </CardContent>
+            </Card>
+          </Grid>
 
-          <article className={styles["admin-stat-card"]}>
-            <span className={styles["admin-stat-card__label"]}>
-              Pending claimovi
-            </span>
-            <strong className={styles["admin-stat-card__value"]}>
-              {overview.pendingClaims}
-            </strong>
-          </article>
-        </section>
+          <Grid size={{ xs: 12, sm: 6, md: 4 }}>
+            <Card>
+              <CardContent sx={{ p: 3 }}>
+                <Typography variant="body2" color="text.secondary" sx={{ fontWeight: 600 }}>
+                  Pending claimovi
+                </Typography>
+                <Typography variant="h4" sx={{ fontWeight: 800, mt: 1, color: "text.primary" }}>
+                  {overview.pendingClaims}
+                </Typography>
+              </CardContent>
+            </Card>
+          </Grid>
+        </Grid>
       )}
 
       {activeTab === "users" && (
-        <section className={styles["admin-section"]}>
-          <div className={styles["admin-section__header"]}>
-            <h2 className={styles["admin-section__title"]}>Korisnici</h2>
-            <button
-              type="button"
-              className={styles["admin-refresh"]}
-              onClick={reloadUsers}
-            >
-              Osvježi
-            </button>
-          </div>
+        <Card>
+          <CardContent sx={{ p: { xs: 3, md: 4 } }}>
+            <Stack direction="row" sx={{ mb: 3, justifyContent: "space-between", alignItems: "center" }}>
+              <Typography variant="h6" component="h2" sx={{ fontWeight: 800 }}>
+                Korisnici
+              </Typography>
+              <Button variant="outlined" color="primary" onClick={reloadUsers} disabled={loadingUsers}>
+                Osvježi
+              </Button>
+            </Stack>
 
-          {loadingUsers ? (
-            <p>Učitavanje korisnika...</p>
-          ) : (
-            <div className={styles["admin-table-wrap"]}>
-              <table className={styles["admin-table"]}>
-                <thead>
-                  <tr>
-                    <th>ID</th>
-                    <th>Korisnik</th>
-                    <th>Email</th>
-                    <th>Status</th>
-                    <th>Admin</th>
-                    <th>Akcije</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {users.map((user) => (
-                    <tr key={user.id}>
-                      <td>{user.id}</td>
-                      <td>
-                        <div className={styles["admin-cell-stack"]}>
-                          <strong>
-                            {user.first_name} {user.last_name}
-                          </strong>
-                          <span>@{user.username}</span>
-                        </div>
-                      </td>
-                      <td>{user.email}</td>
-                      <td>{user.is_active ? "Aktivan" : "Neaktivan"}</td>
-                      <td>{user.is_admin ? "Da" : "Ne"}</td>
-                      <td>
-                        <div className={styles["admin-actions"]}>
-                          <button
-                            type="button"
-                            className={styles["admin-action-btn"]}
-                            onClick={() => handleToggleUserActive(user)}
-                          >
-                            {user.is_active ? "Deaktiviraj" : "Aktiviraj"}
-                          </button>
+            {loadingUsers ? (
+              <Stack direction="row" spacing={2} sx={{ py: 4, alignItems: "center", justifyContent: "center" }}>
+                <CircularProgress size={24} />
+                <Typography variant="body2" color="text.secondary">Učitavanje korisnika...</Typography>
+              </Stack>
+            ) : (
+              <TableContainer component={Paper} variant="outlined" sx={{ borderRadius: 2 }}>
+                <Table sx={{ minWidth: 650 }}>
+                  <TableHead sx={{ bgcolor: "grey.50" }}>
+                    <TableRow>
+                      <TableCell sx={{ fontWeight: 700 }}>ID</TableCell>
+                      <TableCell sx={{ fontWeight: 700 }}>Korisnik</TableCell>
+                      <TableCell sx={{ fontWeight: 700 }}>Email</TableCell>
+                      <TableCell sx={{ fontWeight: 700 }}>Status</TableCell>
+                      <TableCell sx={{ fontWeight: 700 }}>Admin</TableCell>
+                      <TableCell sx={{ fontWeight: 700 }}>Akcije</TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {users.map((user) => (
+                      <TableRow key={user.id} hover>
+                        <TableCell>{user.id}</TableCell>
+                        <TableCell>
+                          <Stack spacing={0.2}>
+                            <Typography variant="body2" sx={{ fontWeight: 700 }}>
+                              {user.first_name} {user.last_name}
+                            </Typography>
+                            <Typography variant="caption" color="text.secondary">
+                              @{user.username}
+                            </Typography>
+                          </Stack>
+                        </TableCell>
+                        <TableCell>{user.email}</TableCell>
+                        <TableCell>{user.is_active ? "Aktivan" : "Neaktivan"}</TableCell>
+                        <TableCell>{user.is_admin ? "Da" : "Ne"}</TableCell>
+                        <TableCell>
+                          <Stack direction="row" spacing={1} sx={{ flexWrap: "wrap" }}>
+                            <Button
+                              size="small"
+                              variant="outlined"
+                              onClick={() => handleToggleUserActive(user)}
+                            >
+                              {user.is_active ? "Deaktiviraj" : "Aktiviraj"}
+                            </Button>
 
-                          <button
-                            type="button"
-                            className={styles["admin-action-btn"]}
-                            onClick={() => handleToggleUserAdmin(user)}
-                          >
-                            {user.is_admin ? "Ukloni admin" : "Postavi admin"}
-                          </button>
+                            <Button
+                              size="small"
+                              variant="outlined"
+                              onClick={() => handleToggleUserAdmin(user)}
+                            >
+                              {user.is_admin ? "Ukloni admin" : "Postavi admin"}
+                            </Button>
 
-                          <button
-                            type="button"
-                            className={`${styles["admin-action-btn"]} ${styles["admin-action-btn--danger"]}`}
-                            onClick={() => handleDeleteUser(user.id)}
-                          >
-                            Obriši
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
+                            <Button
+                              size="small"
+                              variant="contained"
+                              color="error"
+                              onClick={() => handleDeleteUser(user.id)}
+                            >
+                              Obriši
+                            </Button>
+                          </Stack>
+                        </TableCell>
+                      </TableRow>
+                    ))}
 
-                  {users.length === 0 && (
-                    <tr>
-                      <td colSpan={6}>Nema korisnika za prikaz.</td>
-                    </tr>
-                  )}
-                </tbody>
-              </table>
-            </div>
-          )}
-        </section>
+                    {users.length === 0 && (
+                      <TableRow>
+                        <TableCell colSpan={6} align="center">Nema korisnika za prikaz.</TableCell>
+                      </TableRow>
+                    )}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+            )}
+          </CardContent>
+        </Card>
       )}
 
       {activeTab === "items" && (
-        <section className={styles["admin-section"]}>
-          <div className={styles["admin-section__header"]}>
-            <h2 className={styles["admin-section__title"]}>Oglasi</h2>
-            <button
-              type="button"
-              className={styles["admin-refresh"]}
-              onClick={reloadItems}
-            >
-              Osvježi
-            </button>
-          </div>
+        <Card>
+          <CardContent sx={{ p: { xs: 3, md: 4 } }}>
+            <Stack direction="row" sx={{ mb: 3, justifyContent: "space-between", alignItems: "center" }}>
+              <Typography variant="h6" component="h2" sx={{ fontWeight: 800 }}>
+                Oglasi
+              </Typography>
+              <Button variant="outlined" color="primary" onClick={reloadItems} disabled={loadingItems}>
+                Osvježi
+              </Button>
+            </Stack>
 
-          {loadingItems ? (
-            <p>Učitavanje oglasa...</p>
-          ) : (
-            <div className={styles["admin-table-wrap"]}>
-              <table className={styles["admin-table"]}>
-                <thead>
-                  <tr>
-                    <th>ID</th>
-                    <th>Naslov</th>
-                    <th>Tip</th>
-                    <th>Status</th>
-                    <th>Lokacija</th>
-                    <th>Datum</th>
-                    <th>Akcije</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {items.map((item) => (
-                    <tr key={item.id}>
-                      <td>{item.id}</td>
-                      <td>
-                        <div className={styles["admin-cell-stack"]}>
-                          <strong>{item.title}</strong>
-                          <span>{item.category}</span>
-                        </div>
-                      </td>
-                      <td>{item.item_type}</td>
-                      <td>{item.status}</td>
-                      <td>{item.location_name}</td>
-                      <td>{formatDate(item.event_date)}</td>
-                      <td>
-                        <div className={styles["admin-actions"]}>
-                          <a
-                            href={`/listings/${item.id}`}
-                            className={styles["admin-action-btn"]}
-                          >
-                            Otvori
-                          </a>
+            {loadingItems ? (
+              <Stack direction="row" spacing={2} sx={{ py: 4, alignItems: "center", justifyContent: "center" }}>
+                <CircularProgress size={24} />
+                <Typography variant="body2" color="text.secondary">Učitavanje oglasa...</Typography>
+              </Stack>
+            ) : (
+              <TableContainer component={Paper} variant="outlined" sx={{ borderRadius: 2 }}>
+                <Table sx={{ minWidth: 650 }}>
+                  <TableHead sx={{ bgcolor: "grey.50" }}>
+                    <TableRow>
+                      <TableCell sx={{ fontWeight: 700 }}>ID</TableCell>
+                      <TableCell sx={{ fontWeight: 700 }}>Naslov</TableCell>
+                      <TableCell sx={{ fontWeight: 700 }}>Tip</TableCell>
+                      <TableCell sx={{ fontWeight: 700 }}>Status</TableCell>
+                      <TableCell sx={{ fontWeight: 700 }}>Lokacija</TableCell>
+                      <TableCell sx={{ fontWeight: 700 }}>Datum</TableCell>
+                      <TableCell sx={{ fontWeight: 700 }}>Akcije</TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {items.map((item) => (
+                      <TableRow key={item.id} hover>
+                        <TableCell>{item.id}</TableCell>
+                        <TableCell>
+                          <Stack spacing={0.2}>
+                            <Typography variant="body2" sx={{ fontWeight: 700 }}>
+                              {item.title}
+                            </Typography>
+                            <Typography variant="caption" color="text.secondary">
+                              {item.category}
+                            </Typography>
+                          </Stack>
+                        </TableCell>
+                        <TableCell sx={{ textTransform: "capitalize" }}>{item.item_type}</TableCell>
+                        <TableCell sx={{ textTransform: "capitalize" }}>{item.status}</TableCell>
+                        <TableCell>{item.location_name}</TableCell>
+                        <TableCell>{formatDate(item.event_date)}</TableCell>
+                        <TableCell>
+                          <Stack direction="row" spacing={1}>
+                            <Button
+                              size="small"
+                              variant="outlined"
+                              component="a"
+                              href={`/AllItems/${item.id}`}
+                            >
+                              Otvori
+                            </Button>
 
-                          <button
-                            type="button"
-                            className={`${styles["admin-action-btn"]} ${styles["admin-action-btn--danger"]}`}
-                            onClick={() => handleDeleteItem(item.id)}
-                          >
-                            Obriši
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
+                            <Button
+                              size="small"
+                              variant="contained"
+                              color="error"
+                              onClick={() => handleDeleteItem(item.id)}
+                            >
+                              Obriši
+                            </Button>
+                          </Stack>
+                        </TableCell>
+                      </TableRow>
+                    ))}
 
-                  {items.length === 0 && (
-                    <tr>
-                      <td colSpan={7}>Nema oglasa za prikaz.</td>
-                    </tr>
-                  )}
-                </tbody>
-              </table>
-            </div>
-          )}
-        </section>
+                    {items.length === 0 && (
+                      <TableRow>
+                        <TableCell colSpan={7} align="center">Nema oglasa za prikaz.</TableCell>
+                      </TableRow>
+                    )}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+            )}
+          </CardContent>
+        </Card>
       )}
 
       {activeTab === "claims" && (
-        <section className={styles["admin-section"]}>
-          <div className={styles["admin-section__header"]}>
-            <h2 className={styles["admin-section__title"]}>Claimovi</h2>
-            <button
-              type="button"
-              className={styles["admin-refresh"]}
-              onClick={reloadClaims}
-            >
-              Osvježi
-            </button>
-          </div>
+        <Card>
+          <CardContent sx={{ p: { xs: 3, md: 4 } }}>
+            <Stack direction="row" sx={{ mb: 3, justifyContent: "space-between", alignItems: "center" }}>
+              <Typography variant="h6" component="h2" sx={{ fontWeight: 800 }}>
+                Claimovi
+              </Typography>
+              <Button variant="outlined" color="primary" onClick={reloadClaims} disabled={loadingClaims}>
+                Osvježi
+              </Button>
+            </Stack>
 
-          {loadingClaims ? (
-            <p>Učitavanje claimova...</p>
-          ) : (
-            <div className={styles["admin-table-wrap"]}>
-              <table className={styles["admin-table"]}>
-                <thead>
-                  <tr>
-                    <th>ID</th>
-                    <th>Korisnik</th>
-                    <th>Oglas</th>
-                    <th>Status</th>
-                    <th>Poruka</th>
-                    <th>Akcije</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {claims.map((claim) => (
-                    <tr key={claim.id}>
-                      <td>{claim.id}</td>
-                      <td>{claim.user?.username || claim.user_id}</td>
-                      <td>{claim.item?.title || claim.item_id}</td>
-                      <td>{claim.status}</td>
-                      <td className={styles["admin-message-cell"]}>
-                        {claim.message}
-                      </td>
-                      <td>
-                        <div className={styles["admin-actions"]}>
-                          <button
-                            type="button"
-                            className={styles["admin-action-btn"]}
-                            onClick={() =>
-                              handleUpdateClaimStatus(claim.id, "accepted")
-                            }
-                          >
-                            Prihvati
-                          </button>
+            {loadingClaims ? (
+              <Stack direction="row" spacing={2} sx={{ py: 4, alignItems: "center", justifyContent: "center" }}>
+                <CircularProgress size={24} />
+                <Typography variant="body2" color="text.secondary">Učitavanje claimova...</Typography>
+              </Stack>
+            ) : (
+              <TableContainer component={Paper} variant="outlined" sx={{ borderRadius: 2 }}>
+                <Table sx={{ minWidth: 650 }}>
+                  <TableHead sx={{ bgcolor: "grey.50" }}>
+                    <TableRow>
+                      <TableCell sx={{ fontWeight: 700 }}>ID</TableCell>
+                      <TableCell sx={{ fontWeight: 700 }}>Korisnik</TableCell>
+                      <TableCell sx={{ fontWeight: 700 }}>Oglas</TableCell>
+                      <TableCell sx={{ fontWeight: 700 }}>Status</TableCell>
+                      <TableCell sx={{ fontWeight: 700 }}>Poruka</TableCell>
+                      <TableCell sx={{ fontWeight: 700 }}>Akcije</TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {claims.map((claim) => (
+                      <TableRow key={claim.id} hover>
+                        <TableCell>{claim.id}</TableCell>
+                        <TableCell>{claim.user?.username || claim.user_id}</TableCell>
+                        <TableCell>{claim.item?.title || claim.item_id}</TableCell>
+                        <TableCell sx={{ textTransform: "capitalize" }}>{claim.status}</TableCell>
+                        <TableCell sx={{ maxWidth: 300, whiteSpace: "normal", color: "text.secondary" }}>
+                          {claim.message}
+                        </TableCell>
+                        <TableCell>
+                          <Stack direction="row" spacing={1}>
+                            <Button
+                              size="small"
+                              variant="outlined"
+                              color="success"
+                              onClick={() =>
+                                handleUpdateClaimStatus(claim.id, "accepted")
+                              }
+                            >
+                              Prihvati
+                            </Button>
 
-                          <button
-                            type="button"
-                            className={styles["admin-action-btn"]}
-                            onClick={() =>
-                              handleUpdateClaimStatus(claim.id, "rejected")
-                            }
-                          >
-                            Odbij
-                          </button>
+                            <Button
+                              size="small"
+                              variant="outlined"
+                              color="error"
+                              onClick={() =>
+                                handleUpdateClaimStatus(claim.id, "rejected")
+                              }
+                            >
+                              Odbij
+                            </Button>
 
-                          <button
-                            type="button"
-                            className={`${styles["admin-action-btn"]} ${styles["admin-action-btn--danger"]}`}
-                            onClick={() => handleDeleteClaim(claim.id)}
-                          >
-                            Obriši
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
+                            <Button
+                              size="small"
+                              variant="contained"
+                              color="error"
+                              onClick={() => handleDeleteClaim(claim.id)}
+                            >
+                              Obriši
+                            </Button>
+                          </Stack>
+                        </TableCell>
+                      </TableRow>
+                    ))}
 
-                  {claims.length === 0 && (
-                    <tr>
-                      <td colSpan={6}>Nema claimova za prikaz.</td>
-                    </tr>
-                  )}
-                </tbody>
-              </table>
-            </div>
-          )}
-        </section>
+                    {claims.length === 0 && (
+                      <TableRow>
+                        <TableCell colSpan={6} align="center">Nema claimova za prikaz.</TableCell>
+                      </TableRow>
+                    )}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+            )}
+          </CardContent>
+        </Card>
       )}
-    </main>
+    </Box>
   );
 }

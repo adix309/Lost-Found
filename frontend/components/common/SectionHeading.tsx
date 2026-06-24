@@ -1,5 +1,7 @@
 import type { ReactNode } from "react";
-import styles from "./SectionHeading.module.css";
+import Box from "@mui/material/Box";
+import Typography from "@mui/material/Typography";
+import Stack from "@mui/material/Stack";
 
 type SectionHeadingProps = {
   title: string;
@@ -13,16 +15,39 @@ export function SectionHeading({
   action,
 }: SectionHeadingProps) {
   return (
-    <div className={styles["section-heading"]}>
-      <div>
-        <p className={styles["section-heading__eyebrow"]}>{title}</p>
+    <Stack
+      direction={{ xs: "column", sm: "row" }}
+      spacing={2}
+      sx={{ mb: 4, justifyContent: "space-between", alignItems: { xs: "flex-start", sm: "center" } }}
+    >
+      <Box>
+        <Typography
+          variant="overline"
+          sx={{
+            fontWeight: 800,
+            color: "primary.main",
+            letterSpacing: "0.1em",
+            display: "block",
+            lineHeight: 1.5,
+          }}
+        >
+          {title}
+        </Typography>
         {description ? (
-          <h2 className={styles["section-heading__title"]}>{description}</h2>
+          <Typography
+            variant="h4"
+            component="h2"
+            sx={{
+              fontWeight: 800,
+              color: "text.primary",
+              mt: 0.5,
+            }}
+          >
+            {description}
+          </Typography>
         ) : null}
-      </div>
-      {action ? (
-        <div className={styles["section-heading__action"]}>{action}</div>
-      ) : null}
-    </div>
+      </Box>
+      {action ? <Box>{action}</Box> : null}
+    </Stack>
   );
 }

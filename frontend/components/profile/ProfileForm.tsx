@@ -1,9 +1,19 @@
 "use client";
 
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faPencil } from "@fortawesome/free-solid-svg-icons";
 import { useEffect, useState } from "react";
-import styles from "./ProfileStyles.module.css";
+import Card from "@mui/material/Card";
+import CardContent from "@mui/material/CardContent";
+import Typography from "@mui/material/Typography";
+import Box from "@mui/material/Box";
+import Stack from "@mui/material/Stack";
+import Button from "@mui/material/Button";
+import IconButton from "@mui/material/IconButton";
+import TextField from "@mui/material/TextField";
+import Avatar from "@mui/material/Avatar";
+import Alert from "@mui/material/Alert";
+import CircularProgress from "@mui/material/CircularProgress";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faPencil, faCamera } from "@fortawesome/free-solid-svg-icons";
 
 type UserForm = {
   first_name: string;
@@ -343,198 +353,210 @@ export function ProfileForm() {
 
   if (loading) {
     return (
-      <section className={styles["profile-panel"]}>
-        <h2 className={styles["profile-panel__title"]}>Lične informacije</h2>
-        <p style={{ margin: 0, color: "var(--slate-600)" }}>
-          Učitavanje profila...
-        </p>
-      </section>
+      <Card>
+        <CardContent sx={{ p: { xs: 3, md: 4 } }}>
+          <Typography variant="h6" component="h2" sx={{ fontWeight: 800, mb: 3 }}>
+            Lične informacije
+          </Typography>
+          <Stack direction="row" spacing={2} sx={{ alignItems: "center" }}>
+            <CircularProgress size={20} />
+            <Typography variant="body2" color="text.secondary" sx={{ fontStyle: "italic" }}>
+              Učitavanje profila...
+            </Typography>
+          </Stack>
+        </CardContent>
+      </Card>
     );
   }
 
   return (
     <>
-      <section className={styles["profile-panel"]}>
-        <h2 className={styles["profile-panel__title"]}>Lične informacije</h2>
-        <div className={styles.profileAvatarSection}>
-          <img
-            src={
-              profileImage
-                ? `${API_BASE_URL}${profileImage}`
-                : "/default-profile.png"
-            }
-            alt="Profilna slika"
-            className={styles.profileAvatar}
-          />
+      <Card>
+        <CardContent sx={{ p: { xs: 3, md: 4 } }}>
+          <Typography variant="h6" component="h2" sx={{ fontWeight: 800, mb: 3 }}>
+            Lične informacije
+          </Typography>
 
-          <label className={styles.profileAvatarUpload}>
-            Promijeni sliku
-            <input
-              type="file"
-              accept="image/*"
-              onChange={handleProfileImageUpload}
-              className={styles.profileAvatarInput}
+          <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 2, mb: 4 }}>
+            <Avatar
+              src={profileImage ? `${API_BASE_URL}${profileImage}` : undefined}
+              sx={{
+                width: 120,
+                height: 120,
+                border: "4px solid #ffffff",
+                boxShadow: "0 8px 24px rgba(28, 25, 23, 0.08)",
+              }}
             />
-          </label>
-        </div>
 
-        {message && (
-          <div
-            className={`${styles["profile-message"]} ${styles["profile-message--success"]}`}
-          >
-            {message}
-          </div>
-        )}
+            <Button
+              component="label"
+              variant="contained"
+              size="small"
+              startIcon={<FontAwesomeIcon icon={faCamera} />}
+              sx={{ px: 2 }}
+            >
+              Promijeni sliku
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handleProfileImageUpload}
+                style={{ display: "none" }}
+              />
+            </Button>
+          </Box>
 
-        {error && (
-          <div
-            className={`${styles["profile-message"]} ${styles["profile-message--error"]}`}
-          >
-            {error}
-          </div>
-        )}
+          {message && (
+            <Alert severity="success" sx={{ mb: 3 }}>
+              {message}
+            </Alert>
+          )}
 
-        <div className={styles["profile-inline-list"]}>
-          <div className={styles["profile-inline-item"]}>
-            <div className={styles["profile-inline-item__top"]}>
-              <label className={styles["profile-inline-item__label"]}>
+          {error && (
+            <Alert severity="error" sx={{ mb: 3 }}>
+              {error}
+            </Alert>
+          )}
+
+          <Stack spacing={0}>
+            <Box sx={{ py: 2, borderBottom: "1px solid", borderColor: "grey.100" }}>
+              <Typography
+                variant="overline"
+                sx={{ fontWeight: 800, color: "text.secondary", letterSpacing: "0.08em" }}
+              >
                 Email
-              </label>
-            </div>
+              </Typography>
+              <Typography variant="body1" sx={{ mt: 0.5, color: "text.primary" }}>
+                {email || "Nije uneseno"}
+              </Typography>
+            </Box>
 
-            <div className={styles["profile-inline-item__value"]}>
-              {email || "Nije uneseno"}
-            </div>
-          </div>
+            {(Object.keys(form) as (keyof UserForm)[]).map((field) => (
+              <Box key={field} sx={{ py: 2, borderBottom: "1px solid", borderColor: "grey.100" }}>
+                <Stack direction="row" sx={{ justifyContent: "space-between", alignItems: "center" }}>
+                  <Typography
+                    variant="overline"
+                    sx={{ fontWeight: 800, color: "text.secondary", letterSpacing: "0.08em" }}
+                  >
+                    {fieldLabels[field]}
+                  </Typography>
 
-          {(Object.keys(form) as (keyof UserForm)[]).map((field) => (
-            <div key={field} className={styles["profile-inline-item"]}>
-              <div className={styles["profile-inline-item__top"]}>
-                <label className={styles["profile-inline-item__label"]}>
-                  {fieldLabels[field]}
-                </label>
-
-                {editingField !== field && (
-                    <button
-                        type="button"
-                        className={styles["profile-inline-item__icon"]}
-                        onClick={() => handleEdit(field)}
-                        aria-label={`Uredi polje ${fieldLabels[field]}`}
+                  {editingField !== field && (
+                    <IconButton
+                      size="small"
+                      onClick={() => handleEdit(field)}
+                      aria-label={`Uredi polje ${fieldLabels[field]}`}
+                      sx={{ color: "primary.main" }}
                     >
-                        <FontAwesomeIcon icon={faPencil} aria-hidden="true" />
-                    </button>
+                      <FontAwesomeIcon icon={faPencil} size="xs" />
+                    </IconButton>
+                  )}
+                </Stack>
+
+                {editingField === field ? (
+                  <Stack spacing={1.5} sx={{ mt: 1 }}>
+                    <TextField
+                      size="small"
+                      value={form[field]}
+                      onChange={(e) => handleChange(field, e.target.value)}
+                      placeholder={fieldPlaceholders[field]}
+                      autoFocus
+                      fullWidth
+                    />
+
+                    <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
+                      <Button
+                        size="small"
+                        color="secondary"
+                        onClick={handleCancelFieldEdit}
+                        sx={{ fontWeight: 700 }}
+                      >
+                        Odustani
+                      </Button>
+                    </Box>
+                  </Stack>
+                ) : (
+                  <Typography variant="body1" sx={{ mt: 0.5, color: "text.primary" }}>
+                    {form[field] || "Nije uneseno"}
+                  </Typography>
                 )}
-              </div>
+              </Box>
+            ))}
+          </Stack>
 
-              {editingField === field ? (
-                <div className={styles["profile-inline-item__edit"]}>
-                  <input
-                    type="text"
-                    className="form-input"
-                    value={form[field]}
-                    onChange={(e) => handleChange(field, e.target.value)}
-                    placeholder={fieldPlaceholders[field]}
-                    autoFocus
-                  />
+          <Box sx={{ display: "flex", justifyContent: "flex-start", mt: 3 }}>
+            <Button
+              variant="contained"
+              color="primary"
+              disabled={savingProfile || savingPassword || !hasChanges}
+              onClick={handleSubmit}
+              sx={{ px: 3, py: 1 }}
+            >
+              {savingProfile ? "Spremanje..." : "Sačuvaj promjene"}
+            </Button>
+          </Box>
+        </CardContent>
+      </Card>
 
-                  <div className={styles["profile-inline-item__actions"]}>
-                    <button
-                      type="button"
-                      className={styles["profile-inline-item__text-btn"]}
-                      onClick={handleCancelFieldEdit}
-                    >
-                      Odustani
-                    </button>
-                  </div>
-                </div>
-              ) : (
-                <div className={styles["profile-inline-item__value"]}>
-                  {form[field] || "Nije uneseno"}
-                </div>
-              )}
-            </div>
-          ))}
-        </div>
+      <Card sx={{ mt: 4 }}>
+        <CardContent sx={{ p: { xs: 3, md: 4 } }}>
+          <Typography variant="h6" component="h3" sx={{ fontWeight: 800, mb: 3 }}>
+            Promjena lozinke
+          </Typography>
 
-        <div className={styles["profile-form__actions"]}>
-          <button
-            type="button"
-            className="btn btn--primary"
-            disabled={savingProfile || savingPassword || !hasChanges}
-            onClick={handleSubmit}
-          >
-            {savingProfile ? "Spremanje..." : "Sačuvaj promjene"}
-          </button>
-        </div>
-      </section>
-
-      <section className={styles["profile-panel"]}>
-        <h3 className={styles["profile-panel__title"]}>Promjena lozinke</h3>
-
-        <div className={styles["profile-inline-list"]}>
-          <div className={styles["profile-inline-item"]}>
-            <label className={styles["profile-inline-item__label"]}>
-              Trenutna lozinka
-            </label>
-            <input
+          <Stack spacing={3}>
+            <TextField
               type="password"
-              className="form-input"
+              label="Trenutna lozinka"
               value={passwordForm.current_password}
               onChange={(e) =>
                 handlePasswordChange("current_password", e.target.value)
               }
               placeholder="Unesi trenutnu lozinku"
+              fullWidth
             />
-          </div>
 
-          <div className={styles["profile-inline-item"]}>
-            <label className={styles["profile-inline-item__label"]}>
-              Nova lozinka
-            </label>
-            <input
+            <TextField
               type="password"
-              className="form-input"
+              label="Nova lozinka"
               value={passwordForm.new_password}
               onChange={(e) =>
                 handlePasswordChange("new_password", e.target.value)
               }
               placeholder="Unesi novu lozinku"
+              fullWidth
             />
-          </div>
 
-          <div className={styles["profile-inline-item"]}>
-            <label className={styles["profile-inline-item__label"]}>
-              Potvrdi novu lozinku
-            </label>
-            <input
+            <TextField
               type="password"
-              className="form-input"
+              label="Potvrdi novu lozinku"
               value={passwordForm.confirm_new_password}
               onChange={(e) =>
                 handlePasswordChange("confirm_new_password", e.target.value)
               }
               placeholder="Ponovo unesi novu lozinku"
+              fullWidth
             />
-          </div>
-        </div>
+          </Stack>
 
-        <div className={styles["profile-form__actions"]}>
-          <button
-            type="button"
-            className="btn btn--primary"
-            disabled={
-              savingPassword ||
-              savingProfile ||
-              !passwordForm.current_password.trim() ||
-              !passwordForm.new_password.trim() ||
-              !passwordForm.confirm_new_password.trim()
-            }
-            onClick={handlePasswordSubmit}
-          >
-            {savingPassword ? "Spremanje..." : "Promijeni lozinku"}
-          </button>
-        </div>
-      </section>
+          <Box sx={{ display: "flex", justifyContent: "flex-start", mt: 4 }}>
+            <Button
+              variant="contained"
+              color="primary"
+              disabled={
+                savingPassword ||
+                savingProfile ||
+                !passwordForm.current_password.trim() ||
+                !passwordForm.new_password.trim() ||
+                !passwordForm.confirm_new_password.trim()
+              }
+              onClick={handlePasswordSubmit}
+              sx={{ px: 3, py: 1 }}
+            >
+              {savingPassword ? "Spremanje..." : "Promijeni lozinku"}
+            </Button>
+          </Box>
+        </CardContent>
+      </Card>
     </>
   );
-}
+}

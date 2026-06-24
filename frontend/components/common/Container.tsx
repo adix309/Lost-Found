@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import MuiContainer from "@mui/material/Container";
 
 type ContainerProps = {
   children: ReactNode;
@@ -6,7 +7,9 @@ type ContainerProps = {
 };
 
 export function Container({ children, className = "" }: ContainerProps) {
-  const classes = ["container", className].filter(Boolean).join(" ");
-
-  return <div className={classes}>{children}</div>;
+  return (
+    <MuiContainer maxWidth="lg" className={className} sx={{ px: 3 }}>
+      {children}
+    </MuiContainer>
+  );
 }

@@ -28,17 +28,32 @@ def run_item_matching(
 ) -> list:
     candidates = candidate_repository.get_candidate_items_for_matching(session, source_item, limit=50)
 
-    scored = []
+    # Stage 1: Filter candidates by description/specification score threshold
+    passed_candidates = []
     for candidate in candidates:
         score_data = calculate_match_score(source_item, candidate)
         print(
-            f"[MATCH] source={source_item.id} candidate={candidate.id} "
+            f"[MATCH STAGE 1] source={source_item.id} candidate={candidate.id} "
             f"title={candidate.title} score={score_data.get('score')} "
-            f"data={score_data}"
         )
         if score_data["score"] < 0.45:
             continue
+        
+        passed_candidates.append({
+            "candidate": candidate,
+            "description_score": score_data["score"],
+            "score_data": score_data
+        })
 
+    # Stage 2: Rerank using image similarity if applicable
+    from services.match_reranking_service import match_reranking_service
+    reranked = match_reranking_service.rerank_matches(session, source_item, passed_candidates)
+
+    scored = []
+    for r in reranked:
+        candidate = r["candidate"]
+        score_data = r["score_data"]
+        
         lost_item, found_item = get_lost_and_found_pair(source_item, candidate)
         match = item_match_repository.upsert_match(
             session,

@@ -1,144 +1,100 @@
 "use client";
 
+import { Header } from "@/components/layout/Header";
+import { Footer } from "@/components/layout/Footer";
 import { useEffect, useState } from "react";
 import dynamic from "next/dynamic";
+import styles from "./MapPage.module.css";
 
 import type { MapItem } from "@/components/map/ItemsMap";
 
 const ItemsMap = dynamic(() => import("@/components/map/ItemsMap"), {
-  ssr: false,
-  loading: () => <p>Učitavanje mape...</p>,
+    ssr: false,
+    loading: () => <p>Učitavanje mape...</p>,
 });
 
 const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8000";
+    process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8000";
 
 export default function MapPage() {
-  const [items, setItems] = useState<MapItem[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
+    const [items, setItems] = useState<MapItem[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState("");
 
-  useEffect(() => {
-    async function fetchItems() {
-      try {
-        setError("");
+    useEffect(() => {
+        async function fetchItems() {
+            try {
+                setError("");
 
-        const response = await fetch(`${API_BASE_URL}/items`);
+                const response = await fetch(`${API_BASE_URL}/items`);
 
-        if (!response.ok) {
-          throw new Error("Failed to fetch items");
+                if (!response.ok) {
+                    throw new Error("Failed to fetch items");
+                }
+
+                const data = await response.json();
+                setItems(data);
+            } catch (error) {
+                console.error("Error loading map items:", error);
+                setError("Nije moguće učitati predmete za mapu. Provjerite da li backend radi.");
+            } finally {
+                setLoading(false);
+            }
         }
 
-        const data = await response.json();
-        setItems(data);
-      } catch (error) {
-        console.error("Error loading map items:", error);
-        setError("Nije moguće učitati predmete za mapu.");
-      } finally {
-        setLoading(false);
-      }
-    }
+        fetchItems();
+    }, []);
 
-    fetchItems();
-  }, []);
+    return (
+        <div className={styles.pageShell}>
+            <Header />
 
-  return (
-    <main
-      style={{
-        minHeight: "100vh",
-        padding: "32px",
-        background:
-          "linear-gradient(180deg, #f8fafc 0%, #eef2ff 45%, #f8fafc 100%)",
-      }}
-    >
-      <section
-        style={{
-          maxWidth: "1180px",
-          margin: "0 auto",
-        }}
-      >
-        <div
-          style={{
-            marginBottom: "24px",
-          }}
-        >
-          <p
-            style={{
-              margin: "0 0 8px",
-              fontSize: "14px",
-              fontWeight: 700,
-              color: "#2563eb",
-              textTransform: "uppercase",
-              letterSpacing: "0.08em",
-            }}
-          >
-            Interaktivna mapa
-          </p>
+            <main className={styles.mapMain}>
+                {/* Hero Header on a warm tinted background wrapper */}
+                <section className={styles.mapHeroBg}>
+                    <div className="container">
+                        <div className={styles.headerSection}>
+                            <p className={styles.eyebrow}>
+                                Interaktivna mapa
+                            </p>
+                            <h1 className={styles.title}>
+                                Mapa izgubljenih i pronađenih predmeta
+                            </h1>
+                            <p className={styles.description}>
+                                Pretražite prijavljene predmete po nazivu, kategoriji ili lokaciji i vizuelno locirajte tačna mjesta na mapi.
+                            </p>
+                        </div>
+                    </div>
+                </section>
 
-          <h1
-            style={{
-              margin: 0,
-              fontSize: "34px",
-              lineHeight: 1.15,
-              color: "#0f172a",
-            }}
-          >
-            Mapa izgubljenih i pronađenih predmeta
-          </h1>
+                {/* Map Wrapper Section on a clean white background */}
+                <section className={styles.mapContentSection}>
+                    <div className="container">
+                        {loading && (
+                            <div className={styles.loadingPanel}>
+                                Učitavanje interaktivne mape i predmeta...
+                            </div>
+                        )}
 
-          <p
-            style={{
-              maxWidth: "680px",
-              margin: "12px 0 0",
-              fontSize: "16px",
-              lineHeight: 1.6,
-              color: "#475569",
-            }}
-          >
-            Pretraži predmete po nazivu, lokaciji, kategoriji, boji ili brendu i
-            brzo pronađi aktivne objave na mapi.
-          </p>
+                        {!loading && error && (
+                            <div className={styles.errorPanel}>
+                                {error}
+                            </div>
+                        )}
+
+                        {!loading && !error && (
+                            <ItemsMap
+                                items={items}
+                                apiBaseUrl={API_BASE_URL}
+                                defaultCenter={[43.8563, 18.4131]}
+                                defaultZoom={13}
+                            />
+                        )}
+                    </div>
+                </section>
+            </main>
+
+            <Footer />
         </div>
-
-        {loading && (
-          <div
-            style={{
-              padding: "18px 20px",
-              borderRadius: "16px",
-              background: "white",
-              border: "1px solid #e2e8f0",
-              color: "#475569",
-              boxShadow: "0 12px 30px rgba(15, 23, 42, 0.06)",
-            }}
-          >
-            Učitavanje mape...
-          </div>
-        )}
-
-        {!loading && error && (
-          <div
-            style={{
-              padding: "18px 20px",
-              borderRadius: "16px",
-              background: "#fef2f2",
-              border: "1px solid #fecaca",
-              color: "#991b1b",
-              fontWeight: 600,
-            }}
-          >
-            {error}
-          </div>
-        )}
-
-        {!loading && !error && (
-          <ItemsMap
-            items={items}
-            apiBaseUrl={API_BASE_URL}
-            defaultCenter={[44.2034, 17.9077]}
-            defaultZoom={13}
-          />
-        )}
-      </section>
-    </main>
-  );
+    );
 }

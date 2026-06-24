@@ -9,7 +9,12 @@ import type {
   NotificationItem,
   NotificationListResponse,
 } from "@/types/notification";
-import styles from "./NotificationsPage.module.css";
+import Box from "@mui/material/Box";
+import Container from "@mui/material/Container";
+import Typography from "@mui/material/Typography";
+import Stack from "@mui/material/Stack";
+import CircularProgress from "@mui/material/CircularProgress";
+import Alert from "@mui/material/Alert";
 
 const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
@@ -93,30 +98,80 @@ export function NotificationsPage() {
   };
 
   return (
-    <>
+    <Box sx={{ display: "flex", flexDirection: "column", minHeight: "100vh", bgcolor: "background.default" }}>
       <Header />
 
-      <main className={styles.page}>
-        <section className={styles.hero}>
-          <div className={styles.container}>
-            <p className={styles.eyebrow}>Obavijesti</p>
-            <h1 className={styles.title}>Vaše notifikacije</h1>
-            <p className={styles.subtitle}>
+      <Box component="main" sx={{ flexGrow: 1, py: { xs: 6, md: 8 } }}>
+        <Container maxWidth="md">
+          {/* Hero segment */}
+          <Box sx={{ mb: 5 }}>
+            <Typography
+              variant="overline"
+              sx={{
+                fontWeight: 700,
+                letterSpacing: "0.2em",
+                color: "primary.main",
+                display: "block",
+                lineHeight: 1.5,
+              }}
+            >
+              Obavijesti
+            </Typography>
+            <Typography
+              variant="h3"
+              component="h1"
+              sx={{
+                fontWeight: 800,
+                color: "text.primary",
+                mt: 1,
+                fontSize: { xs: "2.25rem", md: "2.75rem" },
+              }}
+            >
+              Vaše notifikacije
+            </Typography>
+            <Typography
+              variant="body1"
+              sx={{
+                mt: 1.5,
+                color: "text.secondary",
+                lineHeight: 1.6,
+              }}
+            >
               Imate {unreadCount} nepročitanih notifikacija.
-            </p>
-          </div>
-        </section>
+            </Typography>
+          </Box>
 
-        <section className={styles.content}>
-          <div className={styles.container}>
+          {/* Content */}
+          <Box sx={{ mt: 4 }}>
             {loading ? (
-              <div className={styles.state}>Učitavanje notifikacija...</div>
+              <Stack direction="row" spacing={2} sx={{ py: 6, alignItems: "center", justifyContent: "center" }}>
+                <CircularProgress size={28} />
+                <Typography variant="body1" color="text.secondary">
+                  Učitavanje notifikacija...
+                </Typography>
+              </Stack>
             ) : error ? (
-              <div className={`${styles.state} ${styles.stateError}`}>{error}</div>
+              <Alert severity="error" sx={{ borderRadius: 2 }}>
+                {error}
+              </Alert>
             ) : notifications.length === 0 ? (
-              <div className={styles.state}>Trenutno nemate notifikacija.</div>
+              <Box
+                sx={{
+                  p: 6,
+                  textAlign: "center",
+                  bgcolor: "background.paper",
+                  color: "text.secondary",
+                  borderRadius: 3,
+                  border: "1px dashed",
+                  borderColor: "grey.200",
+                }}
+              >
+                <Typography variant="body1">
+                  Trenutno nemate notifikacija.
+                </Typography>
+              </Box>
             ) : (
-              <div className={styles.list}>
+              <Stack spacing={2.5}>
                 {notifications.map((notification) => (
                   <NotificationCard
                     key={notification.id}
@@ -125,11 +180,11 @@ export function NotificationsPage() {
                     onOpenMatches={setSelectedNotification}
                   />
                 ))}
-              </div>
+              </Stack>
             )}
-          </div>
-        </section>
-      </main>
+          </Box>
+        </Container>
+      </Box>
 
       <MatchSuggestionsModal
         notification={selectedNotification}
@@ -138,6 +193,6 @@ export function NotificationsPage() {
       />
 
       <Footer />
-    </>
+    </Box>
   );
 }

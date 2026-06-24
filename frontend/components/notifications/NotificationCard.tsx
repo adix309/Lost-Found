@@ -1,7 +1,13 @@
 "use client";
 
 import type { NotificationItem } from "@/types/notification";
-import styles from "./NotificationsPage.module.css";
+import Card from "@mui/material/Card";
+import CardContent from "@mui/material/CardContent";
+import CardActions from "@mui/material/CardActions";
+import Typography from "@mui/material/Typography";
+import Button from "@mui/material/Button";
+import Stack from "@mui/material/Stack";
+import Box from "@mui/material/Box";
 
 interface NotificationCardProps {
   notification: NotificationItem;
@@ -10,10 +16,23 @@ interface NotificationCardProps {
 }
 
 function formatDate(value: string) {
-  return new Intl.DateTimeFormat("bs-BA", {
-    dateStyle: "medium",
-    timeStyle: "short",
-  }).format(new Date(value));
+  try {
+    const parsed = new Date(value);
+    if (Number.isNaN(parsed.getTime())) return value;
+    const day = String(parsed.getDate()).padStart(2, "0");
+    const month = String(parsed.getMonth() + 1).padStart(2, "0");
+    const year = parsed.getFullYear();
+    const datePart = `${day}/${month}/${year}`;
+    
+    const timePart = parsed.toLocaleTimeString("bs-BA", {
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+    
+    return `${datePart} · ${timePart}`;
+  } catch {
+    return value;
+  }
 }
 
 export function NotificationCard({
@@ -32,45 +51,76 @@ export function NotificationCard({
   };
 
   return (
-    <article className={styles.card}>
-      <div className={styles.header}>
-        <div>
-          <h3 className={styles.title}>{notification.title}</h3>
-          <p className={styles.date}>{formatDate(notification.created_at)}</p>
-        </div>
+    <Card
+      sx={{
+        p: 2.5,
+        border: "1px solid",
+        borderColor: notification.is_read ? "grey.200" : "primary.light",
+        backgroundColor: notification.is_read ? "background.paper" : "primary.light",
+        borderRadius: 4,
+        boxShadow: "0 8px 24px rgba(15, 23, 42, 0.06)",
+        position: "relative",
+      }}
+    >
+      <CardContent sx={{ p: 0, "&:last-child": { pb: 0 } }}>
+        <Stack direction="row" spacing={2} sx={{ justifyContent: "space-between", alignItems: "flex-start", mb: 1.5 }}>
+          <Box sx={{ minWidth: 0 }}>
+            <Typography variant="h6" component="h3" sx={{ fontWeight: 700, fontSize: "1.05rem", color: "text.primary" }}>
+              {notification.title}
+            </Typography>
+            <Typography variant="caption" color="text.secondary">
+              {formatDate(notification.created_at)}
+            </Typography>
+          </Box>
 
-        {!notification.is_read ? <span className={styles.unreadDot} /> : null}
-      </div>
+          {!notification.is_read && (
+            <Box
+              sx={{
+                width: 10,
+                height: 10,
+                borderRadius: "50%",
+                backgroundColor: "primary.main",
+                flexShrink: 0,
+                mt: 0.8,
+              }}
+            />
+          )}
+        </Stack>
 
-      <p className={styles.body}>{notification.body}</p>
+        <Typography variant="body2" color="text.primary" sx={{ lineHeight: 1.6, mb: 1.5 }}>
+          {notification.body}
+        </Typography>
 
-      {notification.data?.best_score ? (
-        <p className={styles.meta}>
-          Najbolji score: {Math.round(Number(notification.data.best_score) * 100)}%
-        </p>
-      ) : null}
+        {notification.data?.best_score ? (
+          <Typography variant="body2" sx={{ fontWeight: 600, color: "primary.dark", mb: 2 }}>
+            Najbolji score: {Math.round(Number(notification.data.best_score) * 100)}%
+          </Typography>
+        ) : null}
+      </CardContent>
 
-      <div className={styles.actions}>
-        {hasMatchSuggestions ? (
-          <button
-            type="button"
-            className={styles.primaryButton}
+      <CardActions sx={{ p: 0, gap: 1.5, justifyContent: "flex-start", flexWrap: "wrap" }}>
+        {hasMatchSuggestions && (
+          <Button
+            variant="contained"
+            color="primary"
+            size="small"
             onClick={handleOpen}
           >
             Pogledaj preporuke
-          </button>
-        ) : null}
+          </Button>
+        )}
 
-        {!notification.is_read ? (
-          <button
-            type="button"
-            className={styles.secondaryButton}
+        {!notification.is_read && (
+          <Button
+            variant="outlined"
+            color="secondary"
+            size="small"
             onClick={() => onMarkAsRead(notification.id)}
           >
             Označi kao pročitano
-          </button>
-        ) : null}
-      </div>
-    </article>
+          </Button>
+        )}
+      </CardActions>
+    </Card>
   );
 }

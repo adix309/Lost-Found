@@ -1,41 +1,77 @@
+"use client";
+
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { ProfileForm } from "@/components/profile/ProfileForm";
 import { ProfileSummary } from "@/components/profile/ProfileSummary";
 import { ProfileListings } from "@/components/profile/ProfileListings";
 import { AuthGuard } from "@/components/auth/AuthGuard";
-import styles from "@/components/profile/ProfileStyles.module.css";
+import Box from "@mui/material/Box";
+import Container from "@mui/material/Container";
+import Grid from "@mui/material/Grid";
+import Typography from "@mui/material/Typography";
 
 export default function ProfilePage() {
   return (
     <AuthGuard>
-      <div className="app-shell">
+      <Box sx={{ display: "flex", flexDirection: "column", minHeight: "100vh", bgcolor: "background.default" }}>
         <Header />
-        <main className="app-main">
-          <section className={styles["profile-page"]}>
-            <div className="container">
-              <div className={styles["profile-header"]}>
-                <p className={styles["profile-header__eyebrow"]}>Moj profil</p>
-                <h1 className={styles["profile-header__title"]}>
-                  Profil korisnika
-                </h1>
-                <p className={styles["profile-header__description"]}>
-                  Pregledaj i ažuriraj svoje osnovne informacije te prati oglase koje
-                  si objavio.
-                </p>
-              </div>
+        <Box component="main" sx={{ flexGrow: 1, py: { xs: 6, md: 8 } }}>
+          <Container maxWidth="lg">
+            <Box sx={{ mb: 5 }}>
+              <Typography
+                variant="overline"
+                sx={{
+                  fontWeight: 700,
+                  letterSpacing: "0.2em",
+                  color: "primary.main",
+                  display: "block",
+                  lineHeight: 1.5,
+                }}
+              >
+                Moj profil
+              </Typography>
+              <Typography
+                variant="h4"
+                component="h1"
+                sx={{
+                  fontWeight: 800,
+                  color: "text.primary",
+                  mt: 0.5,
+                  letterSpacing: "-0.02em",
+                  fontSize: { xs: "2.25rem", md: "2.75rem" },
+                }}
+              >
+                Profil korisnika
+              </Typography>
+              <Typography
+                variant="body1"
+                sx={{
+                  mt: 1.5,
+                  maxWidth: "40rem",
+                  color: "text.secondary",
+                  lineHeight: 1.6,
+                }}
+              >
+                Pregledaj i ažuriraj svoje osnovne informacije te prati oglase koje
+                si objavio.
+              </Typography>
+            </Box>
 
-              <div className={styles["profile-layout"]}>
+            <Grid container spacing={4} sx={{ mb: 6, alignItems: "flex-start" }}>
+              <Grid size={{ xs: 12, md: 8 }}>
                 <ProfileForm />
+              </Grid>
+              <Grid size={{ xs: 12, md: 4 }}>
                 <ProfileSummary />
-              </div>
+              </Grid>
+            </Grid>
 
-              <ProfileListings />
-            </div>
-          </section>
-        </main>
+            <ProfileListings />
+          </Container>
+        </Box>
         <Footer />
-      </div>
+      </Box>
     </AuthGuard>
   );
-}
+}

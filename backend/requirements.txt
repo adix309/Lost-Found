@@ -7,3 +7,5 @@ python-jose==3.5.0
 python-dotenv==1.2.2
 pydantic[email]
 python-multipart
+pydantic-settings
+transformers

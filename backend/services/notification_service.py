@@ -179,8 +179,30 @@ def create_notification(
     return notification
 
 
+def _enrich_notification_matches(session: Session, notification: Notification) -> Notification:
+    if notification and notification.type == NotificationType.POTENTIAL_MATCH and notification.data:
+        source_item_id = notification.data.get("source_item_id")
+        if source_item_id:
+            source_item = item_repository.get_item_by_id(session, source_item_id)
+            if source_item:
+                top_matches = item_match_repository.list_top_matches_for_item(session, source_item_id, limit=3)
+                match_previews = [
+                    _serialize_match_preview(session, m, source_item)
+                    for m in top_matches
+                ]
+                updated_data = dict(notification.data)
+                updated_data["matches"] = match_previews
+                if top_matches:
+                    updated_data["best_score"] = top_matches[0].score
+                notification.data = updated_data
+    return notification
+
+
 def list_my_notifications(session: Session, user_id: int, limit: int = 20, offset: int = 0):
-    return notification_repository.get_for_user(session, user_id=user_id, limit=limit, offset=offset)
+    notifications = notification_repository.get_for_user(session, user_id=user_id, limit=limit, offset=offset)
+    for n in notifications:
+        _enrich_notification_matches(session, n)
+    return notifications
 
 
 def read_notification(session: Session, notification_id: int, user_id: int):
@@ -190,7 +212,7 @@ def read_notification(session: Session, notification_id: int, user_id: int):
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Notifikacija nije pronađena."
         )
-    return notification
+    return _enrich_notification_matches(session, notification)
 
 
 def broadcast_system_notification(
@@ -248,6 +270,13 @@ def _serialize_match_preview(session: Session, match, target_item: Item) -> dict
 
     counterpart_item = item_repository.get_item_by_id(session, counterpart_item_id)
 
+    # Determine if rank was improved
+    rank_improved_val = (
+        match.image_similarity_score is not None
+        and match.final_score is not None
+        and match.final_score > match.description_score
+    )
+
     return {
         "match_id": match.id,
         "item_id": counterpart_item.id if counterpart_item else counterpart_item_id,
@@ -257,6 +286,19 @@ def _serialize_match_preview(session: Session, match, target_item: Item) -> dict
         "event_date": counterpart_item.event_date.isoformat() if counterpart_item and counterpart_item.event_date else None,
         "score": match.score,
         "reasons": _humanize_match_reasons(match.reasons),
+        # Frontend-specific AI fields
+        "description": counterpart_item.description if counterpart_item else None,
+        "image_url": counterpart_item.image_url if counterpart_item else None,
+        "description_score": match.description_score,
+        "descriptionScore": match.description_score,
+        "image_similarity_score": match.image_similarity_score,
+        "imageSimilarityScore": match.image_similarity_score,
+        "final_score": match.final_score,
+        "finalScore": match.final_score,
+        "used_image_reranking": match.used_image_reranking,
+        "usedAiImageMatching": match.used_image_reranking,
+        "rank_improved": rank_improved_val,
+        "rankImproved": rank_improved_val,
     }
 
 

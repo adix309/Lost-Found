@@ -20,6 +20,19 @@ export interface NotificationMatchPreview {
   event_date?: string | null;
   score: number;
   reasons?: string[];
+  description?: string | null;
+  image_url?: string | null;
+  descriptionScore?: number;
+  description_score?: number;
+  imageSimilarityScore?: number | null;
+  image_similarity_score?: number | null;
+  finalScore?: number;
+  final_score?: number;
+  usedAiImageMatching?: boolean;
+  used_image_reranking?: boolean;
+  rank?: number;
+  rank_improved?: boolean;
+  rankImproved?: boolean;
 }
 
 export interface NotificationData {
