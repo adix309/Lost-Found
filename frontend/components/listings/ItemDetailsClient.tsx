@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faShieldHalved, faPhone, faEnvelope, faUser, faRobot, faArrowUp, faChevronDown } from "@fortawesome/free-solid-svg-icons";
+import { faShieldHalved, faPhone, faEnvelope, faUser, faRobot, faArrowUp, faChevronDown, faMapLocationDot } from "@fortawesome/free-solid-svg-icons";
 
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
@@ -110,6 +110,11 @@ export function ItemDetailsClient({
     owner?.full_name || owner?.username || owner?.email || "Nepoznat korisnik";
 
   const ownerImageSrc = getImageSrc(owner?.profile_image);
+  const hasMapLocation =
+    item.latitude !== null &&
+    item.longitude !== null &&
+    Number.isFinite(item.latitude) &&
+    Number.isFinite(item.longitude);
 
   return (
     <Box sx={{ display: "flex", flexDirection: "column", minHeight: "100vh", bgcolor: "background.default" }}>
@@ -303,7 +308,7 @@ export function ItemDetailsClient({
                       </Box>
                       <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                         <Typography variant="body2" color="text.secondary" sx={{ fontSize: "0.9rem" }}>Lokacija</Typography>
-                        <Typography variant="body2" sx={{ fontWeight: 700, fontSize: "0.9rem" }}>{item.location_name}</Typography>
+                        <Typography variant="body2" sx={{ fontWeight: 700, fontSize: "0.9rem" }}>{item.location_name || "Lokacija nije navedena"}</Typography>
                       </Box>
                       <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                         <Typography variant="body2" color="text.secondary" sx={{ fontSize: "0.9rem" }}>Datum događaja</Typography>
@@ -402,6 +407,20 @@ export function ItemDetailsClient({
 
                     {/* Actions List */}
                     <Stack spacing={1.5}>
+                      {hasMapLocation && (
+                        <Button
+                          component={Link}
+                          href={`/map?focusedItem=${item.id}`}
+                          variant="contained"
+                          color="primary"
+                          size="small"
+                          startIcon={<FontAwesomeIcon icon={faMapLocationDot} />}
+                          sx={{ textTransform: "none", fontWeight: 800, borderRadius: 2 }}
+                        >
+                          Idi na mapu
+                        </Button>
+                      )}
+
                       {/* Primary Action Button: Start Chat */}
                       <StartChatButton itemId={item.id} />
 

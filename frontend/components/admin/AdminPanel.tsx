@@ -826,7 +826,7 @@ export function AdminPanel() {
                         </TableCell>
                         <TableCell sx={{ textTransform: "capitalize" }}>{item.item_type}</TableCell>
                         <TableCell sx={{ textTransform: "capitalize" }}>{item.status}</TableCell>
-                        <TableCell>{item.location_name}</TableCell>
+                        <TableCell>{item.location_name || "Nije navedena"}</TableCell>
                         <TableCell>{formatDate(item.event_date)}</TableCell>
                         <TableCell>
                           <Stack direction="row" spacing={1}>

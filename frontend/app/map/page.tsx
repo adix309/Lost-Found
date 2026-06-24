@@ -2,8 +2,9 @@
 
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import dynamic from "next/dynamic";
+import { useSearchParams } from "next/navigation";
 import styles from "./MapPage.module.css";
 
 import type { MapItem } from "@/components/map/ItemsMap";
@@ -16,7 +17,9 @@ const ItemsMap = dynamic(() => import("@/components/map/ItemsMap"), {
 const API_BASE_URL =
     process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8000";
 
-export default function MapPage() {
+function MapPageContent() {
+    const searchParams = useSearchParams();
+    const focusedItemId = Number(searchParams.get("focusedItem"));
     const [items, setItems] = useState<MapItem[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
@@ -88,6 +91,7 @@ export default function MapPage() {
                                 apiBaseUrl={API_BASE_URL}
                                 defaultCenter={[43.8563, 18.4131]}
                                 defaultZoom={13}
+                                focusedItemId={Number.isFinite(focusedItemId) ? focusedItemId : undefined}
                             />
                         )}
                     </div>
@@ -96,5 +100,13 @@ export default function MapPage() {
 
             <Footer />
         </div>
+    );
+}
+
+export default function MapPage() {
+    return (
+        <Suspense fallback={<p>Učitavanje mape...</p>}>
+            <MapPageContent />
+        </Suspense>
     );
 }

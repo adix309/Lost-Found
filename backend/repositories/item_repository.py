@@ -1,6 +1,7 @@
 from typing import Optional
 
 from sqlmodel import Session, select
+from sqlalchemy import func
 from sqlalchemy.orm import selectinload
 
 from models.item_model import Item, ItemImage, ItemStatus, ItemType
@@ -62,7 +63,7 @@ def get_items(
             Item.title.ilike(search_pattern)
             | Item.description.ilike(search_pattern)
             | Item.category.ilike(search_pattern)
-            | Item.location_name.ilike(search_pattern)
+            | func.coalesce(Item.location_name, "").ilike(search_pattern)
             | Item.brand.ilike(search_pattern)
             | Item.color.ilike(search_pattern)
         )

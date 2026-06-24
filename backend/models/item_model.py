@@ -46,7 +46,7 @@ class Item(SQLModel, table=True):
     item_type: ItemType
     category: str
 
-    location_name: str
+    location_name: Optional[str] = None
     latitude: Optional[float] = None
     longitude: Optional[float] = None
 

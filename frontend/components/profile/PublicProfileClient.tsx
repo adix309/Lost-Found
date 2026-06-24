@@ -31,7 +31,7 @@ type UserItem = Listing & {
   description: string;
   item_type: "lost" | "found";
   category: string;
-  location_name: string;
+  location_name: string | null;
   image_url?: string | null;
   status: "active" | "resolved" | "expired";
   created_at: string;

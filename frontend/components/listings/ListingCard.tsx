@@ -184,7 +184,7 @@ export function ListingCard({ listing, isFeatured = false }: { listing: Listing;
           <Stack direction="row" spacing={1} sx={{ alignItems: "center" }}>
             <FontAwesomeIcon icon={faMapPin} style={{ color: "var(--slate-400)", width: 12, flexShrink: 0, fontSize: "0.8rem" }} />
             <Typography variant="body2" color="text.secondary" sx={{ fontSize: "0.8rem", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-              {listing.location_name}
+              {listing.location_name || "Lokacija nije navedena"}
             </Typography>
           </Stack>
           <Stack direction="row" spacing={1} sx={{ alignItems: "center" }}>

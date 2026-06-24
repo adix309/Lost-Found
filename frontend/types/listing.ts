@@ -12,7 +12,7 @@ export type Listing = {
   item_type: ListingType;
   category: string;
 
-  location_name: string;
+  location_name: string | null;
   latitude: number | null;
   longitude: number | null;
 

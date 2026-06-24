@@ -36,7 +36,7 @@ class ItemBase(BaseModel):
     item_type: ItemType
     category: str
 
-    location_name: str
+    location_name: Optional[str] = None
     latitude: Optional[float] = None
     longitude: Optional[float] = None
 
@@ -59,7 +59,7 @@ class ItemBase(BaseModel):
     def validate_hidden_features(cls, value):
         return resolve_hidden_features(value)
 
-    @field_validator("title", "description", "category", "location_name", mode="before")
+    @field_validator("title", "description", "category", mode="before")
     @classmethod
     def validate_required_text(cls, value):
         if value is None:
@@ -69,7 +69,7 @@ class ItemBase(BaseModel):
             raise ValueError("Field cannot be empty")
         return value
 
-    @field_validator("brand", "color", "image_url", "contact_phone", mode="before")
+    @field_validator("location_name", "brand", "color", "image_url", "contact_phone", mode="before")
     @classmethod
     def validate_optional_text(cls, value):
         return clean_str(value)
@@ -191,7 +191,7 @@ class ItemRead(BaseModel):
     item_type: ItemType
     category: str
 
-    location_name: str
+    location_name: Optional[str] = None
     latitude: Optional[float] = None
     longitude: Optional[float] = None
 

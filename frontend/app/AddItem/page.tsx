@@ -71,7 +71,20 @@ function getErrorMessage(payload: unknown, fallback: string) {
   return fallback;
 }
 
+function getNetworkErrorMessage(error: unknown) {
+  if (error instanceof TypeError) {
+    return `Nije moguće povezati se sa backend serverom na ${API_BASE_URL}. Provjeri da li backend radi i da li je NEXT_PUBLIC_API_BASE_URL/NEXT_PUBLIC_API_URL ispravno podešen.`;
+  }
+
+  return null;
+}
+
 type HiddenUniqueFeatures = Record<string, unknown> | null;
+
+type GeocodeResult = {
+  lat: string;
+  lon: string;
+};
 
 function cleanOptionalString(value: FormDataEntryValue | null): string | null {
   if (typeof value !== "string") return null;
@@ -114,8 +127,11 @@ function AddItemPageContent() {
     "Dokumenti",
   );
   const [customCategory, setCustomCategory] = useState("");
+  const [locationName, setLocationName] = useState("");
   const [latitude, setLatitude] = useState<number | null>(null);
   const [longitude, setLongitude] = useState<number | null>(null);
+  const [isGeocodingLocation, setIsGeocodingLocation] = useState(false);
+  const [locationLookupError, setLocationLookupError] = useState("");
   const [images, setImages] = useState<File[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState("");
@@ -146,16 +162,89 @@ function AddItemPageContent() {
   }, [success, error]);
 
   useEffect(() => {
-    if (itemType !== "found") {
-      setVerificationEnabled(false);
-      setVerificationQuestions([""]);
+    const trimmedLocation = locationName.trim();
+
+    if (!trimmedLocation || trimmedLocation.length < 3) {
+      return;
     }
-  }, [itemType]);
+
+    const controller = new AbortController();
+    const timeoutId = window.setTimeout(async () => {
+      setIsGeocodingLocation(true);
+      setLocationLookupError("");
+
+      try {
+        const params = new URLSearchParams({
+          format: "jsonv2",
+          limit: "1",
+          q: trimmedLocation,
+        });
+
+        const response = await fetch(
+          `https://nominatim.openstreetmap.org/search?${params.toString()}`,
+          { signal: controller.signal },
+        );
+
+        if (!response.ok) {
+          throw new Error("Location lookup failed");
+        }
+
+        const results = (await response.json()) as GeocodeResult[];
+        const bestMatch = results[0];
+
+        if (!bestMatch) {
+          setLocationLookupError("Lokacija nije pronadjena. Mozes kliknuti na mapu.");
+          return;
+        }
+
+        const nextLatitude = Number(bestMatch.lat);
+        const nextLongitude = Number(bestMatch.lon);
+
+        if (Number.isFinite(nextLatitude) && Number.isFinite(nextLongitude)) {
+          setLatitude(nextLatitude);
+          setLongitude(nextLongitude);
+        }
+      } catch (lookupError) {
+        if (lookupError instanceof DOMException && lookupError.name === "AbortError") {
+          return;
+        }
+
+        setLocationLookupError("Lokacija nije pronadjena. Mozes kliknuti na mapu.");
+      } finally {
+        setIsGeocodingLocation(false);
+      }
+    }, 700);
+
+    return () => {
+      window.clearTimeout(timeoutId);
+      controller.abort();
+    };
+  }, [locationName]);
 
 
   function handleImagesChange(event: ChangeEvent<HTMLInputElement>) {
     setImages(Array.from(event.target.files || []));
     event.target.value = "";
+  }
+
+  function handleItemTypeChange(nextItemType: ItemType) {
+    setItemType(nextItemType);
+
+    if (nextItemType !== "found") {
+      setVerificationEnabled(false);
+      setVerificationQuestions([""]);
+    }
+  }
+
+  function handleLocationNameChange(value: string) {
+    setLocationName(value);
+    setLocationLookupError("");
+
+    if (value.trim().length < 3) {
+      setIsGeocodingLocation(false);
+      setLatitude(null);
+      setLongitude(null);
+    }
   }
 
   function removeImage(index: number) {
@@ -169,13 +258,24 @@ function AddItemPageContent() {
     setItemType(initialType);
     setCategory("Dokumenti");
     setCustomCategory("");
+    setLocationName("");
     setLatitude(null);
     setLongitude(null);
+    setIsGeocodingLocation(false);
+    setLocationLookupError("");
     setImages([]);
     setVerificationEnabled(false);
     setVerificationQuestions([""]);
     setError("");
     setSuccess("");
+  }
+
+  function clearLocation() {
+    setLocationName("");
+    setLatitude(null);
+    setLongitude(null);
+    setLocationLookupError("");
+    setIsGeocodingLocation(false);
   }
 
 
@@ -212,16 +312,6 @@ function AddItemPageContent() {
       return;
     }
 
-    if (latitude === null || longitude === null) {
-      setError("Klikni na mapu da označiš lokaciju predmeta.");
-      return;
-    }
-
-    if (images.length === 0) {
-      setError("Odaberi najmanje jednu sliku predmeta.");
-      return;
-    }
-
     const resolvedCategory =
       category === "Ostalo" ? customCategory.trim() : category;
 
@@ -248,7 +338,7 @@ function AddItemPageContent() {
       description: formData.get("description"),
       item_type: itemType,
       category: resolvedCategory,
-      location_name: formData.get("location_name"),
+      location_name: cleanOptionalString(formData.get("location_name")) ?? "",
       latitude,
       longitude,
       event_date:
@@ -271,6 +361,21 @@ function AddItemPageContent() {
     setIsSubmitting(true);
 
     try {
+      try {
+        const healthResponse = await fetch(`${API_BASE_URL}/`, {
+          method: "GET",
+        });
+
+        if (!healthResponse.ok) {
+          throw new Error("Backend health check failed");
+        }
+      } catch (networkError) {
+        throw new Error(
+          getNetworkErrorMessage(networkError) ||
+          `Backend server nije dostupan na ${API_BASE_URL}.`,
+        );
+      }
+
       const createResponse = await fetch(`${API_BASE_URL}/items`, {
         method: "POST",
         headers: {
@@ -322,41 +427,47 @@ function AddItemPageContent() {
       }
 
 
-      const uploadFormData = new FormData();
-      images.forEach((image) => uploadFormData.append("images", image));
+      if (images.length > 0) {
+        const uploadFormData = new FormData();
+        images.forEach((image) => uploadFormData.append("images", image));
 
-      const uploadResponse = await fetch(
-        `${API_BASE_URL}/items/${createdItem.id}/images`,
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${token}`,
+        const uploadResponse = await fetch(
+          `${API_BASE_URL}/items/${createdItem.id}/images`,
+          {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+            body: uploadFormData,
           },
-          body: uploadFormData,
-        },
-      );
-
-      const uploadResult = await uploadResponse.json();
-
-      if (!uploadResponse.ok) {
-        throw new Error(
-          getErrorMessage(
-            uploadResult,
-            "Predmet je kreiran, ali slike nisu uspješno uploadovane.",
-          ),
         );
+
+        const uploadResult = await uploadResponse.json();
+
+        if (!uploadResponse.ok) {
+          throw new Error(
+            getErrorMessage(
+              uploadResult,
+              "Predmet je kreiran, ali slike nisu uspješno uploadovane.",
+            ),
+          );
+        }
       }
 
-
-
-      setSuccess("Predmet i slike su uspješno dodani.");
+      setSuccess(
+        images.length > 0
+          ? "Predmet i slike su uspješno dodani."
+          : "Predmet je uspješno dodan.",
+      );
       setTimeout(() => router.push(`/AllItems/${createdItem.id}`), 1200);
     } catch (submitError) {
       console.error("Greška pri dodavanju predmeta:", submitError);
+      const networkErrorMessage = getNetworkErrorMessage(submitError);
       setError(
-        submitError instanceof Error
+        networkErrorMessage ||
+        (submitError instanceof Error
           ? submitError.message
-          : "Greška prilikom dodavanja predmeta.",
+          : "Greška prilikom dodavanja predmeta."),
       );
     } finally {
       setIsSubmitting(false);
@@ -433,7 +544,7 @@ function AddItemPageContent() {
                   <Grid container spacing={2.5}>
                     <Grid size={{ xs: 12, sm: 6 }}>
                       <Card
-                        onClick={() => setItemType("lost")}
+                        onClick={() => handleItemTypeChange("lost")}
                         sx={{
                           cursor: "pointer",
                           border: "2px solid",
@@ -459,7 +570,7 @@ function AddItemPageContent() {
 
                     <Grid size={{ xs: 12, sm: 6 }}>
                       <Card
-                        onClick={() => setItemType("found")}
+                        onClick={() => handleItemTypeChange("found")}
                         sx={{
                           cursor: "pointer",
                           border: "2px solid",
@@ -548,28 +659,46 @@ function AddItemPageContent() {
                   <TextField
                     id="location_name"
                     name="location_name"
-                    label="Lokacija predmeta*"
+                    label="Lokacija predmeta"
                     placeholder="Npr. SCC Sarajevo"
-                    required
+                    value={locationName}
+                    onChange={(event) => handleLocationNameChange(event.target.value)}
                     fullWidth
                   />
 
                   <LocationPicker
                     latitude={latitude}
                     longitude={longitude}
+                    onLocationClear={clearLocation}
                     onLocationSelect={(lat, lng) => {
                       setLatitude(lat);
                       setLongitude(lng);
+                      setLocationLookupError("");
                     }}
                   />
 
                   <Typography variant="caption" color="text.secondary">
-                    Kliknite na mapu da označite lokaciju.
+                    Upiši lokaciju za automatsko pozicioniranje ili klikni na mapu. Lokacija nije obavezna.
                   </Typography>
-                  {latitude !== null && longitude !== null && (
-                    <Typography variant="body2" sx={{ fontWeight: 700, color: "primary.main" }}>
-                      Odabrana lokacija: {latitude.toFixed(4)}, {longitude.toFixed(4)}
+                  {isGeocodingLocation && (
+                    <Typography variant="caption" color="text.secondary">
+                      Traženje lokacije...
                     </Typography>
+                  )}
+                  {locationLookupError && (
+                    <Typography variant="caption" color="error.main">
+                      {locationLookupError}
+                    </Typography>
+                  )}
+                  {latitude !== null && longitude !== null && (
+                    <Stack direction={{ xs: "column", sm: "row" }} spacing={1.5} sx={{ alignItems: { xs: "flex-start", sm: "center" } }}>
+                      <Typography variant="body2" sx={{ fontWeight: 700, color: "primary.main" }}>
+                        Odabrana lokacija: {latitude.toFixed(4)}, {longitude.toFixed(4)}
+                      </Typography>
+                      <Button type="button" size="small" variant="outlined" color="error" onClick={clearLocation}>
+                        Ukloni lokaciju
+                      </Button>
+                    </Stack>
                   )}
                 </Box>
 
@@ -629,7 +758,7 @@ function AddItemPageContent() {
 
                 <Box sx={{ my: 1 }}>
                   <Typography variant="subtitle2" sx={{ mb: 1.5, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.05em", color: "text.secondary", fontSize: "0.75rem" }}>
-                    Slike predmeta*
+                    Slike predmeta
                   </Typography>
                   <Stack direction="row" spacing={2} sx={{ alignItems: "center" }}>
                     <Button
