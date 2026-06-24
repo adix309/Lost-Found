@@ -77,6 +77,7 @@ def upload_item_images(
 def get_items(
     session: SessionDep,
     status_filter: ItemStatus = ItemStatus.active,
+    user_id: Optional[int] = None,
     item_type: Optional[ItemType] = None,
     category: Optional[str] = None,
     location_name: Optional[str] = None,
@@ -87,6 +88,7 @@ def get_items(
     return item_service.get_public_items(
         session=session,
         status_filter=status_filter,
+        user_id=user_id,
         item_type=item_type,
         category=category,
         location_name=location_name,

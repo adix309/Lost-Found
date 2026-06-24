@@ -27,6 +27,7 @@ def get_item_by_id(session: Session, item_id: int) -> Optional[Item]:
 def get_items(
     session: Session,
     status: Optional[ItemStatus] = None,
+    user_id: Optional[int] = None,
     item_type: Optional[ItemType] = None,
     category: Optional[str] = None,
     location_name: Optional[str] = None,
@@ -41,6 +42,9 @@ def get_items(
 
     if status is not None:
         statement = statement.where(Item.status == status)
+
+    if user_id is not None:
+        statement = statement.where(Item.user_id == user_id)
 
     if item_type is not None:
         statement = statement.where(Item.item_type == item_type)

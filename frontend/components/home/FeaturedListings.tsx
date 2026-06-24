@@ -53,8 +53,10 @@ export function FeaturedListings() {
         { enableHighAccuracy: false, timeout: 5000 }
       );
     } else {
-      setUserCoords({ latitude: 43.8563, longitude: 18.4131 });
-      setLocationSource("fallback");
+      window.setTimeout(() => {
+        setUserCoords({ latitude: 43.8563, longitude: 18.4131 });
+        setLocationSource("fallback");
+      }, 0);
     }
   }, []);
 
@@ -188,14 +190,15 @@ export function FeaturedListings() {
   }
 
   return (
-    <>
+    <Box sx={{ display: "flex", flexDirection: "column" }}>
       <Box
         component="section"
         sx={{
+          order: 2,
           bgcolor: "background.default",
-          borderBottom: "1px solid",
+          borderTop: "1px solid",
           borderColor: "grey.200",
-          py: { xs: 7, md: 11 },
+          py: { xs: 7, md: 9 },
         }}
       >
         <Container maxWidth="lg" sx={{ px: { xs: 2, md: 3 } }}>
@@ -210,7 +213,7 @@ export function FeaturedListings() {
           >
             <Box sx={{ flexGrow: 1 }}>
               <SectionHeading
-                title="Izdvojeni oglasi"
+                title="Najnovije prijave"
                 description="Najnovije prijave predmeta iz vaše lokalne zajednice"
               />
               {locationSource && (
@@ -301,8 +304,8 @@ export function FeaturedListings() {
       <Box
         component="section"
         sx={{
+          order: 1,
           bgcolor: "primary.light",
-          borderTop: "1px solid",
           borderBottom: "1px solid",
           borderColor: "grey.200",
           position: "relative",
@@ -312,7 +315,7 @@ export function FeaturedListings() {
         <Container
           maxWidth="lg"
           sx={{
-            py: { xs: 8, md: 12 },
+            py: { xs: 7, md: 10 },
             px: { xs: 2, md: 3 },
           }}
         >
@@ -584,6 +587,6 @@ export function FeaturedListings() {
           </Grid>
         </Container>
       </Box>
-    </>
+    </Box>
   );
 }

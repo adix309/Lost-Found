@@ -1,6 +1,7 @@
 "use client";
 
-import Link from "next/link";
+import { useEffect, useMemo } from "react";
+import { useRouter } from "next/navigation";
 import Box from "@mui/material/Box";
 import Container from "@mui/material/Container";
 import Grid from "@mui/material/Grid";
@@ -71,12 +72,47 @@ function formatDate(value?: string | null) {
   return `${day}/${month}/${year}`;
 }
 
-function getTypeLabel(type: "lost" | "found") {
-  return type === "lost" ? "Izgubljeno" : "Pronađeno";
+function getCurrentUserIdFromToken() {
+  const token = localStorage.getItem("access_token");
+
+  if (!token) {
+    return null;
+  }
+
+  try {
+    const payload = token.split(".")[1];
+
+    if (!payload) {
+      return null;
+    }
+
+    const normalizedPayload = payload.replace(/-/g, "+").replace(/_/g, "/");
+    const decodedPayload = JSON.parse(
+      atob(normalizedPayload.padEnd(Math.ceil(normalizedPayload.length / 4) * 4, "=")),
+    ) as { sub?: string };
+    const currentUserId = Number(decodedPayload.sub);
+
+    return Number.isFinite(currentUserId) ? currentUserId : null;
+  } catch {
+    return null;
+  }
 }
 
 export function PublicProfileClient({ user, items }: PublicProfileClientProps) {
-  const activeItems = items.filter((item) => item.status === "active");
+  const router = useRouter();
+  const userItems = useMemo(
+    () => items.filter((item) => item.user_id === user.id),
+    [items, user.id],
+  );
+  const activeItems = userItems.filter((item) => item.status === "active");
+
+  useEffect(() => {
+    const currentUserId = getCurrentUserIdFromToken();
+
+    if (currentUserId === user.id) {
+      router.replace("/profile");
+    }
+  }, [router, user.id]);
 
   return (
     <Box sx={{ display: "flex", flexDirection: "column", minHeight: "100vh", bgcolor: "background.default" }}>
@@ -162,7 +198,7 @@ export function PublicProfileClient({ user, items }: PublicProfileClientProps) {
                         Ukupno prijava
                       </Typography>
                       <Typography variant="body2" sx={{ fontWeight: 700 }}>
-                        {items.length}
+                        {userItems.length}
                       </Typography>
                     </Box>
                     <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
@@ -186,7 +222,7 @@ export function PublicProfileClient({ user, items }: PublicProfileClientProps) {
                     Predmeti koje je korisnik objavio
                   </Typography>
 
-                  {items.length === 0 ? (
+                  {userItems.length === 0 ? (
                     <Box
                       sx={{
                         p: 3,
@@ -202,7 +238,7 @@ export function PublicProfileClient({ user, items }: PublicProfileClientProps) {
                     </Box>
                   ) : (
                     <Grid container spacing={3}>
-                      {items.map((item) => (
+                      {userItems.map((item) => (
                         <Grid size={{ xs: 12, sm: 6, md: 4 }} key={item.id}>
                           <ListingCard listing={item} />
                         </Grid>

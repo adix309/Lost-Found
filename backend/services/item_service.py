@@ -80,6 +80,7 @@ def add_item_images(
 def get_public_items(
     session: Session,
     status_filter: ItemStatus = ItemStatus.active,
+    user_id: int | None = None,
     item_type: ItemType | None = None,
     category: str | None = None,
     location_name: str | None = None,
@@ -90,6 +91,7 @@ def get_public_items(
     return item_repository.get_items(
         session=session,
         status=status_filter,
+        user_id=user_id,
         item_type=item_type,
         category=category,
         location_name=location_name,
