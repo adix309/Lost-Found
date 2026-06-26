@@ -1,0 +1,65 @@
+{
+  "app": {
+    "name": "Lost & Found",
+    "metadataTitle": "Lost & Found | Reportar objetos perdidos y encontrados",
+    "metadataDescription": "Una plataforma confiable para reportar objetos perdidos y encontrados con búsqueda, mapa y verificación segura."
+  },
+  "common": {
+    "notProvided": "No indicado",
+    "loading": "Cargando...",
+    "viewDetails": "Ver detalles →"
+  },
+  "nav": {
+    "home": "Inicio",
+    "items": "Anuncios",
+    "map": "Mapa",
+    "notifications": "Notificaciones",
+    "conversations": "Chats",
+    "adminPanel": "Panel admin",
+    "addListing": "Añadir anuncio",
+    "profile": "Mi perfil",
+    "logout": "Cerrar sesión",
+    "login": "Iniciar sesión",
+    "register": "Registrarse",
+    "accountMenu": "Menú de cuenta",
+    "language": "Idioma"
+  },
+  "categories": {
+    "documents": "Documentos",
+    "electronics": "Electrónica",
+    "clothing": "Ropa",
+    "keys": "Llaves",
+    "wallet": "Cartera",
+    "bags": "Bolsos",
+    "pets": "Mascotas",
+    "other": "Otro"
+  },
+  "itemTypes": {
+    "lost": "Perdido",
+    "found": "Encontrado",
+    "all": "Todos los tipos"
+  },
+  "statuses": {
+    "active": "Activo",
+    "resolved": "Resuelto",
+    "expired": "Caducado"
+  },
+  "listing": {
+    "noImage": "Sin imagen",
+    "locationNotProvided": "Ubicación no indicada",
+    "reward": "Recompensa"
+  },
+  "dates": {
+    "notProvided": "No indicado"
+  },
+  "footer": {
+  "description": "Un lugar para reportar objetos perdidos y encontrados, con enfoque en la seguridad, la verificación de identidad y la confianza entre usuarios.",
+  "contact": "Contacto",
+  "email": "Correo electrónico",
+  "phone": "Teléfono",
+  "address": "Dirección",
+  "emailValue": "info@lostfound.ba",
+  "phoneValue": "+387 33 123 456",
+  "addressValue": "Zmaja od Bosne 33, Sarajevo"
+}
+}

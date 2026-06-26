@@ -2,6 +2,7 @@ from datetime import datetime
 from typing import Optional, Any
 from pydantic import BaseModel, EmailStr, Field, field_validator
 
+from core.category_keys import normalize_category_key
 from models.item_model import ItemType, ItemStatus
 
 def clean_str(value: Optional[str]) -> Optional[str]:
@@ -68,6 +69,11 @@ class ItemBase(BaseModel):
         if not value:
             raise ValueError("Field cannot be empty")
         return value
+
+    @field_validator("category", mode="after")
+    @classmethod
+    def normalize_category(cls, value):
+        return normalize_category_key(value)
 
     @field_validator("location_name", "brand", "color", "image_url", "contact_phone", mode="before")
     @classmethod
@@ -144,6 +150,13 @@ class ItemUpdate(BaseModel):
         if not value:
             raise ValueError("Field cannot be empty")
         return value
+
+    @field_validator("category", mode="after")
+    @classmethod
+    def normalize_optional_category(cls, value):
+        if value is None:
+            return value
+        return normalize_category_key(value)
 
     @field_validator("brand", "color", "image_url", "contact_phone", mode="before")
     @classmethod

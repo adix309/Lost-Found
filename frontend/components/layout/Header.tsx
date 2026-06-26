@@ -23,6 +23,9 @@ import type { User } from "@/types/user";
 import type { NotificationItem, NotificationListResponse } from "@/types/notification";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBell } from "@fortawesome/free-solid-svg-icons";
+import { LanguageSelector } from "@/components/i18n/LanguageSelector";
+import { useI18n } from "@/components/i18n/I18nProvider";
+import { stripLocaleFromPathname } from "@/i18n/config";
 
 type ChatListItem = {
   conversationId: number;
@@ -51,9 +54,16 @@ const navItems = [
   { label: "Mapa", href: "/map" },
 ];
 
+const localizedNavItems = [
+  { labelKey: "nav.home", href: "/" },
+  { labelKey: "nav.items", href: "/AllItems" },
+  { labelKey: "nav.map", href: "/map" },
+] as const;
+
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
 
 export function Header() {
+  const { t, localizeHref } = useI18n();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [notifications, setNotifications] = useState<NotificationItem[]>([]);
@@ -61,6 +71,7 @@ export function Header() {
   const pathname = usePathname();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const openMenu = Boolean(anchorEl);
+  const routePathname = stripLocaleFromPathname(pathname || "/");
 
   const handleMenuClick = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
@@ -151,10 +162,10 @@ export function Header() {
     setIsLoggedIn(false);
     setCurrentUser(null);
     setNotifications([]);
-    window.location.replace("/");
+    window.location.replace(localizeHref("/"));
   };
 
-  const showFab = isLoggedIn && pathname !== "/AllChats" && !pathname?.startsWith("/chat");
+  const showFab = isLoggedIn && routePathname !== "/AllChats" && !routePathname.startsWith("/chat");
 
   return (
     <>
@@ -175,7 +186,7 @@ export function Header() {
             <Stack direction="row" spacing={4} sx={{ alignItems: "center" }}>
               <Typography
                 component={Link}
-                href="/"
+                href={localizeHref("/")}
                 variant="h6"
                 sx={{
                   fontWeight: 800,
@@ -188,11 +199,11 @@ export function Header() {
               </Typography>
 
               <Box sx={{ display: { xs: "none", md: "flex" }, gap: 1.5 }}>
-                {navItems.map((item) => (
+                {navItems.map((item, index) => (
                   <Button
                     key={item.href}
                     component={Link}
-                    href={item.href}
+                    href={localizeHref(item.href)}
                     sx={{
                       color: "text.secondary",
                       fontWeight: 600,
@@ -203,7 +214,7 @@ export function Header() {
                       },
                     }}
                   >
-                    {item.label}
+                    {t(localizedNavItems[index].labelKey)}
                   </Button>
                 ))}
               </Box>
@@ -211,12 +222,14 @@ export function Header() {
 
             {/* Desktop & Mobile Actions */}
             <Stack direction="row" spacing={1.5} sx={{ alignItems: "center" }}>
+              <LanguageSelector />
+
               {isLoggedIn ? (
                 <>
                   <IconButton
                     component={Link}
-                    href="/notifications"
-                    aria-label="Notifikacije"
+                    href={localizeHref("/notifications")}
+                    aria-label={t("nav.notifications")}
                     sx={{
                       backgroundColor: "grey.100",
                       borderRadius: 3,
@@ -232,11 +245,11 @@ export function Header() {
                     </Badge>
                   </IconButton>
 
-                  <Tooltip title="Razgovori">
+                  <Tooltip title={t("nav.conversations")}>
                     <IconButton
                       component={Link}
-                      href="/AllChats"
-                      aria-label="Razgovori"
+                      href={localizeHref("/AllChats")}
+                      aria-label={t("nav.conversations")}
                       sx={{
                         backgroundColor: "grey.100",
                         borderRadius: 3,
@@ -256,23 +269,23 @@ export function Header() {
                   {currentUser?.is_admin ? (
                     <Button
                       component={Link}
-                      href="/admin"
+                      href={localizeHref("/admin")}
                       variant="outlined"
                       color="primary"
                       size="small"
                     >
-                      Admin panel
+                      {t("nav.adminPanel")}
                     </Button>
                   ) : (
                     <Button
                       component={Link}
-                      href="/AddItem"
+                      href={localizeHref("/AddItem")}
                       variant="contained"
                       color="primary"
                       size="small"
                       sx={{ display: { xs: "none", sm: "inline-flex" } }}
                     >
-                      Dodaj oglas
+                      {t("nav.addListing")}
                     </Button>
                   )}
 
@@ -342,11 +355,11 @@ export function Header() {
                   >
                     <MenuItem
                       component={Link}
-                      href="/profile"
+                      href={localizeHref("/profile")}
                       onClick={handleMenuClose}
                       sx={{ fontWeight: 600, color: "text.primary" }}
                     >
-                      Moj profil
+                      {t("nav.profile")}
                     </MenuItem>
                     <MenuItem
                       onClick={() => {
@@ -355,7 +368,7 @@ export function Header() {
                       }}
                       sx={{ fontWeight: 600, color: "error.main" }}
                     >
-                      Odjava
+                      {t("nav.logout")}
                     </MenuItem>
                   </Menu>
                 </>
@@ -363,22 +376,22 @@ export function Header() {
                 <>
                   <Button
                     component={Link}
-                    href="/login"
+                    href={localizeHref("/login")}
                     sx={{
                       color: "text.secondary",
                       fontWeight: 600,
                     }}
                   >
-                    Prijava
+                    {t("nav.login")}
                   </Button>
                   <Button
                     component={Link}
-                    href="/register"
+                    href={localizeHref("/register")}
                     variant="contained"
                     color="primary"
                     size="small"
                   >
-                    Registracija
+                    {t("nav.register")}
                   </Button>
                 </>
               )}
@@ -388,12 +401,12 @@ export function Header() {
       </AppBar>
 
       {showFab && (
-        <Tooltip title="Razgovori" placement="left">
+        <Tooltip title={t("nav.conversations")} placement="left">
           <Fab
             component={Link}
-            href="/AllChats"
+            href={localizeHref("/AllChats")}
             color="primary"
-            aria-label="Razgovori"
+            aria-label={t("nav.conversations")}
             sx={{
               position: "fixed",
               bottom: 24,

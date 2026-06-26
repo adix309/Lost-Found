@@ -1,0 +1,65 @@
+{
+  "app": {
+    "name": "Lost & Found",
+    "metadataTitle": "Lost & Found | Prijava izgubljenih i pronađenih predmeta",
+    "metadataDescription": "Pouzdana platforma za prijavu izgubljenih i pronađenih predmeta, sa pretragom, mapom i sigurnom verifikacijom."
+  },
+  "common": {
+    "notProvided": "Nije navedeno",
+    "loading": "Učitavanje...",
+    "viewDetails": "Pogledaj detalje →"
+  },
+  "nav": {
+    "home": "Početna",
+    "items": "Oglasi",
+    "map": "Mapa",
+    "notifications": "Notifikacije",
+    "conversations": "Razgovori",
+    "adminPanel": "Admin panel",
+    "addListing": "Dodaj oglas",
+    "profile": "Moj profil",
+    "logout": "Odjava",
+    "login": "Prijava",
+    "register": "Registracija",
+    "accountMenu": "Korisnički meni",
+    "language": "Jezik"
+  },
+  "categories": {
+    "documents": "Dokumenti",
+    "electronics": "Elektronika",
+    "clothing": "Odjeća",
+    "keys": "Ključevi",
+    "wallet": "Novčanik",
+    "bags": "Torbe",
+    "pets": "Kućni ljubimci",
+    "other": "Ostalo"
+  },
+  "itemTypes": {
+    "lost": "Izgubljeno",
+    "found": "Pronađeno",
+    "all": "Svi tipovi"
+  },
+  "statuses": {
+    "active": "Aktivan",
+    "resolved": "Riješen",
+    "expired": "Istekao"
+  },
+  "listing": {
+    "noImage": "Slika nije dodana",
+    "locationNotProvided": "Lokacija nije navedena",
+    "reward": "Nagrada"
+  },
+  "dates": {
+    "notProvided": "Nije navedeno"
+  },
+  "footer": {
+    "description": "Mjesto za prijavu izgubljenih i pronađenih predmeta, s fokusom na sigurnost, provjeru identiteta i povjerenje između korisnika.",
+    "contact": "Kontakt",
+    "email": "Email",
+    "phone": "Telefon",
+    "address": "Adresa",
+    "emailValue": "info@lostfound.ba",
+    "phoneValue": "+387 33 123 456",
+    "addressValue": "Zmaja od Bosne 33, Sarajevo"
+  }
+}

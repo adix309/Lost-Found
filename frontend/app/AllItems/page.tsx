@@ -1,4 +1,5 @@
 "use client";
+/* eslint-disable react/no-unescaped-entities */
 
 import { useEffect, useState, useMemo, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
@@ -24,6 +25,8 @@ import Skeleton from "@mui/material/Skeleton";
 import Alert from "@mui/material/Alert";
 import Stack from "@mui/material/Stack";
 import Collapse from "@mui/material/Collapse";
+import { categoryKeys, normalizeCategoryKey } from "@/i18n/categories";
+import { useI18n } from "@/components/i18n/I18nProvider";
 
 const API_URL = process.env.NEXT_PUBLIC_API_BASE_URL || process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
@@ -38,9 +41,12 @@ const CATEGORIES = [
   "Ostalo",
 ] as const;
 
+const CATEGORY_OPTIONS = CATEGORIES.map((_, index) => categoryKeys[index]);
+
 function AllItemsContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { t, localizeHref } = useI18n();
 
   const [items, setItems] = useState<Listing[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -89,7 +95,7 @@ function AllItemsContent() {
     } else {
       params.delete(key);
     }
-    router.replace(`/AllItems?${params.toString()}`);
+    router.replace(localizeHref(`/AllItems?${params.toString()}`));
   };
 
   const resetFilters = () => {
@@ -98,7 +104,7 @@ function AllItemsContent() {
     setCategory("");
     setLocationName("");
     setEventDate("");
-    router.replace("/AllItems");
+    router.replace(localizeHref("/AllItems"));
   };
 
   // Filter items in memory for responsive user feedback
@@ -116,7 +122,7 @@ function AllItemsContent() {
       }
 
       // 3. Filter by category
-      if (category && item.category !== category) {
+      if (category && normalizeCategoryKey(item.category) !== category) {
         return false;
       }
 
@@ -283,9 +289,9 @@ function AllItemsContent() {
               displayEmpty
             >
               <MenuItem value="">Sve kategorije</MenuItem>
-              {CATEGORIES.map((cat) => (
+              {CATEGORY_OPTIONS.map((cat) => (
                 <MenuItem key={cat} value={cat}>
-                  {cat}
+                  {t(`categories.${cat}`)}
                 </MenuItem>
               ))}
             </Select>

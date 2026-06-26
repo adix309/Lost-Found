@@ -33,6 +33,8 @@ import CircularProgress from "@mui/material/CircularProgress";
 import Stack from "@mui/material/Stack";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faXmark } from "@fortawesome/free-solid-svg-icons";
+import { categoryKeys, type CategoryKey } from "@/i18n/categories";
+import { useI18n } from "@/components/i18n/I18nProvider";
 
 const LocationPicker = dynamic(
   () => import("@/components/map/LocationPicker"),
@@ -55,6 +57,8 @@ const CATEGORIES = [
   "Kućni ljubimci",
   "Ostalo",
 ] as const;
+
+const CATEGORY_OPTIONS = CATEGORIES.map((_, index) => categoryKeys[index]) as CategoryKey[];
 
 type ItemType = "lost" | "found";
 
@@ -117,15 +121,14 @@ function parseHiddenUniqueFeatures(
 
 function AddItemPageContent() {
   const router = useRouter();
+  const { t, localizeHref } = useI18n();
 
   const searchParams = useSearchParams();
   const initialType: ItemType = searchParams.get("type") === "found" ? "found" : "lost";
   const [itemType, setItemType] = useState<ItemType>(initialType);
 
 
-  const [category, setCategory] = useState<(typeof CATEGORIES)[number]>(
-    "Dokumenti",
-  );
+  const [category, setCategory] = useState<CategoryKey>("documents");
   const [customCategory, setCustomCategory] = useState("");
   const [locationName, setLocationName] = useState("");
   const [latitude, setLatitude] = useState<number | null>(null);
@@ -256,7 +259,7 @@ function AddItemPageContent() {
   function resetForm() {
     formRef.current?.reset();
     setItemType(initialType);
-    setCategory("Dokumenti");
+    setCategory("documents");
     setCustomCategory("");
     setLocationName("");
     setLatitude(null);
@@ -308,12 +311,12 @@ function AddItemPageContent() {
 
     if (!token) {
       setError("Moraš biti prijavljen da dodaš predmet.");
-      setTimeout(() => router.push("/login"), 1200);
+      setTimeout(() => router.push(localizeHref("/login")), 1200);
       return;
     }
 
     const resolvedCategory =
-      category === "Ostalo" ? customCategory.trim() : category;
+      category === "other" ? customCategory.trim() : category;
 
     if (!resolvedCategory) {
       setError("Unesi drugu kategoriju predmeta.");
@@ -459,7 +462,7 @@ function AddItemPageContent() {
           ? "Predmet i slike su uspješno dodani."
           : "Predmet je uspješno dodan.",
       );
-      setTimeout(() => router.push(`/AllItems/${createdItem.id}`), 1200);
+      setTimeout(() => router.push(localizeHref(`/AllItems/${createdItem.id}`)), 1200);
     } catch (submitError) {
       console.error("Greška pri dodavanju predmeta:", submitError);
       const networkErrorMessage = getNetworkErrorMessage(submitError);
@@ -605,22 +608,22 @@ function AddItemPageContent() {
                       value={category}
                       onChange={(event) =>
                         setCategory(
-                          event.target.value as (typeof CATEGORIES)[number],
+                          event.target.value as CategoryKey,
                         )
                       }
                       required
                       fullWidth
                     >
-                      {CATEGORIES.map((categoryOption) => (
+                      {CATEGORY_OPTIONS.map((categoryOption) => (
                         <MenuItem key={categoryOption} value={categoryOption}>
-                          {categoryOption}
+                          {t(`categories.${categoryOption}`)}
                         </MenuItem>
                       ))}
                     </TextField>
                   </Grid>
                 </Grid>
 
-                {category === "Ostalo" && (
+                {category === "other" && (
                   <TextField
                     id="custom_category"
                     label="Druga kategorija*"

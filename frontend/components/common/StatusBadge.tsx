@@ -1,15 +1,13 @@
+"use client";
+
 import type { ListingStatus } from "@/types/listing";
 import Chip from "@mui/material/Chip";
-
-const statusLabels: Record<ListingStatus, string> = {
-  active: "Aktivan",
-  resolved: "Riješen",
-  expired: "Istekao",
-};
+import { useI18n } from "@/components/i18n/I18nProvider";
 
 export function StatusBadge({ status }: { status: ListingStatus }) {
+  const { t } = useI18n();
   let color: "primary" | "success" | "default" | "error" = "default";
-  
+
   if (status === "active") {
     color = "primary";
   } else if (status === "resolved") {
@@ -19,10 +17,10 @@ export function StatusBadge({ status }: { status: ListingStatus }) {
   }
 
   return (
-    <Chip 
-      label={statusLabels[status]} 
+    <Chip
+      label={t(`statuses.${status}`)}
       color={color}
-      size="small" 
+      size="small"
       sx={{ fontWeight: 700 }}
     />
   );

@@ -1,0 +1,65 @@
+{
+  "app": {
+    "name": "Lost & Found",
+    "metadataTitle": "Lost & Found | Verlorene und gefundene Gegenstände melden",
+    "metadataDescription": "Eine zuverlässige Plattform zum Melden verlorener und gefundener Gegenstände mit Suche, Karte und sicherer Verifizierung."
+  },
+  "common": {
+    "notProvided": "Nicht angegeben",
+    "loading": "Wird geladen...",
+    "viewDetails": "Details anzeigen →"
+  },
+  "nav": {
+    "home": "Startseite",
+    "items": "Anzeigen",
+    "map": "Karte",
+    "notifications": "Benachrichtigungen",
+    "conversations": "Chats",
+    "adminPanel": "Adminbereich",
+    "addListing": "Anzeige erstellen",
+    "profile": "Mein Profil",
+    "logout": "Abmelden",
+    "login": "Anmelden",
+    "register": "Registrieren",
+    "accountMenu": "Kontomenü",
+    "language": "Sprache"
+  },
+  "categories": {
+    "documents": "Dokumente",
+    "electronics": "Elektronik",
+    "clothing": "Kleidung",
+    "keys": "Schlüssel",
+    "wallet": "Geldbörse",
+    "bags": "Taschen",
+    "pets": "Haustiere",
+    "other": "Sonstiges"
+  },
+  "itemTypes": {
+    "lost": "Verloren",
+    "found": "Gefunden",
+    "all": "Alle Typen"
+  },
+  "statuses": {
+    "active": "Aktiv",
+    "resolved": "Gelöst",
+    "expired": "Abgelaufen"
+  },
+  "listing": {
+    "noImage": "Kein Bild hinzugefügt",
+    "locationNotProvided": "Ort nicht angegeben",
+    "reward": "Belohnung"
+  },
+  "dates": {
+    "notProvided": "Nicht angegeben"
+  },
+  "footer": {
+  "description": "Ein Ort zum Melden verlorener und gefundener Gegenstände, mit Fokus auf Sicherheit, Identitätsprüfung und Vertrauen zwischen Nutzern.",
+  "contact": "Kontakt",
+  "email": "E-Mail",
+  "phone": "Telefon",
+  "address": "Adresse",
+  "emailValue": "info@lostfound.ba",
+  "phoneValue": "+387 33 123 456",
+  "addressValue": "Zmaja od Bosne 33, Sarajevo"
+}
+}

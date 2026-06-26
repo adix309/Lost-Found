@@ -13,38 +13,21 @@ import { faMapPin, faCalendarDay, faCoins, faStar } from "@fortawesome/free-soli
 
 import type { Listing } from "@/types/listing";
 import { StatusBadge } from "@/components/common/StatusBadge";
+import { useI18n } from "@/components/i18n/I18nProvider";
 
 const API_URL = process.env.NEXT_PUBLIC_API_BASE_URL || process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
-function formatDateTime(value: string) {
-  const parsed = new Date(value);
-  if (Number.isNaN(parsed.getTime())) {
-    return value;
-  }
-
-  const day = String(parsed.getDate()).padStart(2, "0");
-  const month = String(parsed.getMonth() + 1).padStart(2, "0");
-  const year = parsed.getFullYear();
-  const date = `${day}/${month}/${year}`;
-
-  const time = parsed.toLocaleTimeString("bs-BA", {
-    hour: "2-digit",
-    minute: "2-digit",
-  });
-
-  return `${date} · ${time}`;
-}
-
 export function ListingCard({ listing, isFeatured = false }: { listing: Listing; isFeatured?: boolean }) {
+  const { t, formatDateTime, localizeHref } = useI18n();
   const imageSrc = listing.image_url ? `${API_URL}${listing.image_url}` : "/no-image.jpg";
-  const imageAlt = listing.image_url ? listing.title : "Slika nije dodana";
+  const imageAlt = listing.image_url ? listing.title : t("listing.noImage");
   const eventDate = formatDateTime(listing.event_date);
   const isLost = listing.item_type === "lost";
 
   return (
     <Card
       component={Link}
-      href={`/AllItems/${listing.id}`}
+      href={localizeHref(`/AllItems/${listing.id}`)}
       sx={{
         display: "flex",
         flexDirection: isFeatured ? { xs: "column", md: "row" } : "column",
@@ -65,7 +48,6 @@ export function ListingCard({ listing, isFeatured = false }: { listing: Listing;
           : "background.paper",
       }}
     >
-      {/* Image Wrap */}
       <Box
         sx={{
           position: "relative",
@@ -85,9 +67,8 @@ export function ListingCard({ listing, isFeatured = false }: { listing: Listing;
           unoptimized
         />
 
-        {/* Item Type Badge */}
         <Chip
-          label={isLost ? "Izgubljeno" : "Pronađeno"}
+          label={t(isLost ? "itemTypes.lost" : "itemTypes.found")}
           size="small"
           sx={{
             position: "absolute",
@@ -106,11 +87,10 @@ export function ListingCard({ listing, isFeatured = false }: { listing: Listing;
           }}
         />
 
-        {/* Featured Badge */}
         {isFeatured && (
           <Chip
             icon={<FontAwesomeIcon icon={faStar} />}
-            label="Istaknuti oglas"
+            label={t("common.viewDetails")}
             size="small"
             sx={{
               position: "absolute",
@@ -127,7 +107,6 @@ export function ListingCard({ listing, isFeatured = false }: { listing: Listing;
           />
         )}
 
-        {/* Reward Overlay */}
         {listing.reward_amount !== null && listing.reward_amount !== undefined && (
           <Box
             sx={{
@@ -147,12 +126,11 @@ export function ListingCard({ listing, isFeatured = false }: { listing: Listing;
               backdropFilter: "blur(4px)",
             }}
           >
-            <FontAwesomeIcon icon={faCoins} style={{ marginRight: "4px" }} /> Nagrada: {listing.reward_amount} KM
+            <FontAwesomeIcon icon={faCoins} style={{ marginRight: "4px" }} /> {t("listing.reward")}: {listing.reward_amount} KM
           </Box>
         )}
       </Box>
 
-      {/* Card Content */}
       <CardContent
         sx={{
           p: 2,
@@ -179,12 +157,11 @@ export function ListingCard({ listing, isFeatured = false }: { listing: Listing;
           <StatusBadge status={listing.status} />
         </Stack>
 
-        {/* Location & Date */}
         <Stack spacing={0.6} sx={{ mt: 0.2 }}>
           <Stack direction="row" spacing={1} sx={{ alignItems: "center" }}>
             <FontAwesomeIcon icon={faMapPin} style={{ color: "var(--slate-400)", width: 12, flexShrink: 0, fontSize: "0.8rem" }} />
             <Typography variant="body2" color="text.secondary" sx={{ fontSize: "0.8rem", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-              {listing.location_name || "Lokacija nije navedena"}
+              {listing.location_name || t("listing.locationNotProvided")}
             </Typography>
           </Stack>
           <Stack direction="row" spacing={1} sx={{ alignItems: "center" }}>
@@ -208,7 +185,7 @@ export function ListingCard({ listing, isFeatured = false }: { listing: Listing;
             pt: 0.5,
           }}
         >
-          Pogledaj detalje &rarr;
+          {t("common.viewDetails")}
         </Typography>
       </CardContent>
     </Card>
