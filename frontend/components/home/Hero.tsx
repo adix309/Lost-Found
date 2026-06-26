@@ -34,7 +34,6 @@ export function Hero() {
         overflow: "hidden",
       }}
     >
-      {/* Background glow blobs */}
       <Box
         sx={{
           position: "absolute",
@@ -84,10 +83,7 @@ export function Hero() {
             mb: { xs: 7, md: 11 },
           }}
         >
-          {/* Badge */}
 
-
-          {/* Title */}
           <Typography
             variant="h2"
             component="h1"
@@ -104,7 +100,6 @@ export function Hero() {
 
           </Typography>
 
-          {/* Subtitle */}
           <Typography
             variant="body1"
             sx={{
@@ -118,7 +113,6 @@ export function Hero() {
             Gubitak stvari može biti izuzetno stresan, ali niste sami. Naša zajednica nalazača i vlasnika je tu da vam pomogne da brzo i sigurno vratite ono što vam pripada.
           </Typography>
 
-          {/* Trust indicator */}
           <Box
             sx={{
               mt: 2.5,
@@ -155,7 +149,6 @@ export function Hero() {
             </Typography>
           </Box>
 
-          {/* Actions */}
           <Box
             sx={{
               mt: 5,
@@ -230,7 +223,6 @@ export function Hero() {
           </Box>
         </Box>
 
-        {/* Steps section */}
         <Box
           sx={{
             width: "100%",
@@ -271,7 +263,6 @@ export function Hero() {
           </Typography>
 
           <Grid container spacing={4}>
-            {/* Step 1 */}
             <Grid size={{ xs: 12, md: 4 }}>
               <Card
                 sx={{
@@ -331,7 +322,6 @@ export function Hero() {
               </Card>
             </Grid>
 
-            {/* Step 2 */}
             <Grid size={{ xs: 12, md: 4 }}>
               <Card
                 sx={{
@@ -391,7 +381,6 @@ export function Hero() {
               </Card>
             </Grid>
 
-            {/* Step 3 */}
             <Grid size={{ xs: 12, md: 4 }}>
               <Card
                 sx={{

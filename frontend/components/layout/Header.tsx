@@ -171,7 +171,6 @@ export function Header() {
       >
         <Container maxWidth="lg">
           <Toolbar disableGutters sx={{ height: "4.5rem", justifyContent: "space-between" }}>
-            {/* Logo & Desktop Nav */}
             <Stack direction="row" spacing={4} sx={{ alignItems: "center" }}>
               <Typography
                 component={Link}
@@ -209,7 +208,6 @@ export function Header() {
               </Box>
             </Stack>
 
-            {/* Desktop & Mobile Actions */}
             <Stack direction="row" spacing={1.5} sx={{ alignItems: "center" }}>
               {isLoggedIn ? (
                 <>

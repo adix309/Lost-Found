@@ -457,7 +457,7 @@
   text-align: center;
 }
 
-/* Leaflet Popup overrides to match design system */
+
 :global(.leaflet-popup-content-wrapper) {
   padding: 0 !important;
   border-radius: 16px !important;

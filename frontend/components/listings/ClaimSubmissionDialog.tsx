@@ -204,7 +204,6 @@ export function ClaimSubmissionDialog({
 
 
 
-            {/* Lost Item Linking */}
             {myLostItems.length > 0 && (
               <FormControl fullWidth size="small">
                 <InputLabel id="link-lost-item-label">Poveži sa svojim oglasom (opcionalno)</InputLabel>
@@ -226,7 +225,6 @@ export function ClaimSubmissionDialog({
               </FormControl>
             )}
 
-            {/* Messages */}
             <TextField
               label="Poruka vlasniku"
               value={message}

@@ -8,10 +8,7 @@ from repositories import item_repository
 logger = logging.getLogger("GenerateImageEmbeddingJob")
 
 def generate_item_embeddings_job(session: Session, item_id: int) -> bool:
-    """
-    Background job to generate embeddings for all pending images of an item.
-    After completing, it returns True if any image was successfully processed.
-    """
+
     logger.info(f"[EMBEDDING JOB] Starting for item_id={item_id}")
     
     item = item_repository.get_item_by_id(session, item_id)
@@ -19,7 +16,6 @@ def generate_item_embeddings_job(session: Session, item_id: int) -> bool:
         logger.error(f"[EMBEDDING JOB] Item {item_id} not found.")
         return False
 
-    # Sync primary image_url to item_images if not already there
     if item.image_url:
         existing_image = session.exec(
             select(ItemImage).where(
@@ -38,7 +34,6 @@ def generate_item_embeddings_job(session: Session, item_id: int) -> bool:
             session.commit()
             session.refresh(item)
 
-    # Fetch all pending images for this item
     statement = select(ItemImage).where(
         ItemImage.item_id == item_id,
         ItemImage.embedding_status == "pending"
@@ -53,14 +48,10 @@ def generate_item_embeddings_job(session: Session, item_id: int) -> bool:
     for img in pending_images:
         logger.info(f"[EMBEDDING JOB] Processing image {img.id}: {img.image_url}")
         
-        # Convert web/media URL to local file path
-        # In this project, media files are stored locally under 'media/items/'
-        # Example URL: /media/items/filename.jpg -> Local path: media/items/filename.jpg
+
         local_path = img.image_url.lstrip("/")
         
-        # Ensure path points to a file relative to root directory
         try:
-            # Generate the embedding
             embedding = embedding_service.generate_embedding(local_path)
             
             if embedding is not None:
@@ -85,10 +76,7 @@ def generate_item_embeddings_job(session: Session, item_id: int) -> bool:
 
 
 def generate_item_embeddings_job_wrapper(item_id: int):
-    """
-    Wrapper for FastAPI background tasks to run in a standalone DB session,
-    then re-run the matching process if embeddings were updated.
-    """
+
     from app.database import engine
     from services.item_match_service import run_item_matching
     

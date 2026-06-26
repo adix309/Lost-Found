@@ -43,7 +43,6 @@ export function MatchResultsList({ matches }: MatchResultsListProps) {
 
   return (
     <Box>
-      {/* Global AI check indicator banner using MUI Alert */}
       {isAiApplied && (
         <Alert
           severity="success"
@@ -65,7 +64,6 @@ export function MatchResultsList({ matches }: MatchResultsListProps) {
         </Alert>
       )}
 
-      {/* Render list of cards */}
       <Box>
         {matches.map((match) => (
           <MatchResultCard

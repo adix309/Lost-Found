@@ -270,7 +270,6 @@ def _serialize_match_preview(session: Session, match, target_item: Item) -> dict
 
     counterpart_item = item_repository.get_item_by_id(session, counterpart_item_id)
 
-    # Determine if rank was improved
     rank_improved_val = (
         match.image_similarity_score is not None
         and match.final_score is not None
@@ -286,7 +285,6 @@ def _serialize_match_preview(session: Session, match, target_item: Item) -> dict
         "event_date": counterpart_item.event_date.isoformat() if counterpart_item and counterpart_item.event_date else None,
         "score": match.score,
         "reasons": _humanize_match_reasons(match.reasons),
-        # Frontend-specific AI fields
         "description": counterpart_item.description if counterpart_item else None,
         "image_url": counterpart_item.image_url if counterpart_item else None,
         "description_score": match.description_score,

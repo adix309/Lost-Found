@@ -288,7 +288,6 @@
   }
 }
 
-/* AI Result details card styles */
 .aiResultCard {
   background: #ffffff;
   border: 1px solid var(--slate-200);
@@ -397,7 +396,6 @@
   line-height: 1.5;
 }
 
-/* Badge styles mapped within details context */
 .badgeReranked {
   display: inline-flex;
   align-items: center;

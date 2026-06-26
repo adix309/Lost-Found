@@ -6,9 +6,7 @@ logger = logging.getLogger("ImageSimilarityService")
 
 class ImageSimilarityService:
     def calculate_cosine_similarity(self, vector_a: list[float], vector_b: list[float]) -> float:
-        """
-        Calculates the cosine similarity between two float vectors.
-        """
+
         if not vector_a or not vector_b:
             return 0.0
         
@@ -24,16 +22,10 @@ class ImageSimilarityService:
             return 0.0
 
         similarity = dot_product / (norm_a * norm_b)
-        # Clip value to [0.0, 1.0] range for consistency
         return max(0.0, min(1.0, similarity))
 
     def compare_items(self, session: Session, source_item_id: int, candidate_item_id: int) -> float:
-        """
-        Compares all 'ready' images of the source item against all 'ready' images
-        of the candidate item, returning the maximum pairwise cosine similarity.
-        Returns 0.0 if either item has no 'ready' images.
-        """
-        # Fetch ready image embeddings for source item
+
         source_statement = select(ItemImage).where(
             ItemImage.item_id == source_item_id,
             ItemImage.embedding_status == "ready",
@@ -41,7 +33,6 @@ class ImageSimilarityService:
         )
         source_images = session.exec(source_statement).all()
 
-        # Fetch ready image embeddings for candidate item
         candidate_statement = select(ItemImage).where(
             ItemImage.item_id == candidate_item_id,
             ItemImage.embedding_status == "ready",

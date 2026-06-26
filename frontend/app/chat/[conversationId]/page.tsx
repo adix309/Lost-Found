@@ -750,7 +750,6 @@ export default function ChatPage() {
 
       <Box component="main" sx={{ flexGrow: 1, py: { xs: 4, md: 6 } }}>
         <Container maxWidth="md">
-          {/* Header Action Bar */}
           <Box sx={{ mb: 3 }}>
             <Button
               component={Link}
@@ -779,10 +778,9 @@ export default function ChatPage() {
                 overflow: "hidden",
                 display: "flex",
                 flexDirection: "column",
-                height: { xs: "calc(100vh - 12rem)", md: "650px" },
+                height: { xs: "calc(100vh - 9rem)", md: "780px" },
               }}
             >
-              {/* Chat Header Banner */}
               <Box
                 sx={{
                   p: 2.5,
@@ -821,7 +819,6 @@ export default function ChatPage() {
                 </Stack>
               </Box>
  
-              {/* Claim Status Panel */}
               {claim && item && (
                 <Box
                   sx={{
@@ -851,10 +848,29 @@ export default function ChatPage() {
                   </Stack>
 
                   <Collapse in={isPanelExpanded}>
-                    <Box sx={{ mt: 2 }}>
+                    <Box
+                      sx={{
+                        mt: 2,
+                        maxHeight: { xs: "220px", md: "320px" },
+                        overflowY: "auto",
+                        pr: 1.5,
+                        "&::-webkit-scrollbar": {
+                          width: "6px",
+                        },
+                        "&::-webkit-scrollbar-track": {
+                          background: "transparent",
+                        },
+                        "&::-webkit-scrollbar-thumb": {
+                          background: "rgba(0, 0, 0, 0.15)",
+                          borderRadius: "4px",
+                        },
+                        "&::-webkit-scrollbar-thumb:hover": {
+                          background: "rgba(0, 0, 0, 0.25)",
+                        },
+                      }}
+                    >
                       <Divider sx={{ my: 1.5 }} />
                       <Stack spacing={2}>
-                        {/* Claim Message & Proof */}
                         <Box>
                           <Typography variant="caption" sx={{ display: "block", fontWeight: 800, color: "text.secondary", mb: 0.5, fontSize: "0.75rem" }}>
                             Poruka / Opis dokaza vlasništva od tražitelja:
@@ -875,7 +891,6 @@ export default function ChatPage() {
                           </Box>
                         )}
 
-                        {/* Verification Answers */}
                         {claim.verification_answers && claim.verification_answers.length > 0 && (
                           <Box>
                             <Typography variant="caption" sx={{ display: "block", fontWeight: 800, color: "text.secondary", mb: 1, fontSize: "0.75rem" }}>
@@ -897,7 +912,6 @@ export default function ChatPage() {
                           </Box>
                         )}
 
-                        {/* Linked Lost Item */}
                         {claim.lost_item_id && (
                           <Box>
                             <Typography variant="caption" sx={{ display: "block", fontWeight: 800, color: "text.secondary", mb: 0.5, fontSize: "0.75rem" }}>
@@ -915,7 +929,6 @@ export default function ChatPage() {
                           </Box>
                         )}
 
-                        {/* Action buttons section */}
                         <Box sx={{ pt: 1 }}>
                           {renderClaimActions()}
                         </Box>
@@ -925,7 +938,6 @@ export default function ChatPage() {
                 </Box>
               )}
 
-              {/* Chat Messages Area */}
               <Box
                 sx={{
                   flexGrow: 1,
@@ -1015,7 +1027,6 @@ export default function ChatPage() {
                 <div ref={messagesEndRef} />
               </Box>
 
-              {/* Chat Composer Input */}
               <Box
                 sx={{
                   p: 2,

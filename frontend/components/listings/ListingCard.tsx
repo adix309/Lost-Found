@@ -65,7 +65,6 @@ export function ListingCard({ listing, isFeatured = false }: { listing: Listing;
           : "background.paper",
       }}
     >
-      {/* Image Wrap */}
       <Box
         sx={{
           position: "relative",
@@ -85,7 +84,6 @@ export function ListingCard({ listing, isFeatured = false }: { listing: Listing;
           unoptimized
         />
 
-        {/* Item Type Badge */}
         <Chip
           label={isLost ? "Izgubljeno" : "Pronađeno"}
           size="small"
@@ -106,7 +104,6 @@ export function ListingCard({ listing, isFeatured = false }: { listing: Listing;
           }}
         />
 
-        {/* Featured Badge */}
         {isFeatured && (
           <Chip
             icon={<FontAwesomeIcon icon={faStar} />}
@@ -127,7 +124,6 @@ export function ListingCard({ listing, isFeatured = false }: { listing: Listing;
           />
         )}
 
-        {/* Reward Overlay */}
         {listing.reward_amount !== null && listing.reward_amount !== undefined && (
           <Box
             sx={{
@@ -152,7 +148,6 @@ export function ListingCard({ listing, isFeatured = false }: { listing: Listing;
         )}
       </Box>
 
-      {/* Card Content */}
       <CardContent
         sx={{
           p: 2,
@@ -179,7 +174,6 @@ export function ListingCard({ listing, isFeatured = false }: { listing: Listing;
           <StatusBadge status={listing.status} />
         </Stack>
 
-        {/* Location & Date */}
         <Stack spacing={0.6} sx={{ mt: 0.2 }}>
           <Stack direction="row" spacing={1} sx={{ alignItems: "center" }}>
             <FontAwesomeIcon icon={faMapPin} style={{ color: "var(--slate-400)", width: 12, flexShrink: 0, fontSize: "0.8rem" }} />

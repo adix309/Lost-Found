@@ -483,7 +483,6 @@ export function AdminPanel() {
 
   return (
     <Box sx={{ p: { xs: 3, md: 5 }, maxWidth: 1400, mx: "auto", display: "flex", flexDirection: "column", gap: 4 }}>
-      {/* Hero section */}
       <Card sx={{ bgcolor: "background.paper" }}>
         <CardContent sx={{ p: 4 }}>
           <Stack direction={{ xs: "column", sm: "row" }} spacing={3} sx={{ justifyContent: "space-between", alignItems: { xs: "flex-start", sm: "center" } }}>

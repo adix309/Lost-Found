@@ -53,7 +53,6 @@ function MapPageContent() {
             <Header />
 
             <main className={styles.mapMain}>
-                {/* Hero Header on a warm tinted background wrapper */}
                 <section className={styles.mapHeroBg}>
                     <div className="container">
                         <div className={styles.headerSection}>
@@ -70,7 +69,6 @@ function MapPageContent() {
                     </div>
                 </section>
 
-                {/* Map Wrapper Section on a clean white background */}
                 <section className={styles.mapContentSection}>
                     <div className="container">
                         {loading && (

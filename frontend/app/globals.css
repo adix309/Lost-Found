@@ -5,7 +5,6 @@
   --font-heading: 'Cabinet Grotesk', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 
   --slate-900: #1c1917;
-  /* Warm stone neutral scale */
   --slate-800: #292524;
   --slate-700: #44403c;
   --slate-600: #57534e;
@@ -17,21 +16,19 @@
   --slate-50: #fafaf9;
 
   --rose-700: #5c131d;
-  /* Elegant deep red for lost items */
+
   --rose-600: #7a1f2b;
   --rose-500: #99333f;
   --rose-200: #f5dce0;
   --rose-50: #faf0f2;
 
   --teal-700: #12352b;
-  /* Forest green for found items */
   --teal-600: #1b4d3e;
   --teal-500: #2d6a4f;
   --teal-200: #d8f3dc;
   --teal-50: #f0f7f4;
 
   --primary: #1b4d3e;
-  /* Spruce/Forest green primary theme color */
   --primary-hover: #12352b;
   --primary-light: #f0f7f4;
 
@@ -64,7 +61,6 @@ body {
   line-height: 1.5;
 }
 
-/* Typography pairing heading rules */
 h1,
 h2,
 h3,
@@ -411,7 +407,6 @@ textarea {
   transform: translateX(2px);
 }
 
-/* Page Section Alternations & Accents */
 .section-white {
   background-color: #ffffff;
   border-bottom: 1px solid var(--slate-100);
@@ -449,7 +444,6 @@ textarea {
   z-index: 0;
 }
 
-/* Layering, elevations, and shadows */
 .elevation-low {
   box-shadow: 0 2px 8px rgba(28, 25, 23, 0.03);
 }
@@ -468,7 +462,6 @@ textarea {
   border: 1px solid rgba(27, 77, 62, 0.1);
 }
 
-/* Micro-animations */
 @keyframes fadeInUp {
   from {
     opacity: 0;
