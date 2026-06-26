@@ -5,33 +5,33 @@ import { createTheme } from "@mui/material/styles";
 export const theme = createTheme({
   palette: {
     primary: {
-      main: "#1b4d3e", // premium forest green
-      light: "#f0f7f4", // very light forest green tint
+      main: "#1b4d3e",
+      light: "#f0f7f4",
       dark: "#12352b",
       contrastText: "#ffffff",
     },
     secondary: {
-      main: "#78716c", // slate-500 stone neutral
+      main: "#78716c",
       light: "#e7e5e4",
       dark: "#44403c",
     },
     error: {
-      main: "#7a1f2b", // elegant deep red / lost items
+      main: "#7a1f2b",
       light: "#f5dce0",
       dark: "#65081f",
     },
     success: {
-      main: "#1b4d3e", // using forest green for success / found items
+      main: "#1b4d3e",
       light: "#f0f7f4",
       dark: "#12352b",
     },
     background: {
-      default: "#fafaf9", // slate-50 background
+      default: "#fafaf9",
       paper: "#ffffff",
     },
     text: {
-      primary: "#1c1917", // slate-900 foregound
-      secondary: "#57534e", // slate-600
+      primary: "#1c1917",
+      secondary: "#57534e",
     },
   },
   typography: {

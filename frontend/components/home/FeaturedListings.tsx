@@ -297,7 +297,6 @@ export function FeaturedListings() {
         </Container>
       </Box>
 
-      {/* Map Preview Section - High Rhythm Break */}
       <Box
         component="section"
         sx={{
@@ -384,7 +383,6 @@ export function FeaturedListings() {
             </Grid>
 
             <Grid size={{ xs: 12, md: 5.5 }} sx={{ display: "flex", justifyContent: "center" }}>
-              {/* Map Mockup */}
               <Box
                 sx={{
                   width: "100%",
@@ -399,7 +397,6 @@ export function FeaturedListings() {
                   overflow: "hidden",
                 }}
               >
-                {/* Mockup Grid */}
                 <Box
                   sx={{
                     position: "absolute",
@@ -415,7 +412,6 @@ export function FeaturedListings() {
                   }}
                 />
 
-                {/* Marker 1 - Lost */}
                 <Box
                   sx={{
                     position: "absolute",
@@ -480,7 +476,6 @@ export function FeaturedListings() {
                   </Box>
                 </Box>
 
-                {/* Marker 2 - Found */}
                 <Box
                   sx={{
                     position: "absolute",
@@ -541,7 +536,6 @@ export function FeaturedListings() {
                   </Box>
                 </Box>
 
-                {/* Marker 3 - User */}
                 <Box
                   sx={{
                     position: "absolute",

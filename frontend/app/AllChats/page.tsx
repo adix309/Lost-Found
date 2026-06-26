@@ -92,7 +92,6 @@ export default function ChatsPage() {
 
       <Box component="main" sx={{ flexGrow: 1, py: { xs: 6, md: 8 } }}>
         <Container maxWidth="md">
-          {/* Header */}
           <Box sx={{ mb: 5 }}>
             <Typography
               variant="overline"
@@ -120,7 +119,6 @@ export default function ChatsPage() {
             </Typography>
           </Box>
 
-          {/* List content */}
           {loading ? (
             <Stack direction="row" spacing={2} sx={{ py: 8, alignItems: "center", justifyContent: "center" }}>
               <CircularProgress size={28} />
@@ -189,7 +187,6 @@ export default function ChatsPage() {
                       }}
                     >
                       <Stack direction="row" spacing={2.5} sx={{ alignItems: "center", width: "100%" }}>
-                        {/* Item image representation */}
                         <Box
                           sx={{
                             width: 70,
@@ -213,7 +210,6 @@ export default function ChatsPage() {
                           />
                         </Box>
 
-                        {/* Partner Avatar */}
                         <Avatar
                           sx={{
                             width: 48,
@@ -230,7 +226,6 @@ export default function ChatsPage() {
                           {chat.otherUser.firstName ? chat.otherUser.firstName.charAt(0).toUpperCase() : chat.otherUser.username.charAt(0).toUpperCase()}
                         </Avatar>
 
-                        {/* Content text */}
                         <Box sx={{ flexGrow: 1, minWidth: 0 }}>
                           <Stack direction="row" sx={{ justifyContent: "space-between", alignItems: "flex-start", mb: 0.5 }}>
                             <Typography

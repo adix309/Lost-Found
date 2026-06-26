@@ -74,7 +74,6 @@ export function QuickSearch() {
           }}
         >
           <Grid container spacing={2} sx={{ alignItems: "flex-end" }}>
-            {/* Search Input */}
             <Grid size={{ xs: 12, md: 6, lg: 2.5 }}>
               <Typography
                 variant="caption"
@@ -101,7 +100,6 @@ export function QuickSearch() {
               />
             </Grid>
 
-            {/* Item Type */}
             <Grid size={{ xs: 12, sm: 6, md: 3, lg: 1.8 }}>
               <Typography
                 variant="caption"
@@ -130,7 +128,6 @@ export function QuickSearch() {
               </FormControl>
             </Grid>
 
-            {/* Category */}
             <Grid size={{ xs: 12, sm: 6, md: 3, lg: 1.8 }}>
               <Typography
                 variant="caption"
@@ -162,7 +159,6 @@ export function QuickSearch() {
               </FormControl>
             </Grid>
 
-            {/* Location */}
             <Grid size={{ xs: 12, sm: 6, md: 3, lg: 1.8 }}>
               <Typography
                 variant="caption"
@@ -189,7 +185,6 @@ export function QuickSearch() {
               />
             </Grid>
 
-            {/* Date */}
             <Grid size={{ xs: 12, sm: 6, md: 3, lg: 2.1 }}>
               <Typography
                 variant="caption"
@@ -216,7 +211,6 @@ export function QuickSearch() {
               />
             </Grid>
 
-            {/* Action */}
             <Grid size={{ xs: 12, md: 6, lg: 2 }}>
               <Button
                 type="submit"

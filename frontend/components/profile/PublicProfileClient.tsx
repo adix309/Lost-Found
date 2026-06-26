@@ -120,7 +120,6 @@ export function PublicProfileClient({ user, items }: PublicProfileClientProps) {
 
       <Box component="main" sx={{ flexGrow: 1, py: { xs: 6, md: 8 } }}>
         <Container maxWidth="lg">
-          {/* Header */}
           <Box sx={{ mb: 5 }}>
             <Typography
               variant="overline"
@@ -160,7 +159,6 @@ export function PublicProfileClient({ user, items }: PublicProfileClientProps) {
           </Box>
 
           <Grid container spacing={4} sx={{ alignItems: "flex-start" }}>
-            {/* Left Sidebar */}
             <Grid size={{ xs: 12, md: 4 }}>
               <Card sx={{ bgcolor: "background.paper", borderRadius: 3 }}>
                 <CardContent sx={{ p: 4, display: "flex", flexDirection: "column", alignItems: "center" }}>
@@ -214,7 +212,6 @@ export function PublicProfileClient({ user, items }: PublicProfileClientProps) {
               </Card>
             </Grid>
 
-            {/* Right List */}
             <Grid size={{ xs: 12, md: 8 }}>
               <Card sx={{ bgcolor: "background.paper", borderRadius: 3 }}>
                 <CardContent sx={{ p: 4 }}>

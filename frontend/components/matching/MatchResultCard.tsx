@@ -89,7 +89,6 @@ export function MatchResultCard({ match, isBestMatch = false }: MatchResultCardP
   return (
     <Card sx={{ mb: 2, display: "flex", flexDirection: "column" }}>
       <Stack direction={{ xs: "column", sm: "row" }} spacing={2.5} sx={{ p: 2.5 }}>
-        {/* Image Container */}
         <Box
           sx={{
             position: "relative",
@@ -110,7 +109,6 @@ export function MatchResultCard({ match, isBestMatch = false }: MatchResultCardP
           />
         </Box>
 
-        {/* Content Box */}
         <Box sx={{ flex: 1, minWidth: 0 }}>
           <Stack direction="row" spacing={1} sx={{ justifyContent: "space-between", alignItems: "flex-start", mb: 0.5 }}>
             <Box>
@@ -128,7 +126,6 @@ export function MatchResultCard({ match, isBestMatch = false }: MatchResultCardP
             />
           </Stack>
 
-          {/* Location & Date */}
           <Stack direction="row" spacing={2} sx={{ my: 1, flexWrap: "wrap", gap: 1 }} useFlexGap>
             <Stack direction="row" spacing={0.5} sx={{ alignItems: "center" }}>
               <FontAwesomeIcon icon={faMapPin} style={{ color: "var(--slate-500)", fontSize: "0.85rem" }} />
@@ -144,7 +141,6 @@ export function MatchResultCard({ match, isBestMatch = false }: MatchResultCardP
             </Stack>
           </Stack>
 
-          {/* Badges row */}
           <Stack direction="row" spacing={1} sx={{ mt: 1, flexWrap: "wrap", gap: 0.5 }} useFlexGap>
             {usedAi && <AiMatchBadge />}
             
@@ -185,7 +181,6 @@ export function MatchResultCard({ match, isBestMatch = false }: MatchResultCardP
 
       <Divider />
 
-      {/* AI matching details section */}
       <Box sx={{ p: 2.5, backgroundColor: "background.default" }}>
         {usedAi ? (
           similarityScore !== null ? (

@@ -25,14 +25,13 @@ def run_migrations():
         with engine.connect() as conn:
             dialect_name = conn.dialect.name
             if dialect_name == "postgresql":
-                # Alter enum claimstatus to include new statuses
                 with engine.connect() as autocommit_conn:
                     autocommit_conn = autocommit_conn.execution_options(isolation_level="AUTOCOMMIT")
                     for val in ["under_verification", "approved", "handoff_pending", "completed", "cancelled"]:
                         try:
                             autocommit_conn.execute(text(f"ALTER TYPE claimstatus ADD VALUE '{val}';"))
                         except Exception:
-                            pass # value already exists or type doesn't exist yet
+                            pass
 
                 conn.execute(text("ALTER TABLE item_images ADD COLUMN IF NOT EXISTS embedding_status VARCHAR DEFAULT 'pending';"))
                 conn.execute(text("ALTER TABLE item_images ADD COLUMN IF NOT EXISTS embedding_model VARCHAR;"))
@@ -43,7 +42,6 @@ def run_migrations():
                 conn.execute(text("ALTER TABLE item_matches ADD COLUMN IF NOT EXISTS final_score DOUBLE PRECISION;"))
                 conn.execute(text("ALTER TABLE item_matches ADD COLUMN IF NOT EXISTS used_image_reranking BOOLEAN DEFAULT FALSE;"))
 
-                # Migrations for new Claim fields
                 conn.execute(text("ALTER TABLE claims ADD COLUMN IF NOT EXISTS lost_item_id INTEGER REFERENCES items(id) ON DELETE SET NULL;"))
                 conn.execute(text("ALTER TABLE claims ADD COLUMN IF NOT EXISTS claimer_confirmed_handoff BOOLEAN DEFAULT FALSE;"))
                 conn.execute(text("ALTER TABLE claims ADD COLUMN IF NOT EXISTS owner_confirmed_handoff BOOLEAN DEFAULT FALSE;"))

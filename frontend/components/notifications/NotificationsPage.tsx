@@ -103,7 +103,6 @@ export function NotificationsPage() {
 
       <Box component="main" sx={{ flexGrow: 1, py: { xs: 6, md: 8 } }}>
         <Container maxWidth="md">
-          {/* Hero segment */}
           <Box sx={{ mb: 5 }}>
             <Typography
               variant="overline"
@@ -141,7 +140,6 @@ export function NotificationsPage() {
             </Typography>
           </Box>
 
-          {/* Content */}
           <Box sx={{ mt: 4 }}>
             {loading ? (
               <Stack direction="row" spacing={2} sx={{ py: 6, alignItems: "center", justifyContent: "center" }}>

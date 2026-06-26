@@ -190,7 +190,6 @@ export function ItemDetailsClient({
       <Header />
 
       <Box component="main" sx={{ flexGrow: 1 }}>
-        {/* Details Hero Section */}
         <Box
           component="section"
           sx={{
@@ -232,14 +231,11 @@ export function ItemDetailsClient({
           </Container>
         </Box>
 
-        {/* Grid Section */}
         <Box component="section" sx={{ bgcolor: "background.paper", py: 4 }}>
           <Container maxWidth="lg" sx={{ px: { xs: 2, md: 3 } }}>
             <Grid container spacing={3} sx={{ alignItems: "flex-start" }}>
-              {/* Left Column - Main Content */}
               <Grid size={{ xs: 12, md: 8 }}>
                 <Stack spacing={3}>
-                  {/* Image Card */}
                   <Card sx={{ borderRadius: 3, border: "1px solid", borderColor: "grey.200", overflow: "hidden", boxShadow: "0 4px 12px rgba(0, 0, 0, 0.03)" }}>
                     <Box sx={{ position: "relative", width: "100%", height: { xs: 260, sm: 360, md: 400 }, bgcolor: "grey.50" }}>
                       <Image
@@ -254,7 +250,6 @@ export function ItemDetailsClient({
                     </Box>
                   </Card>
 
-                  {/* Description Card */}
                   <Card sx={{ p: 3, borderRadius: 3, border: "1px solid", borderColor: "grey.200", boxShadow: "0 4px 12px rgba(28, 25, 23, 0.02)" }}>
                     <Typography variant="h6" component="h2" sx={{ fontWeight: 800, mb: 1.5, fontSize: "1.1rem" }}>
                       Opis predmeta
@@ -264,7 +259,6 @@ export function ItemDetailsClient({
                     </Typography>
                   </Card>
 
-                  {/* AI Result Card */}
                   {aiChecked && (
                     <Card sx={{ p: 3, borderRadius: 3, border: "1px solid", borderColor: "rgba(27, 77, 62, 0.2)", bgcolor: "rgba(27, 77, 62, 0.02)", boxShadow: "0 4px 12px rgba(27, 77, 62, 0.02)" }}>
                       <Stack direction="row" sx={{ justifyContent: "space-between", alignItems: "center", mb: 2 }}>
@@ -341,7 +335,6 @@ export function ItemDetailsClient({
                     </Card>
                   )}
 
-                  {/* AI Checked false fallback */}
                   {hasAiParam && !aiChecked && (
                     <Card sx={{ p: 3, borderRadius: 3, border: "1px solid", borderColor: "grey.200", bgcolor: "grey.50" }}>
                       <Typography variant="h6" sx={{ fontWeight: 800, color: "text.secondary", display: "flex", alignItems: "center", gap: 1, mb: 1.5, fontSize: "1.05rem" }}>
@@ -356,16 +349,13 @@ export function ItemDetailsClient({
                 </Stack>
               </Grid>
 
-              {/* Right Column - Side Panel */}
               <Grid size={{ xs: 12, md: 4 }}>
                 <Stack spacing={3} sx={{ position: { md: "sticky" }, top: { md: "6.5rem" } }}>
-                  {/* Detailed Info & Contact Card */}
                   <Card sx={{ p: 3, borderRadius: 3, border: "1px solid", borderColor: "grey.200", boxShadow: "0 10px 30px rgba(28, 25, 23, 0.03)" }}>
                     <Typography variant="h6" component="h2" sx={{ fontWeight: 800, mb: 2, fontSize: "1.1rem" }}>
                       Detalji i kontakt
                     </Typography>
                     
-                    {/* Metadata Table */}
                     <Stack spacing={1.5} sx={{ mb: 2.5 }}>
                       <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                         <Typography variant="body2" color="text.secondary" sx={{ fontSize: "0.9rem" }}>Status oglasa</Typography>
@@ -409,7 +399,6 @@ export function ItemDetailsClient({
 
                     <Divider sx={{ my: 2 }} />
 
-                    {/* Owner Profile Block */}
                     <Box sx={{ mb: 2.5 }}>
                       {owner ? (
                         <Box
@@ -474,7 +463,6 @@ export function ItemDetailsClient({
                       ) : null}
                     </Box>
 
-                    {/* Actions List */}
                     <Stack spacing={1.5}>
                       {hasMapLocation && (
                         <Button
@@ -563,7 +551,6 @@ export function ItemDetailsClient({
                         );
                       })()}
 
-                      {/* Secondary Action Buttons */}
                       {item.contact_phone && (
                         <Button
                           component="a"
@@ -601,7 +588,6 @@ export function ItemDetailsClient({
                     />
                   </Card>
 
-                  {/* Safety Guidelines Accordion */}
                   <Accordion
                     elevation={0}
                     sx={{

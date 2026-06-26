@@ -1,4 +1,3 @@
-/* AI Matching Module CSS */
 
 .globalBanner {
   display: flex;
@@ -26,7 +25,6 @@
   flex-shrink: 0;
 }
 
-/* Card layout wrapper */
 .matchCard {
   display: flex;
   flex-direction: column;
@@ -129,7 +127,7 @@
   margin-top: 0.25rem;
 }
 
-/* Badges styling */
+
 .badge {
   display: inline-flex;
   align-items: center;
@@ -166,7 +164,7 @@
   border: 1px solid var(--slate-200);
 }
 
-/* AI Matching Section inside Card */
+
 .aiSection {
   background: var(--slate-50);
   border-top: 1px solid var(--slate-100);
@@ -195,7 +193,6 @@
   color: var(--slate-700);
 }
 
-/* Progress bar styles */
 .progressWrapper {
   width: 100%;
   display: flex;
@@ -217,7 +214,6 @@
   transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* Colors for levels */
 .fillLow {
   background: linear-gradient(90deg, #f97316 0%, #f97316 100%);
 }
@@ -269,7 +265,6 @@
   background: rgba(0, 0, 0, 0.03);
 }
 
-/* Tooltip styles */
 .tooltipContainer {
   position: relative;
   display: inline-flex;
@@ -357,7 +352,6 @@
   margin-bottom: 0.2rem;
 }
 
-/* Actions footer */
 .cardActions {
   padding: 1rem 1.25rem;
   border-top: 1px solid var(--slate-100);
@@ -387,7 +381,7 @@
   box-shadow: 0 4px 12px rgba(27, 77, 62, 0.15);
 }
 
-/* Animations */
+
 @keyframes fadeInUp {
   from {
     opacity: 0;
@@ -409,7 +403,7 @@
   }
 }
 
-/* Responsive Rules */
+
 @media (max-width: 640px) {
   .cardHeaderRow {
     flex-direction: column;

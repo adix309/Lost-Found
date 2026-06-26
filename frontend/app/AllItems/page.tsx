@@ -84,7 +84,6 @@ function AllItemsContent() {
     fetchItems();
   }, []);
 
-  // Update URL search parameters when filters change
   const handleFilterChange = (
     key: string,
     value: string
@@ -107,32 +106,26 @@ function AllItemsContent() {
     router.replace(localizeHref("/AllItems"));
   };
 
-  // Filter items in memory for responsive user feedback
   const filteredItems = useMemo(() => {
     return items.filter((item) => {
-      // 1. Filter by search text (title, description, brand, color)
       if (search) {
         const text = `${item.title} ${item.description} ${item.brand || ""} ${item.color || ""}`.toLowerCase();
         if (!text.includes(search.toLowerCase())) return false;
       }
 
-      // 2. Filter by item type (lost/found)
       if (itemType && item.item_type !== itemType) {
         return false;
       }
 
-      // 3. Filter by category
       if (category && normalizeCategoryKey(item.category) !== category) {
         return false;
       }
 
-      // 4. Filter by location name
       if (locationName) {
         const loc = (item.location_name || "").toLowerCase();
         if (!loc.includes(locationName.toLowerCase())) return false;
       }
 
-      // 5. Filter by event date (check if date matches event_date prefix YYYY-MM-DD)
       if (eventDate) {
         const itemDateStr = item.event_date ? item.event_date.slice(0, 10) : "";
         if (itemDateStr !== eventDate) return false;
@@ -375,7 +368,6 @@ function AllItemsContent() {
 
   return (
     <Box component="main" sx={{ flexGrow: 1 }}>
-      {/* Upper Search Section */}
       <Box
         component="section"
         sx={{
@@ -427,7 +419,6 @@ function AllItemsContent() {
             </Typography>
           </Box>
 
-          {/* Mobile Filter Toggle */}
           <Box sx={{ display: { xs: "block", md: "none" }, mb: 3 }}>
             <Button
               variant="outlined"
@@ -446,17 +437,14 @@ function AllItemsContent() {
             </Button>
           </Box>
 
-          {/* Desktop Filters */}
           <Box sx={{ display: { xs: "none", md: "block" } }}>{filtersLayout}</Box>
 
-          {/* Mobile Filters Collapse */}
           <Collapse in={showMobileFilters} sx={{ display: { xs: "block", md: "none" } }}>
             <Box sx={{ mt: 2 }}>{filtersLayout}</Box>
           </Collapse>
         </Container>
       </Box>
 
-      {/* Grid Results Section */}
       <Box component="section" sx={{ bgcolor: "background.paper", py: 7 }}>
         <Container maxWidth="lg" sx={{ px: { xs: 2, md: 3 } }}>
           {isLoading && (

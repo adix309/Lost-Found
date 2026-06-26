@@ -19,7 +19,6 @@ class EmbeddingService:
             import torch
             from transformers import CLIPProcessor, CLIPModel
 
-            # Use a lightweight, standard CLIP model
             model_name = "openai/clip-vit-base-patch32"
             
             self.device = "cuda" if torch.cuda.is_available() else "cpu"
@@ -36,9 +35,7 @@ class EmbeddingService:
             return False
 
     def generate_embedding(self, image_path: str) -> Optional[list[float]]:
-        """
-        Loads an image from the local path and generates its CLIP embedding vector.
-        """
+
         if not self._initialized:
             success = self.initialize()
             if not success:
@@ -60,7 +57,6 @@ class EmbeddingService:
                 image_features = self.model.get_image_features(**inputs)
                 if hasattr(image_features, "pooler_output"):
                     image_features = image_features.pooler_output
-                # Normalize the embedding to unit length (L2 norm = 1)
                 image_features = image_features / image_features.norm(p=2, dim=-1, keepdim=True)
                 embedding = image_features[0].cpu().numpy().tolist()
                 
@@ -69,5 +65,4 @@ class EmbeddingService:
             logger.error(f"Error generating image embedding for {image_path}: {e}")
             return None
 
-# Singleton instance for easy reuse across the application
 embedding_service = EmbeddingService()

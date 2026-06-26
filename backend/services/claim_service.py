@@ -27,22 +27,22 @@ def create_claim(
     if not item:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="Item not found",
+            detail="Predmet nije pronađen",
         )
 
     if item.item_type != ItemType.found:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Možeš podnijeti claim samo za pronađene predmete (found).",
+            detail="Možeš podnijeti claim samo za pronađene predmete.",
         )
 
     if item.user_id == current_user.id:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="You cannot claim your own item",
+            detail="Ne možeš podnijeti claim za vlastiti predmet.",
         )
 
-    # Check for active/pending claims by this user for the same item
+    # Provjera postojećih claims
     existing_claims = claim_repository.get_claims_by_user_id(session, current_user.id)
     for c in existing_claims:
         if c.item_id == item_id and c.status not in (ClaimStatus.rejected, ClaimStatus.cancelled):
@@ -51,26 +51,25 @@ def create_claim(
                 detail="Već imaš aktivan claim za ovaj predmet.",
             )
 
-    # Validate lost_item_id if provided
     if claim_data.lost_item_id:
         lost_item = item_repository.get_item_by_id(session, claim_data.lost_item_id)
         if not lost_item:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
-                detail="Lost item not found",
+                detail="Izgubljeni predmet nije pronađen",
             )
         if lost_item.user_id != current_user.id:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
-                detail="You do not own the associated lost item",
+                detail="Ne posjeduješ izgubljeni predmet",
             )
         if lost_item.item_type != ItemType.lost:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Associated item must be a lost item",
+                detail="Povezani predmet mora biti izgubljen",
             )
 
-    # Validate verification questions/answers
+    # Validacija verifikacionih pitanja i odgovora
     verification_questions = session.exec(
         select(VerificationQuestion)
         .where(VerificationQuestion.item_id == item.id)
@@ -116,7 +115,7 @@ def create_claim(
 
     created_claim = claim_repository.create_claim(session, claim)
 
-    # Update ItemMatch status to claimed if exists
+    # Update ItemMatch status
     if claim_data.lost_item_id:
         from repositories import item_match_repository
         match_rec = item_match_repository.get_match_by_pair(
@@ -129,7 +128,7 @@ def create_claim(
             session.add(match_rec)
             session.commit()
 
-    # Notify found item owner
+    # Obavijestiti vlasnika pronađenog predmeta o novom claimu
     create_notification(
         session=session,
         user_id=item.user_id,
@@ -205,19 +204,19 @@ def update_my_claim(
     if not claim:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="Claim not found",
+            detail="Claim nije pronađen",
         )
 
     if claim.user_id != current_user.id:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="You can only update your own claim",
+            detail="Možeš update samo svoj claim",
         )
 
     if claim.status not in (ClaimStatus.pending, ClaimStatus.under_verification):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="You cannot edit a processed claim",
+            detail="Ne možeš update claim koji je već obrađen",
         )
 
     if claim_data.message is not None:
@@ -227,7 +226,6 @@ def update_my_claim(
         claim.proof_description = claim_data.proof_description
 
     if claim_data.verification_answers is not None:
-        # Validate that answers are not empty
         for ans in claim_data.verification_answers:
             if not ans.answer.strip():
                 raise HTTPException(
@@ -253,10 +251,9 @@ def update_claim_status(
     if not claim:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="Claim not found",
+            detail="Claim nije pronađen",
         )
 
-    # Block if already in terminal state
     if claim.status in (ClaimStatus.completed, ClaimStatus.cancelled, ClaimStatus.rejected):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -264,7 +261,6 @@ def update_claim_status(
         )
 
     if claim.user_id == current_user.id:
-        # Claimant is performing the status change (e.g. cancelling)
         if status_data.status != ClaimStatus.cancelled:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
@@ -272,7 +268,6 @@ def update_claim_status(
             )
         claim.status = ClaimStatus.cancelled
 
-        # Notify found item owner
         create_notification(
             session=session,
             user_id=claim.item.user_id,
@@ -283,7 +278,6 @@ def update_claim_status(
             background_tasks=background_tasks,
         )
     elif claim.item.user_id == current_user.id:
-        # Found item owner is performing status change
         allowed_owner_statuses = {
             ClaimStatus.under_verification,
             ClaimStatus.approved,
@@ -298,7 +292,6 @@ def update_claim_status(
         claim.status = status_data.status
         claim.reviewed_at = datetime.utcnow()
 
-        # Notify claimant
         status_translations = {
             ClaimStatus.under_verification: ("u procesu provjere", "provjerava vaš claim"),
             ClaimStatus.approved: ("odobren", "je odobrio vaš claim. Slijedi fizička primopredaja"),
@@ -348,7 +341,6 @@ def confirm_claim_handoff(
 
     if current_user.id == claim.user_id:
         claim.claimer_confirmed_handoff = True
-        # Notify owner
         create_notification(
             session=session,
             user_id=claim.item.user_id,
@@ -360,7 +352,6 @@ def confirm_claim_handoff(
         )
     elif current_user.id == claim.item.user_id:
         claim.owner_confirmed_handoff = True
-        # Notify claimant
         create_notification(
             session=session,
             user_id=claim.user_id,
@@ -379,13 +370,11 @@ def confirm_claim_handoff(
     if claim.claimer_confirmed_handoff and claim.owner_confirmed_handoff:
         claim.status = ClaimStatus.completed
 
-        # Mark found item (item_id) as resolved
         found_item = claim.item
         found_item.status = ItemStatus.resolved
         found_item.updated_at = datetime.utcnow()
         session.add(found_item)
 
-        # Mark lost item (lost_item_id) as resolved if exists
         if claim.lost_item_id:
             lost_item = item_repository.get_item_by_id(session, claim.lost_item_id)
             if lost_item:
@@ -393,7 +382,6 @@ def confirm_claim_handoff(
                 lost_item.updated_at = datetime.utcnow()
                 session.add(lost_item)
 
-            # Update match status to resolved
             from repositories import item_match_repository
             match_rec = item_match_repository.get_match_by_pair(
                 session,
@@ -404,7 +392,6 @@ def confirm_claim_handoff(
                 match_rec.status = MatchStatus.resolved
                 session.add(match_rec)
 
-        # Notify both users that item resolved
         create_notification(
             session=session,
             user_id=claim.item.user_id,

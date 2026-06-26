@@ -5,7 +5,6 @@ from services.image_similarity_service import image_similarity_service
 
 logger = logging.getLogger("MatchRerankingService")
 
-# Feature Configuration
 IMAGE_MATCHING_CONFIG = {
     "enabled": True,
     "top_k_candidates": 10,
@@ -17,14 +16,7 @@ IMAGE_MATCHING_CONFIG = {
 
 class MatchRerankingService:
     def is_eligible_for_rerank(self, session: Session, source_item: Item, candidates: list[Item]) -> bool:
-        """
-        Validates if the source item and candidates list meet the requirements to run image similarity.
-        Requirements:
-        1. Feature must be enabled in config.
-        2. At least two candidates exist.
-        3. Source item has at least one 'ready' image embedding.
-        4. At least one candidate has at least one 'ready' image embedding.
-        """
+
         if not IMAGE_MATCHING_CONFIG.get("enabled", True):
             logger.info("Image matching is disabled in config.")
             return False
@@ -33,7 +25,6 @@ class MatchRerankingService:
             logger.info(f"Not enough candidates for rerank (found {len(candidates)}, minimum is {IMAGE_MATCHING_CONFIG.get('min_candidates_for_rerank', 2)}).")
             return False
 
-        # Check if source item has 'ready' embeddings
         source_has_embeddings = session.exec(
             select(ItemImage).where(
                 ItemImage.item_id == source_item.id,
@@ -45,7 +36,6 @@ class MatchRerankingService:
             logger.info(f"Source item {source_item.id} has no ready image embeddings.")
             return False
 
-        # Check if at least one candidate has 'ready' embeddings
         any_candidate_has_embeddings = False
         candidate_ids = [c.id for c in candidates]
         if candidate_ids:
@@ -63,10 +53,7 @@ class MatchRerankingService:
         return True
 
     def combine_scores(self, description_score: float, image_score: float | None) -> float:
-        """
-        Combines description/specification score with image similarity score.
-        If image score is not available (None), returns the description score as-is.
-        """
+
         if image_score is None:
             return description_score
 
@@ -75,24 +62,14 @@ class MatchRerankingService:
         return (desc_weight * description_score) + (img_weight * image_score)
 
     def rerank_matches(self, session: Session, source_item: Item, candidate_scores: list[dict]) -> list[dict]:
-        """
-        Takes a list of candidate dictionaries containing:
-        - 'candidate': Item object
-        - 'description_score': float
-        
-        Calculates image similarities, applies score fusion, and returns a reranked list sorted by final_score.
-        """
-        # Limit to top K candidates for expensive AI computations
+
         top_k = IMAGE_MATCHING_CONFIG.get("top_k_candidates", 10)
         candidates_pool = candidate_scores[:top_k]
         remaining_pool = candidate_scores[top_k:]
 
         candidate_items = [item_dict["candidate"] for item_dict in candidates_pool]
 
-        # Check if eligible for AI reranking
         if not self.is_eligible_for_rerank(session, source_item, candidate_items):
-            # Fallback to existing text matcher results
-            logger.info("Falling back to description-only scores.")
             for item_dict in candidate_scores:
                 score_data = item_dict["score_data"].copy()
                 score_data["image_similarity_score"] = None
@@ -111,7 +88,6 @@ class MatchRerankingService:
             description_score = item_dict["description_score"]
             score_data = item_dict["score_data"]
 
-            # Check if candidate has ready embeddings
             candidate_has_embeddings = session.exec(
                 select(ItemImage).where(
                     ItemImage.item_id == candidate.id,
@@ -145,7 +121,6 @@ class MatchRerankingService:
                 "score_data": score_data_updated
             })
 
-        # Process remaining candidates if any (without image reranking calculation)
         for item_dict in remaining_pool:
             candidate = item_dict["candidate"]
             description_score = item_dict["description_score"]
@@ -165,8 +140,6 @@ class MatchRerankingService:
                 "score_data": score_data_updated
             })
 
-        # Sort descending by final score
-        # In case of tie, prioritize by description score, and then candidate ID (determinsitic sorting)
         reranked.sort(key=lambda x: (x["final_score"], x["description_score"], -x["candidate"].id), reverse=True)
         return reranked
 
