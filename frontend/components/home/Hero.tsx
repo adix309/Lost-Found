@@ -85,26 +85,7 @@ export function Hero() {
           }}
         >
           {/* Badge */}
-          <Box
-            sx={{
-              bgcolor: "primary.light",
-              color: "primary.main",
-              px: 2.5,
-              py: 1,
-              borderRadius: 999,
-              fontSize: "0.85rem",
-              fontWeight: 700,
-              mb: 3,
-              border: "1px solid",
-              borderColor: "rgba(27, 77, 62, 0.1)",
-              boxShadow: "0 2px 8px rgba(27, 77, 62, 0.04)",
-              display: "flex",
-              alignItems: "center",
-              gap: 0.5,
-            }}
-          >
-            <FontAwesomeIcon icon={faHandshake} style={{ marginRight: "6px" }} /> Zajednica za podršku i pomoć
-          </Box>
+
 
           {/* Title */}
           <Typography
@@ -167,7 +148,7 @@ export function Hero() {
                 },
               }}
             >
-              <FontAwesomeIcon icon={faHeart} style={{ color: "#1b4d3e" }} />
+              <FontAwesomeIcon icon={faHandshake} style={{ color: "#1b4d3e" }} />
             </Box>
             <Typography variant="body2" sx={{ fontWeight: 500, color: "inherit" }}>
               Do sada je <strong>1,240+ predmeta</strong> uspješno vraćeno vlasnicima u našoj zajednici.

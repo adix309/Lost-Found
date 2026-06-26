@@ -1,9 +1,11 @@
 "use client";
 
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faShieldHalved, faPhone, faEnvelope, faUser, faRobot, faArrowUp, faChevronDown, faMapLocationDot } from "@fortawesome/free-solid-svg-icons";
+import { faShieldHalved, faPhone, faEnvelope, faUser, faRobot, faArrowUp, faChevronDown, faMapLocationDot, faFileInvoice } from "@fortawesome/free-solid-svg-icons";
 
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
@@ -26,9 +28,13 @@ import Button from "@mui/material/Button";
 import Accordion from "@mui/material/Accordion";
 import AccordionSummary from "@mui/material/AccordionSummary";
 import AccordionDetails from "@mui/material/AccordionDetails";
+import Alert from "@mui/material/Alert";
 import type { Listing } from "@/types/listing";
+import { ClaimSubmissionDialog } from "@/components/listings/ClaimSubmissionDialog";
+import { ClaimStatusBadge } from "@/components/common/ClaimStatusBadge";
+import type { Claim } from "@/types/claim";
 
-const API_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8000";
+const API_URL = process.env.NEXT_PUBLIC_API_BASE_URL || process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
 
 type ItemOwner = {
   id: number;
@@ -102,6 +108,69 @@ export function ItemDetailsClient({
 }: ItemDetailsClientProps) {
   const typeLabel = item.item_type === "lost" ? "Izgubljeno" : "Pronađeno";
   const owner = getOwner(item);
+  const isResolved = item.status === "resolved";
+
+  const router = useRouter();
+  const [currentUser, setCurrentUser] = useState<any | null>(null);
+  const [myClaims, setMyClaims] = useState<Claim[]>([]);
+  const [activeConversationId, setActiveConversationId] = useState<number | null>(null);
+  const [isClaimDialogOpen, setIsClaimDialogOpen] = useState(false);
+  const [loadingClaims, setLoadingClaims] = useState(false);
+
+  useEffect(() => {
+    const token = localStorage.getItem("access_token");
+    if (!token) return;
+
+    const fetchData = async () => {
+      setLoadingClaims(true);
+      try {
+        const [meRes, claimsRes, convRes] = await Promise.all([
+          fetch(`${API_URL}/auth/me`, {
+            headers: { Authorization: `Bearer ${token}` },
+          }),
+          fetch(`${API_URL}/claims/my`, {
+            headers: { Authorization: `Bearer ${token}` },
+          }),
+          fetch(`${API_URL}/conversations/my`, {
+            headers: { Authorization: `Bearer ${token}` },
+          }).catch(() => null),
+        ]);
+
+        if (meRes.ok) {
+          const meData = await meRes.json();
+          setCurrentUser(meData);
+        }
+        if (claimsRes.ok) {
+          const claimsData = await claimsRes.json();
+          setMyClaims(claimsData || []);
+        }
+        if (convRes && convRes.ok) {
+          const convs = await convRes.json();
+          const activeConv = convs.find((c: any) => c.item.id === item.id);
+          if (activeConv) {
+            setActiveConversationId(activeConv.conversationId);
+          }
+        }
+      } catch (err) {
+        console.error("Greška pri učitavanju claim podataka:", err);
+      } finally {
+        setLoadingClaims(false);
+      }
+    };
+
+    fetchData();
+  }, [item.id]);
+
+  const handleClaimSuccess = () => {
+    const token = localStorage.getItem("access_token");
+    if (!token) return;
+    fetch(`${API_URL}/claims/my`, {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+      .then((res) => (res.ok ? res.json() : []))
+      .then((data) => setMyClaims(data))
+      .catch((err) => console.error("Greška pri osvježavanju claimova:", err));
+  };
 
   const imageSrc = getImageSrc(item.image_url);
   const imageAlt = item.image_url ? item.title : "Slika nije dodana";
@@ -421,8 +490,78 @@ export function ItemDetailsClient({
                         </Button>
                       )}
 
-                      {/* Primary Action Button: Start Chat */}
-                      <StartChatButton itemId={item.id} />
+                      {isResolved ? (
+                        <Alert severity="success" sx={{ borderRadius: 2, fontWeight: 700 }}>
+                          Ovaj predmet je vraćen i oglas je uspješno riješen.
+                        </Alert>
+                      ) : currentUser && currentUser.id === item.user_id ? (
+                        <Button
+                          component={Link}
+                          href="/AllChats"
+                          variant="contained"
+                          color="primary"
+                          size="small"
+                          sx={{ textTransform: "none", fontWeight: 800, borderRadius: 2 }}
+                        >
+                          Upravljaj porukama i zahtjevima
+                        </Button>
+                      ) : (() => {
+                        const activeClaim = myClaims.find(
+                          (c) => c.item_id === item.id && c.status !== "rejected" && c.status !== "cancelled"
+                        );
+
+                        if (activeClaim) {
+                          return (
+                            <Box sx={{ p: 2, border: "1px solid", borderColor: "grey.200", borderRadius: 2, bgcolor: "grey.50" }}>
+                              <Typography variant="body2" sx={{ fontWeight: 800, color: "text.primary", mb: 1, fontSize: "0.85rem" }}>
+                                Zahtjev za povrat podnesen:
+                              </Typography>
+                              <Box sx={{ mb: 1.5 }}>
+                                <ClaimStatusBadge status={activeClaim.status} />
+                              </Box>
+                              {activeConversationId ? (
+                                <Button
+                                  component={Link}
+                                  href={`/chat/${activeConversationId}`}
+                                  variant="contained"
+                                  color="primary"
+                                  size="small"
+                                  fullWidth
+                                  sx={{ textTransform: "none", fontWeight: 800, borderRadius: 2 }}
+                                >
+                                  Otvori chat i zahtjev
+                                </Button>
+                              ) : (
+                                <StartChatButton itemId={item.id} />
+                              )}
+                            </Box>
+                          );
+                        }
+
+                        return (
+                          <>
+                            {item.item_type === "found" && (
+                              <Button
+                                variant="contained"
+                                color="primary"
+                                size="small"
+                                startIcon={<FontAwesomeIcon icon={faFileInvoice} />}
+                                onClick={() => {
+                                  if (!currentUser) {
+                                    router.push("/login");
+                                  } else {
+                                    setIsClaimDialogOpen(true);
+                                  }
+                                }}
+                                sx={{ textTransform: "none", fontWeight: 800, borderRadius: 2 }}
+                              >
+                                Podnesi zahtjev za povrat (Claim)
+                              </Button>
+                            )}
+                            <StartChatButton itemId={item.id} />
+                          </>
+                        );
+                      })()}
 
                       {/* Secondary Action Buttons */}
                       {item.contact_phone && (
@@ -452,6 +591,14 @@ export function ItemDetailsClient({
                         </Button>
                       )}
                     </Stack>
+
+                    <ClaimSubmissionDialog
+                      itemId={item.id}
+                      itemTitle={item.title}
+                      open={isClaimDialogOpen}
+                      onClose={() => setIsClaimDialogOpen(false)}
+                      onSuccess={handleClaimSuccess}
+                    />
                   </Card>
 
                   {/* Safety Guidelines Accordion */}

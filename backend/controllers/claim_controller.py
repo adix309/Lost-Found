@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, status, BackgroundTasks
 from sqlmodel import Session
 
 from app.database import SessionDep
@@ -28,6 +28,7 @@ def create_claim(
     item_id: int,
     claim_data: ClaimCreate,
     session: SessionDep,
+    background_tasks: BackgroundTasks,
     current_user: User = Depends(get_current_user),
 ):
     return claim_service.create_claim(
@@ -35,6 +36,7 @@ def create_claim(
         item_id=item_id,
         claim_data=claim_data,
         current_user=current_user,
+        background_tasks=background_tasks,
     )
 
 
@@ -110,6 +112,7 @@ def update_claim_status(
     claim_id: int,
     status_data: ClaimStatusUpdate,
     session: SessionDep,
+    background_tasks: BackgroundTasks,
     current_user: User = Depends(get_current_user),
 ):
     return claim_service.update_claim_status(
@@ -117,6 +120,7 @@ def update_claim_status(
         claim_id=claim_id,
         status_data=status_data,
         current_user=current_user,
+        background_tasks=background_tasks,
     )
 
 
@@ -133,4 +137,22 @@ def delete_my_claim(
         session=session,
         claim_id=claim_id,
         current_user=current_user,
+    )
+
+
+@router.post(
+    "/claims/{claim_id}/confirm-handoff",
+    response_model=ClaimRead,
+)
+def confirm_claim_handoff(
+    claim_id: int,
+    session: SessionDep,
+    background_tasks: BackgroundTasks,
+    current_user: User = Depends(get_current_user),
+):
+    return claim_service.confirm_claim_handoff(
+        session=session,
+        claim_id=claim_id,
+        current_user=current_user,
+        background_tasks=background_tasks,
     )

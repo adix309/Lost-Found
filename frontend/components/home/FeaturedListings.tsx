@@ -86,7 +86,6 @@ export function FeaturedListings() {
 
   const listings = useMemo(() => {
     if (!userCoords) {
-      // While loading location, return newest 3 as placeholder
       return items
         .filter((listing) => listing.item_type === activeTab)
         .sort((a, b) => Date.parse(b.created_at) - Date.parse(a.created_at))
@@ -95,7 +94,6 @@ export function FeaturedListings() {
 
     const isFallback = locationSource === "fallback";
 
-    // Helper to calculate score based on proximity or name string matching
     const getListingDistanceScore = (listing: Listing) => {
       if (listing.latitude !== null && listing.longitude !== null) {
         const dLat = listing.latitude - userCoords.latitude;
@@ -103,7 +101,6 @@ export function FeaturedListings() {
         return Math.sqrt(dLat * dLat + dLon * dLon);
       }
       
-      // Fallback: If listing has no coords, check string match for Sarajevo
       if (isFallback) {
         const name = listing.location_name?.toLowerCase() || "";
         if (name.includes("sarajevo")) {

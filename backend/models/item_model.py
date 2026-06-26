@@ -33,6 +33,9 @@ class Item(SQLModel, table=True):
     claims: list["Claim"] = Relationship(
         back_populates="item",
         cascade_delete=True,
+        sa_relationship_kwargs={
+            "primaryjoin": "Claim.item_id == Item.id",
+        }
     )
     images: list["ItemImage"] = Relationship(
         back_populates="item",

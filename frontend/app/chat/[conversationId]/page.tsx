@@ -14,10 +14,19 @@ import IconButton from "@mui/material/IconButton";
 import Avatar from "@mui/material/Avatar";
 import Paper from "@mui/material/Paper";
 import CircularProgress from "@mui/material/CircularProgress";
+import Alert from "@mui/material/Alert";
+import Checkbox from "@mui/material/Checkbox";
+import FormControlLabel from "@mui/material/FormControlLabel";
+import Divider from "@mui/material/Divider";
+import Collapse from "@mui/material/Collapse";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import ExpandLessIcon from "@mui/icons-material/ExpandLess";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faArrowLeft, faPaperPlane, faUser } from "@fortawesome/free-solid-svg-icons";
+import { faArrowLeft, faPaperPlane, faUser, faFileInvoice, faQuestionCircle } from "@fortawesome/free-solid-svg-icons";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
+import { ClaimStatusBadge } from "@/components/common/ClaimStatusBadge";
+import type { Claim, ClaimStatus } from "@/types/claim";
 
 type ChatMessage = {
   id?: number;
@@ -48,8 +57,8 @@ type ChatListItem = {
   updatedAt: string;
 };
 
-const API_URL = "http://127.0.0.1:8000";
-const WS_URL = "ws://127.0.0.1:8000/ws/chat";
+const API_URL = process.env.NEXT_PUBLIC_API_BASE_URL || process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
+const WS_URL = API_URL.replace(/^http/, "ws") + "/ws/chat";
 
 export default function ChatPage() {
   const router = useRouter();
@@ -64,6 +73,474 @@ export default function ChatPage() {
   const [messageInput, setMessageInput] = useState("");
   const [conversation, setConversation] = useState<ChatListItem | null>(null);
   const [loading, setLoading] = useState(true);
+
+  // Claim status states
+  const [claim, setClaim] = useState<Claim | null>(null);
+  const [item, setItem] = useState<any | null>(null);
+  const [isPanelExpanded, setIsPanelExpanded] = useState(true);
+  const [itemQuestions, setItemQuestions] = useState<any[]>([]);
+  const [tempAnswers, setTempAnswers] = useState<Record<number, string>>({});
+  const [submittingAnswers, setSubmittingAnswers] = useState(false);
+
+  useEffect(() => {
+    if (claim && itemQuestions.length > 0) {
+      const initialAnswers: Record<number, string> = {};
+      itemQuestions.forEach((q: any) => {
+        const existing = claim.verification_answers?.find((a: any) => a.question_id === q.id);
+        initialAnswers[q.id] = existing ? existing.answer : "";
+      });
+      setTempAnswers(initialAnswers);
+    }
+  }, [claim, itemQuestions]);
+
+  const refreshItemDetails = async () => {
+    if (!conversation?.item.id) return;
+    try {
+      const res = await fetch(`${API_URL}/items/${conversation.item.id}`);
+      if (res.ok) {
+        const data = await res.json();
+        setItem(data);
+      }
+    } catch (err) {
+      console.error("Greška pri osvježavanju detalja predmeta:", err);
+    }
+  };
+
+  const updateClaimStatus = async (newStatus: ClaimStatus) => {
+    const token = localStorage.getItem("access_token");
+    if (!token || !claim) return;
+
+    try {
+      const res = await fetch(`${API_URL}/claims/${claim.id}/status`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ status: newStatus }),
+      });
+
+      if (!res.ok) {
+        const errorData = await res.json();
+        alert(errorData.detail || "Greška pri promjeni statusa.");
+        return;
+      }
+
+      const updatedClaim = await res.json();
+      setClaim(updatedClaim);
+
+      if (newStatus === "completed" || newStatus === "rejected" || newStatus === "cancelled") {
+        refreshItemDetails();
+      }
+    } catch (err) {
+      console.error("Greška pri promjeni statusa claima:", err);
+    }
+  };
+
+  const submitVerificationAnswers = async () => {
+    const token = localStorage.getItem("access_token");
+    if (!token || !claim) return;
+
+    const unanswered = itemQuestions.some(q => !tempAnswers[q.id]?.trim());
+    if (unanswered) {
+      alert("Molimo odgovorite na sva pitanja.");
+      return;
+    }
+
+    setSubmittingAnswers(true);
+    try {
+      const formattedAnswers = itemQuestions.map(q => ({
+        question_id: q.id,
+        question_text: q.questionText || q.question_text,
+        answer: tempAnswers[q.id].trim()
+      }));
+
+      const res = await fetch(`${API_URL}/claims/${claim.id}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          verification_answers: formattedAnswers
+        })
+      });
+
+      if (!res.ok) {
+        const errorData = await res.json();
+        alert(errorData.detail || "Greška pri slanju odgovora.");
+        return;
+      }
+
+      const updatedClaim = await res.json();
+      setClaim(updatedClaim);
+      alert("Odgovori su uspješno poslani vlasniku na provjeru.");
+    } catch (err) {
+      console.error("Greška pri slanju odgovora:", err);
+    } finally {
+      setSubmittingAnswers(false);
+    }
+  };
+
+  const confirmHandoff = async () => {
+    const token = localStorage.getItem("access_token");
+    if (!token || !claim) return;
+
+    try {
+      const res = await fetch(`${API_URL}/claims/${claim.id}/confirm-handoff`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!res.ok) {
+        const errorData = await res.json();
+        alert(errorData.detail || "Greška pri potvrdi primopredaje.");
+        return;
+      }
+
+      const updatedClaim = await res.json();
+      setClaim(updatedClaim);
+
+      if (updatedClaim.status === "completed") {
+        refreshItemDetails();
+      }
+    } catch (err) {
+      console.error("Greška pri potvrdi primopredaje:", err);
+    }
+  };
+
+  const getStatusBgColor = (status: string) => {
+    switch (status) {
+      case "pending":
+        return "rgba(234, 179, 8, 0.05)";
+      case "under_verification":
+        return "rgba(59, 130, 246, 0.05)";
+      case "approved":
+        return "rgba(20, 184, 166, 0.05)";
+      case "handoff_pending":
+        return "rgba(168, 85, 247, 0.05)";
+      case "completed":
+        return "rgba(34, 197, 94, 0.05)";
+      case "rejected":
+        return "rgba(239, 68, 68, 0.05)";
+      case "cancelled":
+      default:
+        return "rgba(100, 116, 139, 0.05)";
+    }
+  };
+
+  const renderHandoffChecklist = (isOwner: boolean) => {
+    if (!claim) return null;
+
+    const hasOwnerConfirmed = claim.owner_confirmed_handoff;
+    const hasClaimerConfirmed = claim.claimer_confirmed_handoff;
+    const isMeConfirmed = isOwner ? hasOwnerConfirmed : hasClaimerConfirmed;
+
+    return (
+      <Box sx={{ p: 2, border: "1px solid", borderColor: "secondary.light", bgcolor: "rgba(168, 85, 247, 0.01)", borderRadius: 3 }}>
+        <Typography variant="subtitle2" sx={{ fontWeight: 800, color: "secondary.dark", mb: 1 }}>
+          Potvrda fizičke primopredaje predmeta
+        </Typography>
+        <Typography variant="body2" color="text.secondary" sx={{ mb: 2, fontSize: "0.8rem" }}>
+          Nakon što se fizički sastanete i razmijenite predmet, potvrdite primopredaju ispod. Kada obojica potvrdite, oglas se automatski rješava.
+        </Typography>
+        
+        <Stack spacing={1} sx={{ mb: 2 }}>
+          <FormControlLabel
+            control={<Checkbox checked={hasOwnerConfirmed} readOnly disabled />}
+            label={<Typography variant="body2" sx={{ fontWeight: 600 }}>Vlasnik potvrdio predaju</Typography>}
+          />
+          <FormControlLabel
+            control={<Checkbox checked={hasClaimerConfirmed} readOnly disabled />}
+            label={<Typography variant="body2" sx={{ fontWeight: 600 }}>Tražitelj potvrdio preuzimanje</Typography>}
+          />
+        </Stack>
+
+        {!isMeConfirmed ? (
+          <Button
+            variant="contained"
+            color="secondary"
+            size="small"
+            onClick={confirmHandoff}
+            sx={{ textTransform: "none", fontWeight: 800, borderRadius: 2 }}
+          >
+            Potvrdi primopredaju predmeta
+          </Button>
+        ) : (
+          <Typography variant="body2" sx={{ fontStyle: "italic", color: "success.main", fontWeight: 600 }}>
+            Čeka se potvrda druge strane...
+          </Typography>
+        )}
+      </Box>
+    );
+  };
+
+  const renderClaimActions = () => {
+    if (!claim || !item || !currentUserId) return null;
+
+    const isOwner = item.user_id === currentUserId;
+
+    if (isOwner) {
+      switch (claim.status) {
+        case "pending":
+          const hasQuestions = itemQuestions.length > 0;
+          return (
+            <Stack direction="row" spacing={1.5}>
+              <Button
+                variant="outlined"
+                color="info"
+                size="small"
+                disabled={!hasQuestions}
+                onClick={() => updateClaimStatus("under_verification")}
+                sx={{ textTransform: "none", fontWeight: 700, borderRadius: 2 }}
+              >
+                Započni provjeru
+              </Button>
+              {!hasQuestions && (
+                <Button
+                  variant="contained"
+                  color="primary"
+                  size="small"
+                  onClick={() => updateClaimStatus("approved")}
+                  sx={{ textTransform: "none", fontWeight: 800, borderRadius: 2 }}
+                >
+                  Odobri
+                </Button>
+              )}
+              <Button
+                variant="outlined"
+                color="error"
+                size="small"
+                onClick={() => {
+                  if (window.confirm("Da li ste sigurni da želite odbiti ovaj zahtjev?")) {
+                    updateClaimStatus("rejected");
+                  }
+                }}
+                sx={{ textTransform: "none", fontWeight: 700, borderRadius: 2 }}
+              >
+                Odbij
+              </Button>
+            </Stack>
+          );
+        case "under_verification":
+          const answersSubmitted = claim.verification_answers && claim.verification_answers.length > 0;
+          if (answersSubmitted) {
+            return (
+              <Box>
+                <Typography variant="body2" sx={{ color: "success.main", fontWeight: 600, mb: 1.5, fontSize: "0.85rem" }}>
+                  Tražitelj je odgovorio na pitanja. Molimo provjerite odgovore u detaljima iznad i donesite odluku:
+                </Typography>
+                <Stack direction="row" spacing={1.5}>
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    size="small"
+                    onClick={() => updateClaimStatus("approved")}
+                    sx={{ textTransform: "none", fontWeight: 800, borderRadius: 2 }}
+                  >
+                    Odobri
+                  </Button>
+                  <Button
+                    variant="outlined"
+                    color="error"
+                    size="small"
+                    onClick={() => {
+                      if (window.confirm("Da li ste sigurni da želite odbiti ovaj zahtjev?")) {
+                        updateClaimStatus("rejected");
+                      }
+                    }}
+                    sx={{ textTransform: "none", fontWeight: 700, borderRadius: 2 }}
+                  >
+                    Odbij
+                  </Button>
+                </Stack>
+              </Box>
+            );
+          } else {
+            return (
+              <Box sx={{ p: 1.5, border: "1px dashed", borderColor: "info.light", borderRadius: 2, bgcolor: "rgba(2, 136, 209, 0.02)", width: "100%" }}>
+                <Typography variant="body2" color="info.main" sx={{ fontWeight: 600, fontSize: "0.85rem" }}>
+                  Pokrenuli ste provjeru. Čeka se da tražitelj odgovori na verifikaciona pitanja.
+                </Typography>
+              </Box>
+            );
+          }
+        case "approved":
+          return (
+            <Box>
+              <Typography variant="body2" sx={{ color: "text.secondary", mb: 1, fontSize: "0.85rem" }}>
+                Zahtjev je odobren. Možete pokrenuti proces fizičke primopredaje predmeta.
+              </Typography>
+              <Button
+                variant="contained"
+                color="secondary"
+                size="small"
+                onClick={() => updateClaimStatus("handoff_pending")}
+                sx={{ textTransform: "none", fontWeight: 800, borderRadius: 2 }}
+              >
+                Pokreni primopredaju
+              </Button>
+            </Box>
+          );
+        case "handoff_pending":
+          return renderHandoffChecklist(isOwner);
+        case "completed":
+          return (
+            <Alert severity="success" sx={{ borderRadius: 2 }}>
+              Uspješno završeno. Predmet je vraćen vlasniku!
+            </Alert>
+          );
+        case "rejected":
+          return (
+            <Alert severity="error" sx={{ borderRadius: 2 }}>
+              Zahtjev je odbijen.
+            </Alert>
+          );
+        default:
+          return null;
+      }
+    } else {
+      switch (claim.status) {
+        case "pending":
+        case "approved":
+          return (
+            <Button
+              variant="outlined"
+              color="error"
+              size="small"
+              onClick={() => {
+                if (window.confirm("Da li želite otkazati Vaš zahtjev za povrat?")) {
+                  updateClaimStatus("cancelled");
+                }
+              }}
+              sx={{ textTransform: "none", fontWeight: 700, borderRadius: 2 }}
+            >
+              Otkaži zahtjev
+            </Button>
+          );
+        case "under_verification":
+          const answered = claim.verification_answers && claim.verification_answers.length > 0;
+          if (answered) {
+            return (
+              <Stack spacing={2}>
+                <Typography variant="body2" sx={{ color: "info.main", fontWeight: 600, fontSize: "0.85rem" }}>
+                  Odgovori su uspješno poslani. Vlasnik predmeta ih sada provjerava.
+                </Typography>
+                <Button
+                  variant="outlined"
+                  color="error"
+                  size="small"
+                  onClick={() => {
+                    if (window.confirm("Da li želite otkazati Vaš zahtjev za povrat?")) {
+                      updateClaimStatus("cancelled");
+                    }
+                  }}
+                  sx={{ textTransform: "none", fontWeight: 700, alignSelf: "flex-start", borderRadius: 2 }}
+                >
+                  Otkaži zahtjev
+                </Button>
+              </Stack>
+            );
+          } else {
+            return (
+              <Box sx={{ p: 2, border: "1px solid", borderColor: "info.light", bgcolor: "rgba(2, 136, 209, 0.01)", borderRadius: 3, width: "100%" }}>
+                <Typography variant="subtitle2" sx={{ fontWeight: 800, color: "info.dark", mb: 1 }}>
+                  Odgovorite na verifikaciona pitanja
+                </Typography>
+                <Typography variant="body2" color="text.secondary" sx={{ mb: 2, fontSize: "0.8rem" }}>
+                  Vlasnik je pokrenuo provjeru predmeta. Odgovorite na pitanja ispod kako biste dokazali vlasništvo:
+                </Typography>
+                
+                <Stack spacing={2} sx={{ mb: 2.5 }}>
+                  {itemQuestions.map((q: any) => (
+                    <Box key={q.id}>
+                      <Typography variant="body2" sx={{ fontWeight: 700, mb: 0.5, fontSize: "0.85rem", color: "text.primary" }}>
+                        Pitanje: {q.questionText || q.question_text}
+                      </Typography>
+                      <TextField
+                        fullWidth
+                        size="small"
+                        placeholder="Vaš odgovor..."
+                        value={tempAnswers[q.id] || ""}
+                        onChange={(e) => setTempAnswers(prev => ({ ...prev, [q.id]: e.target.value }))}
+                        sx={{ bgcolor: "background.paper" }}
+                      />
+                    </Box>
+                  ))}
+                </Stack>
+
+                <Stack direction="row" spacing={1.5}>
+                  <Button
+                    variant="contained"
+                    color="info"
+                    size="small"
+                    onClick={submitVerificationAnswers}
+                    disabled={submittingAnswers}
+                    sx={{ textTransform: "none", fontWeight: 800, borderRadius: 2 }}
+                  >
+                    {submittingAnswers ? "Slanje..." : "Pošalji odgovore"}
+                  </Button>
+                  <Button
+                    variant="outlined"
+                    color="error"
+                    size="small"
+                    onClick={() => {
+                      if (window.confirm("Da li želite otkazati Vaš zahtjev za povrat?")) {
+                        updateClaimStatus("cancelled");
+                      }
+                    }}
+                    sx={{ textTransform: "none", fontWeight: 700, borderRadius: 2 }}
+                  >
+                    Otkaži zahtjev
+                  </Button>
+                </Stack>
+              </Box>
+            );
+          }
+        case "handoff_pending":
+          return (
+            <Stack spacing={2}>
+              {renderHandoffChecklist(isOwner)}
+              <Button
+                variant="outlined"
+                color="error"
+                size="small"
+                onClick={() => {
+                  if (window.confirm("Da li želite otkazati Vaš zahtjev za povrat?")) {
+                    updateClaimStatus("cancelled");
+                  }
+                }}
+                sx={{ textTransform: "none", fontWeight: 700, alignSelf: "flex-start", borderRadius: 2 }}
+              >
+                Otkaži zahtjev
+              </Button>
+            </Stack>
+          );
+        case "completed":
+          return (
+            <Alert severity="success" sx={{ borderRadius: 2 }}>
+              Predmet Vam je uspješno vraćen! Hvala na saradnji.
+            </Alert>
+          );
+        case "cancelled":
+          return (
+            <Alert severity="warning" sx={{ borderRadius: 2 }}>
+              Otkazali ste ovaj zahtjev.
+            </Alert>
+          );
+        case "rejected":
+          return (
+            <Alert severity="error" sx={{ borderRadius: 2 }}>
+              Vlasnik je odbio Vaš zahtjev.
+            </Alert>
+          );
+        default:
+          return null;
+      }
+    }
+  };
 
   // Auto scroll logic
   const scrollToBottom = () => {
@@ -133,6 +610,55 @@ export default function ChatPage() {
               localStorage.setItem(`chat_read_${conversationId}`, activeConv.lastMessage.createdAt);
             } else {
               localStorage.setItem(`chat_read_${conversationId}`, activeConv.updatedAt);
+            }
+
+            // Fetch item and claim details
+            if (activeConv.item.id) {
+              try {
+                const itemRes = await fetch(`${API_URL}/items/${activeConv.item.id}`);
+                if (itemRes.ok) {
+                  const itemData = await itemRes.json();
+                  setItem(itemData);
+
+                  // Fetch verification questions for the item
+                  try {
+                    const questionsRes = await fetch(`${API_URL}/verification-questions/items/${itemData.id}`);
+                    if (questionsRes.ok) {
+                      const questionsData = await questionsRes.json();
+                      setItemQuestions(questionsData || []);
+                    }
+                  } catch (qErr) {
+                    console.error("Greška pri učitavanju verifikacionih pitanja:", qErr);
+                  }
+
+                  const isItemOwner = itemData.user_id === user.id;
+                  if (isItemOwner) {
+                    const claimsRes = await fetch(`${API_URL}/items/${itemData.id}/claims`, {
+                      headers: { Authorization: `Bearer ${token}` },
+                    });
+                    if (claimsRes.ok) {
+                      const claims: Claim[] = await claimsRes.json();
+                      const claimOfUser = claims
+                        .filter(c => c.user_id === activeConv.otherUser.id)
+                        .sort((a, b) => b.id - a.id)[0];
+                      setClaim(claimOfUser || null);
+                    }
+                  } else {
+                    const claimsRes = await fetch(`${API_URL}/claims/my`, {
+                      headers: { Authorization: `Bearer ${token}` },
+                    });
+                    if (claimsRes.ok) {
+                      const claims: Claim[] = await claimsRes.json();
+                      const claimForItem = claims
+                        .filter(c => c.item_id === itemData.id)
+                        .sort((a, b) => b.id - a.id)[0];
+                      setClaim(claimForItem || null);
+                    }
+                  }
+                }
+              } catch (err) {
+                console.error("Greška pri učitavanju detalja claima/oglasa:", err);
+              }
             }
           }
         }
@@ -293,10 +819,111 @@ export default function ChatPage() {
                     </Typography>
                   </Box>
                 </Stack>
-                <Typography variant="caption" color="text.secondary" sx={{ display: { xs: "none", sm: "block" } }}>
-                  ID razgovora: {conversationId}
-                </Typography>
               </Box>
+ 
+              {/* Claim Status Panel */}
+              {claim && item && (
+                <Box
+                  sx={{
+                    bgcolor: getStatusBgColor(claim.status),
+                    borderBottom: "1px solid",
+                    borderColor: "grey.200",
+                    p: 2.5,
+                    transition: "all 0.2s ease-in-out",
+                  }}
+                >
+                  <Stack direction="row" sx={{ justifyContent: "space-between", alignItems: "center" }}>
+                    <Stack direction="row" spacing={1.5} sx={{ alignItems: "center" }}>
+                      <Typography variant="subtitle2" sx={{ fontWeight: 800, color: "text.primary", fontSize: "0.9rem" }}>
+                        Zahtjev za povrat:
+                      </Typography>
+                      <ClaimStatusBadge status={claim.status} />
+                    </Stack>
+                    <Button
+                      size="small"
+                      variant="text"
+                      onClick={() => setIsPanelExpanded(!isPanelExpanded)}
+                      endIcon={isPanelExpanded ? <ExpandLessIcon sx={{ fontSize: "1rem" }} /> : <ExpandMoreIcon sx={{ fontSize: "1rem" }} />}
+                      sx={{ textTransform: "none", fontWeight: 700, fontSize: "0.8rem" }}
+                    >
+                      {isPanelExpanded ? "Sakrij detalje" : "Prikaži detalje"}
+                    </Button>
+                  </Stack>
+
+                  <Collapse in={isPanelExpanded}>
+                    <Box sx={{ mt: 2 }}>
+                      <Divider sx={{ my: 1.5 }} />
+                      <Stack spacing={2}>
+                        {/* Claim Message & Proof */}
+                        <Box>
+                          <Typography variant="caption" sx={{ display: "block", fontWeight: 800, color: "text.secondary", mb: 0.5, fontSize: "0.75rem" }}>
+                            Poruka / Opis dokaza vlasništva od tražitelja:
+                          </Typography>
+                          <Typography variant="body2" sx={{ bgcolor: "background.paper", p: 1.5, borderRadius: 2, border: "1px solid", borderColor: "grey.200", fontSize: "0.85rem", whiteSpace: "pre-wrap" }}>
+                            {claim.message}
+                          </Typography>
+                        </Box>
+
+                        {claim.proof_description && (
+                          <Box>
+                            <Typography variant="caption" sx={{ display: "block", fontWeight: 800, color: "text.secondary", mb: 0.5, fontSize: "0.75rem" }}>
+                              Dodatni dokaz vlasništva:
+                            </Typography>
+                            <Typography variant="body2" sx={{ bgcolor: "background.paper", p: 1.5, borderRadius: 2, border: "1px solid", borderColor: "grey.200", fontSize: "0.85rem", whiteSpace: "pre-wrap" }}>
+                              {claim.proof_description}
+                            </Typography>
+                          </Box>
+                        )}
+
+                        {/* Verification Answers */}
+                        {claim.verification_answers && claim.verification_answers.length > 0 && (
+                          <Box>
+                            <Typography variant="caption" sx={{ display: "block", fontWeight: 800, color: "text.secondary", mb: 1, fontSize: "0.75rem" }}>
+                              Odgovori na verifikaciona pitanja:
+                            </Typography>
+                            <Stack spacing={1.5}>
+                              {claim.verification_answers.map((ans, idx) => (
+                                <Box key={idx} sx={{ p: 1.5, bgcolor: "background.paper", borderRadius: 2, border: "1px solid", borderColor: "grey.200" }}>
+                                  <Typography variant="body2" sx={{ fontWeight: 800, fontSize: "0.8rem", color: "primary.main", display: "flex", alignItems: "center", gap: 1 }}>
+                                    <FontAwesomeIcon icon={faQuestionCircle} style={{ fontSize: "0.85rem" }} />
+                                    P: {ans.question_text}
+                                  </Typography>
+                                  <Typography variant="body2" sx={{ mt: 0.5, fontStyle: "italic", fontSize: "0.85rem", pl: 2.5 }}>
+                                    O: {ans.answer}
+                                  </Typography>
+                                </Box>
+                              ))}
+                            </Stack>
+                          </Box>
+                        )}
+
+                        {/* Linked Lost Item */}
+                        {claim.lost_item_id && (
+                          <Box>
+                            <Typography variant="caption" sx={{ display: "block", fontWeight: 800, color: "text.secondary", mb: 0.5, fontSize: "0.75rem" }}>
+                              Povezani oglas o izgubljenom predmetu:
+                            </Typography>
+                            <Button
+                              component={Link}
+                              href={`/AllItems/${claim.lost_item_id}`}
+                              size="small"
+                              variant="outlined"
+                              sx={{ textTransform: "none", fontWeight: 700, borderRadius: 2, fontSize: "0.75rem" }}
+                            >
+                              Pogledaj oglas tražitelja &rarr;
+                            </Button>
+                          </Box>
+                        )}
+
+                        {/* Action buttons section */}
+                        <Box sx={{ pt: 1 }}>
+                          {renderClaimActions()}
+                        </Box>
+                      </Stack>
+                    </Box>
+                  </Collapse>
+                </Box>
+              )}
 
               {/* Chat Messages Area */}
               <Box

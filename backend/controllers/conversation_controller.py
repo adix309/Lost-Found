@@ -28,6 +28,7 @@ class VerificationAnswer(BaseModel):
 class StartConversationRequest(BaseModel):
     item_id: int
     verification_answers: list[VerificationAnswer] | None = None
+    force_start: bool | None = False
 
 
 @router.post("/start")
@@ -74,7 +75,7 @@ def start_conversation(
         .order_by(VerificationQuestion.id)
     ).all()
 
-    if verification_questions and not request.verification_answers:
+    if not request.force_start and verification_questions and not request.verification_answers:
         return {
             "requiresVerification": True,
             "questions": [
@@ -86,7 +87,7 @@ def start_conversation(
             ],
         }
 
-    if verification_questions:
+    if not request.force_start and verification_questions:
         answers = request.verification_answers or []
 
         if len(answers) != len(verification_questions):

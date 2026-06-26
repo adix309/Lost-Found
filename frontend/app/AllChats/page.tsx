@@ -284,7 +284,7 @@ export default function ChatsPage() {
                               textOverflow: "ellipsis",
                             }}
                           >
-                            {chat.lastMessage?.content ?? "Nema poruka još."}
+                            {chat.lastMessage?.content ?? "Nema trenutno poruka."}
                           </Typography>
                         </Box>
                       </Stack>

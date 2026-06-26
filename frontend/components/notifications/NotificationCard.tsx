@@ -1,5 +1,7 @@
 "use client";
 
+import { useState } from "react";
+import { useRouter } from "next/navigation";
 import type { NotificationItem } from "@/types/notification";
 import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
@@ -8,6 +10,9 @@ import Typography from "@mui/material/Typography";
 import Button from "@mui/material/Button";
 import Stack from "@mui/material/Stack";
 import Box from "@mui/material/Box";
+import CircularProgress from "@mui/material/CircularProgress";
+
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
 
 interface NotificationCardProps {
   notification: NotificationItem;
@@ -40,6 +45,74 @@ export function NotificationCard({
   onMarkAsRead,
   onOpenMatches,
 }: NotificationCardProps) {
+  const [loadingChat, setLoadingChat] = useState(false);
+  const router = useRouter();
+  const claimId = notification.data?.claim_id as number | undefined;
+
+  const handleGoToClaimChat = async () => {
+    if (!claimId) return;
+
+    setLoadingChat(true);
+    const token = localStorage.getItem("access_token");
+    if (!token) {
+      router.push("/login");
+      return;
+    }
+
+    try {
+      const claimRes = await fetch(`${API_BASE_URL}/claims/${claimId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      if (!claimRes.ok) {
+        throw new Error("Neuspješno učitavanje detalja claima.");
+      }
+
+      const claimData = await claimRes.json();
+      const claimantId = claimData.user_id;
+      const itemId = claimData.item_id;
+
+      const convRes = await fetch(`${API_BASE_URL}/conversations/my`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      if (!convRes.ok) {
+        throw new Error("Neuspješno učitavanje razgovora.");
+      }
+
+      const convs = await convRes.json();
+
+      const targetConv = convs.find((c: any) => 
+        c.item.id === itemId && 
+        (c.otherUser.id === claimantId || (claimData.item && c.otherUser.id === claimData.item.user_id))
+      );
+
+      if (targetConv) {
+        router.push(`/chat/${targetConv.conversationId}`);
+      } else {
+        const startRes = await fetch(`${API_BASE_URL}/conversations/start`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ item_id: itemId }),
+        });
+        if (startRes.ok) {
+          const startData = await startRes.json();
+          router.push(`/chat/${startData.conversation_id}`);
+        } else {
+          alert("Nije pronađen razgovor za ovaj zahtjev.");
+        }
+      }
+    } catch (err: any) {
+      console.error(err);
+      alert(err.message || "Greška pri usmjeravanju na chat.");
+    } finally {
+      setLoadingChat(false);
+    }
+  };
+
   const hasMatchSuggestions =
     Array.isArray(notification.data?.matches) &&
     notification.data.matches.length > 0;
@@ -99,12 +172,27 @@ export function NotificationCard({
       </CardContent>
 
       <CardActions sx={{ p: 0, gap: 1.5, justifyContent: "flex-start", flexWrap: "wrap" }}>
+        {claimId && (
+          <Button
+            variant="contained"
+            color="primary"
+            size="small"
+            onClick={handleGoToClaimChat}
+            disabled={loadingChat}
+            startIcon={loadingChat ? <CircularProgress size={14} color="inherit" /> : null}
+            sx={{ textTransform: "none", fontWeight: 800, borderRadius: 2 }}
+          >
+            {loadingChat ? "Učitavanje..." : "Pregledaj u chatu"}
+          </Button>
+        )}
+
         {hasMatchSuggestions && (
           <Button
             variant="contained"
             color="primary"
             size="small"
             onClick={handleOpen}
+            sx={{ textTransform: "none", fontWeight: 800, borderRadius: 2 }}
           >
             Pogledaj preporuke
           </Button>
@@ -116,6 +204,7 @@ export function NotificationCard({
             color="secondary"
             size="small"
             onClick={() => onMarkAsRead(notification.id)}
+            sx={{ textTransform: "none", fontWeight: 700, borderRadius: 2 }}
           >
             Označi kao pročitano
           </Button>

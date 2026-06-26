@@ -496,18 +496,6 @@ function AddItemPageContent() {
 
           <Box sx={{ mb: 5 }}>
             <Typography
-              variant="overline"
-              sx={{
-                fontWeight: 700,
-                letterSpacing: "0.2em",
-                color: "primary.main",
-                display: "block",
-                lineHeight: 1.5,
-              }}
-            >
-              Novi predmet
-            </Typography>
-            <Typography
               variant="h4"
               component="h1"
               sx={{
@@ -601,7 +589,7 @@ function AddItemPageContent() {
                     <TextField
                       id="title"
                       name="title"
-                      label="Naziv predmeta*"
+                      label="Naziv predmeta"
                       placeholder="Npr. novčanik, ključevi, telefon..."
                       required
                       fullWidth
@@ -613,7 +601,7 @@ function AddItemPageContent() {
                       id="category"
                       name="category"
                       select
-                      label="Kategorija*"
+                      label="Kategorija"
                       value={category}
                       onChange={(event) =>
                         setCategory(
@@ -707,7 +695,7 @@ function AddItemPageContent() {
                     <TextField
                       id="event_date"
                       name="event_date"
-                      label="Datum događaja*"
+                      label="Datum događaja"
                       type="datetime-local"
                       slotProps={{
                         inputLabel: { shrink: true },
@@ -845,7 +833,7 @@ function AddItemPageContent() {
                 <TextField
                   id="description"
                   name="description"
-                  label="Opis predmeta*"
+                  label="Opis predmeta"
                   placeholder="Unesi dodatne detalje o predmetu..."
                   multiline
                   rows={5}

@@ -8,14 +8,23 @@ from schemas.user_schema import UserRead
 from schemas.item_schema import ItemRead
 
 
+class ClaimVerificationAnswer(BaseModel):
+    question_id: int
+    question_text: str
+    answer: str
+
+
 class ClaimCreate(BaseModel):
     message: str
     proof_description: Optional[str] = None
+    lost_item_id: Optional[int] = None
+    verification_answers: Optional[list[ClaimVerificationAnswer]] = None
 
 
 class ClaimUserUpdate(BaseModel):
     message: Optional[str] = None
     proof_description: Optional[str] = None
+    verification_answers: Optional[list[ClaimVerificationAnswer]] = None
 
 
 class ClaimStatusUpdate(BaseModel):
@@ -26,11 +35,16 @@ class ClaimRead(BaseModel):
     id: int
     item_id: int
     user_id: int
+    lost_item_id: Optional[int] = None
 
     message: str
     proof_description: Optional[str] = None
 
     status: ClaimStatus
+
+    claimer_confirmed_handoff: bool = False
+    owner_confirmed_handoff: bool = False
+    verification_answers: Optional[list[ClaimVerificationAnswer]] = None
 
     created_at: datetime
     updated_at: datetime
