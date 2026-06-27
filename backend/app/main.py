@@ -11,9 +11,6 @@ from app.database import engine
 from fastapi.staticfiles import StaticFiles
 
 
-
-
-
 def create_db_and_tables():
     SQLModel.metadata.create_all(engine)
     run_migrations()
@@ -42,6 +39,7 @@ def run_migrations():
                 conn.execute(text("ALTER TABLE item_matches ADD COLUMN IF NOT EXISTS final_score DOUBLE PRECISION;"))
                 conn.execute(text("ALTER TABLE item_matches ADD COLUMN IF NOT EXISTS used_image_reranking BOOLEAN DEFAULT FALSE;"))
 
+                
                 conn.execute(text("ALTER TABLE claims ADD COLUMN IF NOT EXISTS lost_item_id INTEGER REFERENCES items(id) ON DELETE SET NULL;"))
                 conn.execute(text("ALTER TABLE claims ADD COLUMN IF NOT EXISTS claimer_confirmed_handoff BOOLEAN DEFAULT FALSE;"))
                 conn.execute(text("ALTER TABLE claims ADD COLUMN IF NOT EXISTS owner_confirmed_handoff BOOLEAN DEFAULT FALSE;"))

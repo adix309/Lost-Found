@@ -19,7 +19,6 @@ import Container from "@mui/material/Container";
 import Grid from "@mui/material/Grid";
 import Typography from "@mui/material/Typography";
 import Card from "@mui/material/Card";
-import CardContent from "@mui/material/CardContent";
 import Stack from "@mui/material/Stack";
 import Chip from "@mui/material/Chip";
 import Divider from "@mui/material/Divider";
@@ -42,6 +41,17 @@ type ItemOwner = {
   full_name?: string;
   email?: string;
   profile_image?: string | null;
+};
+
+type CurrentUser = {
+  id: number;
+};
+
+type ConversationListItem = {
+  conversationId: number;
+  item: {
+    id: number;
+  };
 };
 
 type ListingDetails = Listing & {
@@ -95,6 +105,15 @@ function getImageSrc(imageUrl?: string | null) {
   return `${API_URL}${imageUrl}`;
 }
 
+function getItemImageUrls(item: ListingDetails) {
+  const urls = [
+    item.image_url,
+    ...(Array.isArray(item.image_urls) ? item.image_urls : []),
+  ].filter((url): url is string => Boolean(url));
+
+  return Array.from(new Set(urls));
+}
+
 function getOwner(item: ListingDetails) {
   return item.user || item.owner || item.posted_by || null;
 }
@@ -111,11 +130,17 @@ export function ItemDetailsClient({
   const isResolved = item.status === "resolved";
 
   const router = useRouter();
-  const [currentUser, setCurrentUser] = useState<any | null>(null);
+  const [currentUser, setCurrentUser] = useState<CurrentUser | null>(null);
   const [myClaims, setMyClaims] = useState<Claim[]>([]);
   const [activeConversationId, setActiveConversationId] = useState<number | null>(null);
   const [isClaimDialogOpen, setIsClaimDialogOpen] = useState(false);
-  const [loadingClaims, setLoadingClaims] = useState(false);
+  const [, setLoadingClaims] = useState(false);
+  const itemImageUrls = getItemImageUrls(item);
+  const [selectedImageUrl, setSelectedImageUrl] = useState<string | null>(null);
+  const activeImageUrl =
+    selectedImageUrl && itemImageUrls.includes(selectedImageUrl)
+      ? selectedImageUrl
+      : itemImageUrls[0] || null;
 
   useEffect(() => {
     const token = localStorage.getItem("access_token");
@@ -145,8 +170,8 @@ export function ItemDetailsClient({
           setMyClaims(claimsData || []);
         }
         if (convRes && convRes.ok) {
-          const convs = await convRes.json();
-          const activeConv = convs.find((c: any) => c.item.id === item.id);
+          const convs = (await convRes.json()) as ConversationListItem[];
+          const activeConv = convs.find((conversation) => conversation.item.id === item.id);
           if (activeConv) {
             setActiveConversationId(activeConv.conversationId);
           }
@@ -172,8 +197,8 @@ export function ItemDetailsClient({
       .catch((err) => console.error("Greška pri osvježavanju claimova:", err));
   };
 
-  const imageSrc = getImageSrc(item.image_url);
-  const imageAlt = item.image_url ? item.title : "Slika nije dodana";
+  const imageSrc = getImageSrc(activeImageUrl);
+  const imageAlt = activeImageUrl ? item.title : "Slika nije dodana";
 
   const ownerDisplayName =
     owner?.full_name || owner?.username || owner?.email || "Nepoznat korisnik";
@@ -247,7 +272,83 @@ export function ItemDetailsClient({
                         priority
                         style={{ objectFit: "cover" }}
                       />
+                      {itemImageUrls.length > 1 && (
+                        <Chip
+                          label={`${itemImageUrls.findIndex((url) => url === activeImageUrl) + 1}/${itemImageUrls.length}`}
+                          size="small"
+                          sx={{
+                            position: "absolute",
+                            right: 14,
+                            bottom: 14,
+                            bgcolor: "rgba(28, 25, 23, 0.82)",
+                            color: "#ffffff",
+                            fontWeight: 800,
+                          }}
+                        />
+                      )}
                     </Box>
+
+                    {itemImageUrls.length > 1 && (
+                      <Box
+                        sx={{
+                          display: "grid",
+                          gridTemplateColumns: {
+                            xs: "repeat(4, minmax(0, 1fr))",
+                            sm: "repeat(6, minmax(0, 1fr))",
+                          },
+                          gap: 1,
+                          p: 1.5,
+                          bgcolor: "grey.50",
+                          borderTop: "1px solid",
+                          borderColor: "grey.200",
+                        }}
+                      >
+                        {itemImageUrls.map((imageUrl, index) => {
+                          const isSelected = imageUrl === activeImageUrl;
+
+                          return (
+                            <Box
+                              key={imageUrl}
+                              component="button"
+                              type="button"
+                              onClick={() => setSelectedImageUrl(imageUrl)}
+                              aria-label={`Prikaži sliku ${index + 1}`}
+                              sx={{
+                                position: "relative",
+                                aspectRatio: "1 / 1",
+                                overflow: "hidden",
+                                border: "2px solid",
+                                borderColor: isSelected ? "primary.main" : "transparent",
+                                borderRadius: 2,
+                                p: 0,
+                                bgcolor: "background.paper",
+                                cursor: "pointer",
+                                opacity: isSelected ? 1 : 0.78,
+                                transition: "border-color 0.2s ease, opacity 0.2s ease, transform 0.2s ease",
+                                "&:hover": {
+                                  opacity: 1,
+                                  transform: "translateY(-1px)",
+                                },
+                                "&:focus-visible": {
+                                  outline: "2px solid",
+                                  outlineColor: "primary.main",
+                                  outlineOffset: 2,
+                                },
+                              }}
+                            >
+                              <Image
+                                src={getImageSrc(imageUrl)}
+                                alt={`Slika predmeta ${index + 1}`}
+                                fill
+                                sizes="120px"
+                                unoptimized
+                                style={{ objectFit: "cover" }}
+                              />
+                            </Box>
+                          );
+                        })}
+                      </Box>
+                    )}
                   </Card>
 
                   <Card sx={{ p: 3, borderRadius: 3, border: "1px solid", borderColor: "grey.200", boxShadow: "0 4px 12px rgba(28, 25, 23, 0.02)" }}>

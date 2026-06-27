@@ -226,7 +226,27 @@ function AddItemPageContent() {
 
 
   function handleImagesChange(event: ChangeEvent<HTMLInputElement>) {
-    setImages(Array.from(event.target.files || []));
+    const selectedFiles = Array.from(event.target.files || []);
+
+    setImages((currentImages) => {
+      const existingKeys = new Set(
+        currentImages.map(
+          (image) => `${image.name}-${image.size}-${image.lastModified}`,
+        ),
+      );
+      const newImages = selectedFiles.filter((image) => {
+        const key = `${image.name}-${image.size}-${image.lastModified}`;
+
+        if (existingKeys.has(key)) {
+          return false;
+        }
+
+        existingKeys.add(key);
+        return true;
+      });
+
+      return [...currentImages, ...newImages];
+    });
     event.target.value = "";
   }
 

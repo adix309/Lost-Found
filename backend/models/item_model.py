@@ -77,7 +77,13 @@ class Item(SQLModel, table=True):
 
     @property
     def image_urls(self) -> list[str]:
-        urls = [image.image_url for image in self.images]
+        urls = [
+            image.image_url
+            for image in sorted(
+                self.images,
+                key=lambda image: (image.created_at, image.id or 0),
+            )
+        ]
 
         if self.image_url and self.image_url not in urls:
             return [self.image_url, *urls]
