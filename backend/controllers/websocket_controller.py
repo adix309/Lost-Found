@@ -30,8 +30,8 @@ async def websocket_chat(
                 current_user_id = int(data["userId"])
                 active_connections[current_user_id] = websocket
 
-                await websocket.send_json({
-                    "type": "JOINED",
+                await websocket.send_json({   # ovo se trenutno ne koristi,na frontu se ignorise
+                    "type": "JOINED", 
                     "message": f"User {current_user_id} je spojen na chat."
                 })
 

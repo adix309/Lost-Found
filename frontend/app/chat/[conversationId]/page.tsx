@@ -676,7 +676,7 @@ export default function ChatPage() {
           );
         };
 
-        socket.onmessage = (event) => {
+        socket.onmessage = (event) => { //ovdje se poruka prima sa bekenda
           const data = JSON.parse(event.data);
 
           if (data.type === "NEW_MESSAGE") {
@@ -711,7 +711,7 @@ export default function ChatPage() {
     };
   }, [conversationId]);
 
-  const sendMessage = () => {
+  const sendMessage = () => { // slanje  poruka 
     if (!messageInput.trim()) return;
 
     socketRef.current?.send(
